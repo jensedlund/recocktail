@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="BeCtrlTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2016-05-11T12:01:20" hostname="Rickard-Dator" time="0.001">
-  <properties/>
-  <testcase name="testSearchCommand" classname="BeCtrlTest" time="0.001"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

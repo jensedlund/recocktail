@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="XmlStreamerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2016-05-11T12:01:20" hostname="Rickard-Dator" time="0.658">
-  <properties/>
-  <testcase name="testXmlStreaming" classname="XmlStreamerTest" time="0.658"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
