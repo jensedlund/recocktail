@@ -63,6 +63,11 @@ SnippetSet.prototype.addSnippet = function(snippetInfo) {
     this.numSnippets++;
 };
 
+SnippetSet.prototype.getSnippet = function(id) {
+    return this.snippetCollection.find(function(snippetInfo){return snippetInfo.snippetId});
+};
+
+
 SnippetSet.prototype.uploadNewSnippets = function() {
     if(!this.zip) {
         this.zip = new JSZip();
@@ -94,14 +99,14 @@ SnippetSet.prototype.addXmlToZip = function() {
 
     return new Promise(function(resolve, reject) {
         $.ajax({
-                   url: "http://localhost:4567/getSnippetSetXml",
+                   url: serverUrl + "/getSnippetSetXml",
                    contentType: 'application/json; charset=utf-8',
                    type: 'POST',
                    data: JSON.stringify(localThis),
                    dataType: 'json',
                    async: true,
                    success: function (filename) {
-                       var fileUrl = "http://localhost:4567/tmp/" + filename;
+                       var fileUrl = serverUrl + "/tmp/" + filename;
                        $.get( fileUrl )
                            .done(function( data ) {
                                localThis.zip.file(filename,data);
@@ -120,7 +125,7 @@ SnippetSet.prototype.zipAndPost = function() {
         .then(function (content) {
             $.ajax({
                        type: 'POST',
-                       url: "http://localhost:4567/writeSnippet",
+                       url: serverUrl + "/writeSnippet",
                        data: content,
                        processData: false,
                        contentType: false

@@ -16,6 +16,8 @@
  * @version 1.0
  * @since 2016-04-21
  */
+// var serverUrl = "http://130.237.67.145:4567";
+var serverUrl = "http://localhost:4567";
 
 function getAllTags(callback) {
     var xhttp = new XMLHttpRequest();
@@ -24,7 +26,7 @@ function getAllTags(callback) {
             callback(xhttp.response);
         }
     };
-    xhttp.open("GET", "http://localhost:4567/getAllTags", true);
+    xhttp.open("GET", serverUrl + "/getAllTags", true);
     xhttp.send();
 }
 
@@ -61,7 +63,7 @@ function search() {
     };
 
     $.ajax({
-               url: "http://localhost:4567/search",
+               url: serverUrl + "/search",
                contentType: 'application/json; charset=utf-8',
                type: 'POST',
                data: postBody,
@@ -80,15 +82,33 @@ function search() {
 
 function getXmlFromSet(snippetSet) {
     $.ajax({
-               url: "http://localhost:4567/getSnippetSetXml",
+               url: serverUrl + "/getSnippetSetXml",
                contentType: 'application/json; charset=utf-8',
                type: 'POST',
                data: JSON.stringify(snippetSet),
                dataType: 'json',
                async: true,
                success: function (data) {
-                   var fileUrl = "http://localhost:4567/" + data;
+                   var fileUrl = serverUrl + "/" + data;
                    addServerFileToZip(data,fileUrl);
+               },
+               error: function (xhr, status) {
+                   console.log(status);
+                   console.log(xhr.responseText);
+               }
+           });
+}
+
+function getZip() {
+    $.ajax({
+               url: serverUrl + "/getZipUrl",
+               contentType: 'application/json; charset=utf-8',
+               type: 'GET',
+               async: true,
+               success: function (data) {
+
+                   // var fileUrl = serverUrl + "/" + data;
+                   // addServerFileToZip(data,fileUrl);
                },
                error: function (xhr, status) {
                    console.log(status);
@@ -141,14 +161,12 @@ function getComplementaryTags() {
             document.getElementById("complTags").value = xhttp.responseText;
         }
     };
-    xhttp.open("GET", "http://localhost:4567/searchByTagName/complementary", true);
+    xhttp.open("GET", serverUrl + "/searchByTagName/complementary", true);
     xhttp.send();
 }
 
 var zipForUpload = new JSZip();
 var snippetZipDir = zipForUpload.folder("snippets");
-
-var newSnippetInfoGlobal = new SnippetInfo();
 var newSnippetSetGlobal = new SnippetSet();
 
 function newSnippet() {
@@ -181,17 +199,6 @@ function newSnippet() {
         // Update table
         addSnippetToTable(newSnippetInfo);
     };
-
-
-    // files is a FileList of File objects. List some properties.
-    // var output = [];
-    // for (var i = 0, f; f = files[i]; i++) {
-    //     output.push('<li><strong>', encodeURI(f.name), '</strong> (', f.type || 'n/a', ') - ',
-    //                 f.size, ' bytes, last modified: ',
-    //                 f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
-    //                 '</li>');
-    // }
-    // document.getElementById('fileInfo').innerHTML = '<ul>' + output.join('') + '</ul>';
 }
 
 function fileSelectionUpdate() {
@@ -231,8 +238,8 @@ function addSnippetToTable(snippetInfo) {
     var cellStart = row.insertCell(1);
     var cellEnd = row.insertCell(2);
     var cellTags = row.insertCell(3);
-    console.log(snippetInfo.startTime)
-    console.log(snippetInfo.lengthSec)
+    console.log(snippetInfo.startTime);
+    console.log(snippetInfo.lengthSec);
     cellStart.innerHTML = snippetInfo.startTime.toFixed(2);
     cellEnd.innerHTML = snippetInfo.lengthSec.toFixed(2);
     cellFile.innerHTML = snippetInfo.fileName;

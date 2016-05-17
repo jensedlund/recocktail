@@ -23,16 +23,19 @@ import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.Arrays;
+import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import cocktail.controller.Controller;
 import cocktail.snippet.SnippetSet;
 import cocktail.stream_io.XmlStreamer;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static spark.Spark.externalStaticFileLocation;
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -40,12 +43,15 @@ import static spark.Spark.post;
 public class RestfulService {
 
   static {
-    externalStaticFileLocation("/Users/Janne/JavaProj/sprint-3/recocktail/src/main/web");
+    externalStaticFileLocation("/Users/Janne/JavaProj/git-jens/recocktail/src/main/web");
+//    externalStaticFileLocation("/root/github/recocktail/src/main/web");
 //    staticFiles.location("/web");;
   }
 
   public static void runSpark() {
     Controller controller = Controller.getInstance();
+
+
 
     get("/getAllTags", (request, response) -> controller.getCompleteSetOfTagNames(),
         (src) -> {
@@ -53,18 +59,24 @@ public class RestfulService {
           return gson.toJson(src);
         });
 
-    get("/getZip", (request, response) -> new String("Arkiv.zip"),
-        (src) -> {
-          Gson gson = new Gson();
-          return gson.toJson(src);
-        });
+    get("/getZipUrl", (request, response) -> {
+      new File("src/main/web/tmp").mkdirs();
+      String zipFileName = "src/main/web/tmp/download.zip";
+      SnippetSet snippetSet = controller.getCurrentSet();
+      String tmpZipName = controller.getZippedFiles(snippetSet);
+      Files.move(Paths.get(tmpZipName), Paths.get(zipFileName), REPLACE_EXISTING);
+      Gson gson = new Gson();
+      return gson.toJson(zipFileName);
+    });
 
     post("/writeSnippet", (request, response) -> {
       String fileName = "src/main/web/tmp/arkiv.zip";
       FileOutputStream fos = new FileOutputStream(fileName);
       fos.write(request.bodyAsBytes());
       fos.close();
+      System.out.println("Trace1");
       controller.writeEditSnippet(fileName);
+      System.out.println("Trace2");
       return true;
     });
 
@@ -85,17 +97,14 @@ public class RestfulService {
       }
 
       if (existingKeys.contains("tagNames")) {
-        List<String> tagList =
-            Arrays.asList(reqBodyMap.get("tagNames").split("\\+"))
-                .stream()
-                .collect(Collectors.toList());
-        SnippetSet snippetSet = controller.searchSnippetSet(tagList, maxLength, exclusiveSearch);
-        System.out.println("Snippet set: " + snippetSet);
-//        System.out.println(ConvertSnippetSetJson.convertToJson(snippetSet));
-        Gson gson = new Gson();
-//        System.out.println("Vanilla conversion: " + gson.toJson(snippetSet));
+        List<String> tagList = new ArrayList<String>();
+        for(String s : reqBodyMap.get("tagNames").split("\\+")) {
+          tagList.add(URLDecoder.decode(s, "UTF-8"));
+        }
 
-//        return ConvertSnippetSetJson.convertToJson(snippetSet);
+
+        SnippetSet snippetSet = controller.searchSnippetSet(tagList, maxLength, exclusiveSearch);
+        Gson gson = new Gson();
         return gson.toJson(snippetSet);
       } else {
         return true;
@@ -108,23 +117,18 @@ public class RestfulService {
       XmlStreamer<SnippetSet> xmlStreamer = new XmlStreamer<>();
 
       SnippetSet snippetSet = gson.fromJson(request.body(), SnippetSet.class);
-//      String fileName = snippetSet.getSetName() + ".xml";
       String fileName = "SnippetSet.xml";
       String filePath = "src/main/web/tmp/" + fileName;
       File file = new File(filePath);
       xmlStreamer.toStream(SnippetSet.class, snippetSet, file);
-
-//      System.out.println("Request body: " + request.body());
-      System.out.println("Snippet set: " + snippetSet.toString());
-      System.out.println(filePath);
-
-//      return ConvertSnippetSetJson.convertToJson(snippetSet);
-
       return gson.toJson(fileName);
     }));
 
-    get("/getSavedContexts", (request, response) -> true);
-
+    get("/getSets", (request, response) -> {
+      List<String> setList = controller.getAllSavedSetsName();
+      Gson gson = new Gson();
+      return gson.toJson(setList);
+    });
   }
 }
 
