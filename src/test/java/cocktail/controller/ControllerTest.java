@@ -51,6 +51,10 @@ public class ControllerTest {
     //TODO Denna test får skrivas om när metoden har implementerats i controller
     boolean testBool = true;
     SnippetSet testSnippetSet = Controller.getInstance().executeSetOperation(snippetSet, SetOperation.COMPLEMENT);
+    List<Integer> listToDelete = new ArrayList<>();
+    for(SnippetInfo info : testSnippetSet.getSnippetCollection()){
+      listToDelete.add(info.getSnippetID());
+    }
     if (testSnippetSet.equals(snippetSet)) {
       testBool = false;
     }

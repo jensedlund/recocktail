@@ -133,6 +133,8 @@ public class Driver {
           lenSec = rs.getDouble("lenSec");
           startTime = rs.getDouble("startTime");
         }
+        ps.close();
+        rs.close();
       }catch (Exception e ){
         e.printStackTrace();
       }
@@ -158,6 +160,8 @@ public class Driver {
         lenSec = rs.getDouble("lenSec");
         startTime = rs.getDouble("startTime");
       }
+      ps.close();
+      rs.close();
     }catch (Exception e ){
       e.printStackTrace();
     }
@@ -186,6 +190,8 @@ public class Driver {
           }
         }
       }
+      ps.close();
+      rs.close();
       return isFileInDb;
     }catch (Exception e){
       e.printStackTrace();
@@ -264,6 +270,8 @@ public class Driver {
       if (rs.next()) {
         oldSnippetID = rs.getInt("snippetID");
       }
+      ps.close();
+      rs.close();
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -293,6 +301,8 @@ public class Driver {
       if (rs.next()) {
         oldSnippetID = rs.getInt("snippetID");
       }
+      ps.close();
+      rs.close();
     } catch (Exception e) {
       e.printStackTrace();
     }
