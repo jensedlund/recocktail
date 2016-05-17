@@ -111,6 +111,11 @@ public class ArchiveHandler {
       }
     } catch (IOException e) {
       e.printStackTrace();
+      try {
+        fs.close();
+      } catch (IOException e1) {
+        e1.printStackTrace();
+      }
     }
     xmlFile.delete();
     return outputFile;
@@ -252,10 +257,20 @@ public class ArchiveHandler {
           bis.close();
         } catch (IOException e) {
           e.printStackTrace();
+          try {
+            fs.close();
+          } catch (IOException e1) {
+            e1.printStackTrace();
+          }
           removeDirectory(tempDir);
         }
       }
       snippetSet = dbAdapter.createSnippetSetFromIds(snippetIDs);
+    }
+    try {
+      fs.close();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
     removeDirectory(tempDir);
     return snippetSet;
