@@ -34,7 +34,7 @@ function init() {
 
     // Populating drop down selection.
     var soundSelector = document.getElementById("soundSets");
-    soundSets.forEach(function (val) {
+    loadedSoundSets.forEach(function (val) {
         var option = document.createElement("option");
         option.text = val.label;
         option.value = val.label;
@@ -75,11 +75,11 @@ function finishedLoading(context, bufferList) {
 function startSound(contextVar) {
     staph = false;
     var selected = document.getElementById("soundSets").selectedIndex;
-
-    bufferLoader[contextVar] = new BufferLoader(
-        context[contextVar], soundSets[selected].files, finishedLoading
-    );
-    bufferLoader[contextVar].load();
+    finishedLoading(context[contextVar], loadedSoundSets[selected].files);
+    // bufferLoader[contextVar] = new BufferLoader(
+    //     context[contextVar], soundSets[selected].files, finishedLoading
+    // );
+    // bufferLoader[contextVar].load();
 }
 
 function stopSound() {

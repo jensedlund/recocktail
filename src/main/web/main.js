@@ -133,7 +133,7 @@ function getXmlFromSet(snippetSet) {
            });
 }
 
-function getZipUrl() {
+function getZip() {
     $.ajax({
                url: serverUrl + "/getZipUrl",
                contentType: 'application/json; charset=utf-8',
@@ -141,6 +141,9 @@ function getZipUrl() {
                async: true,
                success: function (data) {
                    console.log(data);
+                   var fileUrl = data;
+                   console.log(fileUrl);
+                   parseZip("tmp/download.zip");
                },
                error: function (xhr, status) {
                    console.log(status);
@@ -165,7 +168,7 @@ function parseZip(zipFileUrl) {
         JSZip.loadAsync(data)
             .then(function(zip) {
                 zip.forEach(function (relativePath, zipEntry) {
-                    var reWav = new RegExp("wav$")
+                    var reWav = new RegExp("wav$");
                     if (zipEntry.name == "SnippetSet.xml") {
                         zipEntry.async("String")
                             .then(function success(content) {
@@ -175,7 +178,14 @@ function parseZip(zipFileUrl) {
                                     .getElementsByTagName("setName")[0]
                                     .childNodes[0]
                                     .nodeValue;
+
+                                var soundSelector = document.getElementById("soundSets");
+                                var option = document.createElement("option");
+                                option.text = newSoundSet.label;
+                                option.value = newSoundSet.label;
+                                soundSelector.add(option);
                             });
+                        
                     } else if (reWav.test(zipEntry.name)) {
 
                         zipEntry.async("arraybuffer")
