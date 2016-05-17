@@ -28,7 +28,7 @@ public class DbAccessHandler {
     public static String getPassword(){
         String[] password = new String[2];
         try {
-            FileReader fileReader = new FileReader("./src/main/java/cocktail/db_access/recocktailCreds.txt");
+            FileReader fileReader = new FileReader("./src/main/java/cocktail/db_access/creds.txt");
             BufferedReader bR = new BufferedReader(fileReader);
             String str;
             int i = 0;
@@ -48,7 +48,7 @@ public class DbAccessHandler {
     public static String getUserName(){
         String[] userName = new String[2];
         try {
-            FileReader fileReader = new FileReader("./src/main/java/cocktail/db_access/recocktailCreds.txt");
+            FileReader fileReader = new FileReader("./src/main/java/cocktail/db_access/creds.txt");
             BufferedReader bR = new BufferedReader(fileReader);
             String str;
             int i = 0;
@@ -67,7 +67,7 @@ public class DbAccessHandler {
     public static String getIp(){
         String[] ip = new String[2];
         try {
-            FileReader fileReader = new FileReader("./src/main/java/cocktail/db_access/recocktailCreds.txt");
+            FileReader fileReader = new FileReader("./src/main/java/cocktail/db_access/creds.txt");
             BufferedReader bR = new BufferedReader(fileReader);
             String str;
             int i = 0;
@@ -86,7 +86,7 @@ public class DbAccessHandler {
     public static String getDbName(){
         String[] name = new String[2];
         try {
-            FileReader fileReader = new FileReader("./src/main/java/cocktail/db_access/recocktailCreds.txt");
+            FileReader fileReader = new FileReader("./src/main/java/cocktail/db_access/creds.txt");
             BufferedReader bR = new BufferedReader(fileReader);
             String str;
             int i = 0;
