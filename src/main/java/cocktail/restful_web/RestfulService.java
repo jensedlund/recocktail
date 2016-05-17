@@ -43,7 +43,8 @@ import static spark.Spark.post;
 public class RestfulService {
 
   static {
-    externalStaticFileLocation("/Users/Janne/JavaProj/git-jens/recocktail/src/main/web");
+
+    externalStaticFileLocation("/home/zen/Documents/School/LiA/jensGIT/recocktail/src/main/web");
 //    externalStaticFileLocation("/root/github/recocktail/src/main/web");
 //    staticFiles.location("/web");;
   }

@@ -47,9 +47,11 @@ public class Driver {
   private static List<String> removeUnwantedCharacters(List<String> tagNames){
     List<String> newTagList = new ArrayList<>();
     for(String s : tagNames) {
-      if(s.length()>1) {
-        newTagList.add(s.replaceAll("[^\\.\\_\\-åäö\\w]", ""));
+      String temp = s.replaceAll("[^\\.\\_\\-åäö\\w]", "");
+      if(temp.length()>1) {
+        newTagList.add(temp);
       }
+
     }
     return newTagList;
   }
@@ -203,6 +205,7 @@ public class Driver {
     List<String> tempList = new ArrayList<>();
     try {
       for(String tag : strings) {
+        System.out.println(tag + "tag listan ");
         tempList.add(URLDecoder.decode(tag, "UTF-8"));
       }
     }catch (IOException e){
