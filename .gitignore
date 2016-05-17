@@ -84,3 +84,5 @@ fabric.properties
 
 ### Intellij Patch ###
 #*.iml
+creds.txt
+
