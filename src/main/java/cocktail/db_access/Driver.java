@@ -45,7 +45,9 @@ public class Driver {
   private static List<String> removeUnwantedCharacters(List<String> tagNames){
     List<String> newTagList = new ArrayList<>();
     for(String s : tagNames) {
-      newTagList.add(s.replaceAll("[^\\.\\_\\-åäö\\w]",""));
+      if(s.length()>1) {
+        newTagList.add(s.replaceAll("[^\\.\\_\\-åäö\\w]", ""));
+      }
     }
     return newTagList;
   }
