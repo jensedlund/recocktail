@@ -63,6 +63,11 @@ SnippetSet.prototype.addSnippet = function(snippetInfo) {
     this.numSnippets++;
 };
 
+SnippetSet.prototype.getSnippet = function(id) {
+    return this.snippetCollection.find(function(snippetInfo){return snippetInfo.snippetId});
+};
+
+
 SnippetSet.prototype.uploadNewSnippets = function() {
     if(!this.zip) {
         this.zip = new JSZip();
@@ -120,7 +125,7 @@ SnippetSet.prototype.zipAndPost = function() {
         .then(function (content) {
             $.ajax({
                        type: 'POST',
-                       url: "http://localhost:4567/writeSnippet",
+                       url: serverUrl + "/writeSnippet",
                        data: content,
                        processData: false,
                        contentType: false

@@ -41,7 +41,7 @@ function create_zip() {
 }
 
 var xmlFileTest;
-function read_zip() {
+function parseZip() {
     JSZipUtils.getBinaryContent('tmp/download.zip', function(err, data) {
         if(err) {
             console.log(err);
@@ -72,7 +72,6 @@ function read_zip() {
                                // xmlFileTest = content;
                             });
                     }
-
                 });
                 console.log("Funka!");
             }, function (e) {

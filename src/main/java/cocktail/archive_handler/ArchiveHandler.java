@@ -1,38 +1,7 @@
 package cocktail.archive_handler;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.xml.bind.JAXBException;
-
 import cocktail.db_access.DbAdapter;
 import cocktail.db_access.DbAdapterImpl;
-import cocktail.stream_io.XmlStreamer;
 import cocktail.snippet.FileInfo;
 import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
@@ -40,6 +9,19 @@ import cocktail.sound_processing.SoundExtractor;
 import cocktail.sound_processing.SoundExtractorImpl;
 import cocktail.sound_processing.SoundProcess;
 import cocktail.sound_processing.SoundProcessImpl;
+import cocktail.stream_io.XmlStreamer;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.xml.bind.JAXBException;
+import java.io.*;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
 
 public class ArchiveHandler {
 
@@ -148,9 +130,10 @@ public class ArchiveHandler {
     FileSystem fs = null;
     String tempZipDir = null;
     SnippetSet snippetSet = null;
-
+    System.out.println(inputFile);
     int lastIndex = inputFile.lastIndexOf('/');
     if (lastIndex >= 0) {
+      System.out.println(lastIndex + " last index " + inputFile);
       tempZipDir = inputFile.substring(lastIndex + 1);
       tempZipDir = tempZipDir.substring(0, tempZipDir.lastIndexOf('.'));
     }
@@ -164,7 +147,6 @@ public class ArchiveHandler {
     env.put("create", "false");
     final Path path = Paths.get(inputFile);
     final URI uri = URI.create("jar:file:" + path.toUri().getPath());
-
     try {
       fs = FileSystems.newFileSystem(uri, env);
     } catch (IOException e) {

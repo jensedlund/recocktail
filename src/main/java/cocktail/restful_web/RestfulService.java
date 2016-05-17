@@ -23,13 +23,13 @@ import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import cocktail.controller.Controller;
 import cocktail.snippet.SnippetSet;
@@ -67,7 +67,7 @@ public class RestfulService {
       String tmpZipName = controller.getZippedFiles(snippetSet);
       Files.move(Paths.get(tmpZipName), Paths.get(zipFileName), REPLACE_EXISTING);
       Gson gson = new Gson();
-      return gson.toJson(zipFileName);
+      return gson.toJson(new String("tmp/download.zip"));
     });
 
     post("/writeSnippet", (request, response) -> {
@@ -75,7 +75,9 @@ public class RestfulService {
       FileOutputStream fos = new FileOutputStream(fileName);
       fos.write(request.bodyAsBytes());
       fos.close();
+      System.out.println("Trace1");
       controller.writeEditSnippet(fileName);
+      System.out.println("Trace2");
       return true;
     });
 
@@ -96,12 +98,13 @@ public class RestfulService {
       }
 
       if (existingKeys.contains("tagNames")) {
-        List<String> tagList =
-            Arrays.asList(reqBodyMap.get("tagNames").split("\\+"))
-                .stream()
-                .collect(Collectors.toList());
+        List<String> tagList = new ArrayList<String>();
+        for(String s : reqBodyMap.get("tagNames").split("\\+")) {
+          tagList.add(URLDecoder.decode(s, "UTF-8"));
+        }
+
+
         SnippetSet snippetSet = controller.searchSnippetSet(tagList, maxLength, exclusiveSearch);
-        System.out.println("Snippet set: " + snippetSet);
         Gson gson = new Gson();
         return gson.toJson(snippetSet);
       } else {
@@ -110,7 +113,7 @@ public class RestfulService {
     });
 
     post("/getSnippetSetXml", ((request, response) -> {
-
+      new File("src/main/web/tmp").mkdirs();
       Gson gson = new Gson();
       XmlStreamer<SnippetSet> xmlStreamer = new XmlStreamer<>();
 

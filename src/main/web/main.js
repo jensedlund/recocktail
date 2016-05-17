@@ -19,6 +19,8 @@
 // var serverUrl = "http://130.237.67.145:4567";
 var serverUrl = "http://localhost:4567";
 
+var globalSnippetSets = [];
+
 function getAllTags(callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
@@ -70,8 +72,11 @@ function search() {
                dataType: 'json',
                async: true,
                success: function (data) {
-                   console.log(data);
+                   // console.log(data);
                    populateSetInfo(data);
+                   var snippetSet = new SnippetSet();
+                   snippetSet.populateFromJson(data);
+                   globalSnippetSets.push(snippetSet);
                },
                error: function (xhr, status) {
                    console.log(status);
@@ -79,6 +84,8 @@ function search() {
                }
            });
 }
+
+
 
 function getXmlFromSet(snippetSet) {
     $.ajax({
@@ -99,16 +106,14 @@ function getXmlFromSet(snippetSet) {
            });
 }
 
-function getZip() {
+function getZipUrl() {
     $.ajax({
                url: serverUrl + "/getZipUrl",
                contentType: 'application/json; charset=utf-8',
                type: 'GET',
                async: true,
                success: function (data) {
-
-                   // var fileUrl = serverUrl + "/" + data;
-                   // addServerFileToZip(data,fileUrl);
+                   console.log(data);
                },
                error: function (xhr, status) {
                    console.log(status);
@@ -116,6 +121,37 @@ function getZip() {
                }
            });
 }
+
+var xmlFileTest;
+function parseZip(zipFileUrl) {
+    JSZipUtils.getBinaryContent(zipFileUrl, function(err, data) {
+        if(err) {
+            console.log(err);
+        }
+        JSZip.loadAsync(data)
+            .then(function(zip) {
+                zip.forEach(function (relativePath, zipEntry) {
+                    console.log(zipEntry.name);
+                    console.log(zipEntry.dir);
+                    if (zipEntry.name == "SnippetSet.xml") {
+                        zipEntry.async("String")
+                            .then(function success(content) {
+                                parser = new DOMParser();
+                                xmlFileTest = parser.parseFromString(content,"text/xml");
+                                // xmlFileTest = content;
+                            });
+                    }
+                });
+                console.log("Funka!");
+            }, function (e) {
+                $fileContent = $("<div>", {
+                    "class" : "alert alert-danger",
+                    text : "Error reading " + f.name + " : " + e.message
+                });
+            });
+    });
+}
+
 
 function addServerFileToZip(name,url) {
     $.ajax({
