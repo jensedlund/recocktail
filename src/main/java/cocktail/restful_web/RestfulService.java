@@ -66,7 +66,7 @@ public class RestfulService {
       String tmpZipName = controller.getZippedFiles(snippetSet);
       Files.move(Paths.get(tmpZipName), Paths.get(zipFileName), REPLACE_EXISTING);
       Gson gson = new Gson();
-      return gson.toJson(zipFileName);
+      return gson.toJson(new String("tmp/download.zip"));
     });
 
     post("/writeSnippet", (request, response) -> {
@@ -112,7 +112,7 @@ public class RestfulService {
     });
 
     post("/getSnippetSetXml", ((request, response) -> {
-
+      new File("src/main/web/tmp").mkdirs();
       Gson gson = new Gson();
       XmlStreamer<SnippetSet> xmlStreamer = new XmlStreamer<>();
 
