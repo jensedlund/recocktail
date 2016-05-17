@@ -210,7 +210,8 @@ createSampelList();
       tagNames.add("clap");
       tagNames.add("test2");
       tagNames.add("test3");
-      tagNames.add("test4");
+      tagNames.add(" ");
+
       LocalDate ld1 = LocalDate.now();
       LocalDate ld2 = LocalDate.now();
 
@@ -218,6 +219,7 @@ createSampelList();
         snippetCollection.add(snippetInfo);
 
        int ansInt = impl.writeSnippet(fileInfo, snippetInfo);
+      System.out.println(ansInt + "inten som ska ha en tom tagg ");
         listOfSampelSnippetIDs.add(ansInt);
     } catch (Exception e){
       e.printStackTrace();
