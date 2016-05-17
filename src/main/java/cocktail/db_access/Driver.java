@@ -1,21 +1,4 @@
-/*
- * Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @version 1.0
- * @since 2016-03-25
- */
+
 
 package cocktail.db_access;
 
@@ -47,7 +30,7 @@ public class Driver {
     boolean returnBool = false;
 
     try {
-      myConnection = DriverManager.getConnection("jdbc:mysql://130.237.67.145:3306/recocktail?aoutoReconnect=true&useSSL=false", DbAccessHandler.getUserName(), DbAccessHandler.getPassword());
+      myConnection = DriverManager.getConnection("jdbc:mysql://130.237.67.145:3306/recocktail?aoutoReconnect=true&useSSL=false",DbAccessHandler.getUserName(), DbAccessHandler.getPassword());
       myStatment = myConnection.createStatement();
       returnBool = true;
 
@@ -61,9 +44,11 @@ public class Driver {
 
   private static List<String> removeUnwantedCharacters(List<String> tagNames){
     List<String> newTagList = new ArrayList<>();
-   for(String s : tagNames) {
-   newTagList.add(s.replaceAll("[^\\.\\_\\-åäö\\w]",""));
-   }
+    for(String s : tagNames) {
+      if(s.length()>1) {
+        newTagList.add(s.replaceAll("[^\\.\\_\\-åäö\\w]", ""));
+      }
+    }
     return newTagList;
   }
 
@@ -71,11 +56,11 @@ public class Driver {
     List<String> tempTagNames = new ArrayList<>();
 
     int size = snippetInfo.getTagNames().size();
-   for (int i = 0; i < size; i++ ) {
-     String temp = snippetInfo.getTagNames().get(i).toLowerCase();
-     tempTagNames.add(temp);
-   }
-   snippetInfo.getTagNames().clear();
+    for (int i = 0; i < size; i++ ) {
+      String temp = snippetInfo.getTagNames().get(i).toLowerCase();
+      tempTagNames.add(temp);
+    }
+    snippetInfo.getTagNames().clear();
     snippetInfo.getTagNames().addAll(tempTagNames);
   }
 
@@ -102,6 +87,9 @@ public class Driver {
 
   public static int writeSnippet(SnippetInfo snippetInfo, int fileID) {
     int returnInt = 0;
+    if(isSnippetADuplicate(snippetInfo,fileID)){
+      joinTwoSnippets(snippetInfo,fileID);
+    }
     if (!isCallProtectedAdmin(snippetInfo)) {
       removeProtectedTags(snippetInfo);
       tagsToLowerCase(snippetInfo);
@@ -119,16 +107,92 @@ public class Driver {
     return returnInt;
   }
 
-  public static boolean isSnippetADuplicate(SnippetInfo snippetInfo, FileInfo fileInfo){
-    return false;
+  public static boolean isSnippetADuplicate(SnippetInfo snippetInfo, FileInfo fileInfo) {
+    boolean isDublicate = false;
+    if(!isFileInDb(fileInfo)){
+      isDublicate = false;
+      return isDublicate;
+    } else {
+      int fileID = getFileIDFromFileNameSizeLen(fileInfo.getFileName(),
+          fileInfo.getFileLenSec(),fileInfo.getFileSizeKb());
+      double lenSec = 0.0;
+      double startTime = 0.0;
+
+      try {
+        String sql = "SELECT startTime, lenSec FROM snippetInfo WHERE fileID=?";
+        PreparedStatement ps = myConnection.prepareStatement(sql);
+        ps.setInt(1,fileID);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()){
+          lenSec = rs.getDouble("lenSec");
+          startTime = rs.getDouble("startTime");
+        }
+      }catch (Exception e ){
+        e.printStackTrace();
+      }
+
+      if(lenSec == snippetInfo.getLengthSec() && startTime == snippetInfo.getStartTime()){
+        isDublicate = true;
+        return isDublicate;
+      }
+    }
+    return isDublicate;
+  }
+
+  public static boolean isSnippetADuplicate(SnippetInfo snippetInfo, int fileID) {
+    boolean isDublicate = false;
+    double lenSec = 0.0;
+    double startTime = 0.0;
+    try {
+      String sql = "SELECT startTime, lenSec FROM snippetInfo WHERE fileID=?";
+      PreparedStatement ps = myConnection.prepareStatement(sql);
+      ps.setInt(1,fileID);
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()){
+        lenSec = rs.getDouble("lenSec");
+        startTime = rs.getDouble("startTime");
+      }
+    }catch (Exception e ){
+      e.printStackTrace();
+    }
+    if(lenSec == snippetInfo.getLengthSec() && startTime == snippetInfo.getStartTime()){
+      isDublicate = true;
+      return isDublicate;
+    }
+
+    return isDublicate;
   }
 
   public static boolean isFileInDb(FileInfo fileInfo){
-return false;
+
+//TODO fixa checkusm här
+    boolean isFileInDb = false;
+    try {
+      String sql = "SELECT fileName, fileSizeKb, fileLenSec FROM fileInfo";
+      PreparedStatement ps = myConnection.prepareStatement(sql);
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()){
+        if(fileInfo.getFileName().equals(rs.getString("fileName"))){
+          if(fileInfo.getFileLenSec()== rs.getDouble("fileLenSec") &&
+              fileInfo.getFileSizeKb() == rs.getDouble("fileSizeKb")){
+            isFileInDb = true;
+            return isFileInDb;
+          }
+        }
+      }
+      return isFileInDb;
+    }catch (Exception e){
+      e.printStackTrace();
+    }
+    return false;
   }
+
+
   public static int writeSnippet(FileInfo fileInfo, SnippetInfo snippetInfo) {
     int returnInt = 0;
-    if(isCallProtectedAdmin(snippetInfo)){
+    if(isSnippetADuplicate(snippetInfo,fileInfo)){
+      returnInt = joinTwoSnippets(snippetInfo,fileInfo);
+    } else if(isCallProtectedAdmin(snippetInfo)){
       returnInt = writeSnippetAsAdmin(snippetInfo,fileInfo);
     } else {
       removeProtectedTags(snippetInfo);
@@ -152,11 +216,68 @@ return false;
     return returnInt;
   }
 
+  public static int joinTwoSnippets(SnippetInfo snippetInfo, FileInfo fileInfo) {
+    int oldSnippetID = 0;
+    int fileID = getFileIDFromFileNameSizeLen(fileInfo.getFileName(), fileInfo.getFileLenSec(), fileInfo.getFileSizeKb());
+    try {
+      String sql = "SELECT snippetID FROM snippetInfo WHERE fileID=? AND startTime=? " +
+          "AND lenSec=?";
+      PreparedStatement ps = myConnection.prepareStatement(sql);
+      ps.setInt(1, fileID);
+      ps.setDouble(2, snippetInfo.getStartTime());
+      ps.setDouble(3, snippetInfo.getLengthSec());
+      ResultSet rs = ps.executeQuery();
+      if (rs.next()) {
+        oldSnippetID = rs.getInt("snippetID");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    List<Integer> tagIds = getTagIDsForSnippetID(oldSnippetID);
+    List<String> tagNames = getTagNamesFromIDs(tagIds);
+    tagNames.addAll(snippetInfo.getTagNames());
+    Set<String> tagSet = new HashSet<>();
+    tagSet.addAll(tagNames);
+    snippetInfo.getTagNames().clear();
+    snippetInfo.getTagNames().addAll(tagSet);
+    deleteSnippet(oldSnippetID);
+    int newSnippetID = writeSnippet(fileInfo, snippetInfo);
+    return newSnippetID;
+  }
+
+  public static int joinTwoSnippets(SnippetInfo snippetInfo, int fileID) {
+    int oldSnippetID = 0;
+    try {
+      String sql = "SELECT snippetID FROM snippetInfo WHERE fileID=? AND startTime=? " +
+          "AND lenSec=?";
+      PreparedStatement ps = myConnection.prepareStatement(sql);
+      ps.setInt(1, fileID);
+      ps.setDouble(2, snippetInfo.getStartTime());
+      ps.setDouble(3, snippetInfo.getLengthSec());
+      ResultSet rs = ps.executeQuery();
+      if (rs.next()) {
+        oldSnippetID = rs.getInt("snippetID");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    List<Integer> tagIds = getTagIDsForSnippetID(oldSnippetID);
+    List<String> tagNames = getTagNamesFromIDs(tagIds);
+    tagNames.addAll(snippetInfo.getTagNames());
+    Set<String> tagSet = new HashSet<>();
+    tagSet.addAll(tagNames);
+    snippetInfo.getTagNames().clear();
+    snippetInfo.getTagNames().addAll(tagSet);
+    deleteSnippet(oldSnippetID);
+    int newSnippetID = writeSnippet(snippetInfo, fileID);
+    return newSnippetID;
+  }
 
   public static boolean insertIntoFileInfo(SnippetInfo snippetInfo, FileInfo fileInfo) {
     boolean returnBool = false;
-//TODO här ska en koll göras ju
-    if (!getAllFileNames().contains(snippetInfo.getFileName())) {
+    if (!isFileInDb(fileInfo)) {
       try {
         PreparedStatement ps = myConnection.prepareStatement
             ("INSERT INTO fileInfo (file,fileName,fileSizeKb,fileLenSec) VALUES(?,?,?,?)",
@@ -177,20 +298,25 @@ return false;
         e.printStackTrace();
       }
     } else {
-      fileInfo.setFileID(getFileIDFromFileName(snippetInfo.getFileName()));
+      fileInfo.setFileID(getFileIDFromFileNameSizeLen(snippetInfo.getFileName(),
+          fileInfo.getFileLenSec(), fileInfo.getFileSizeKb()));
       returnBool = true;
     }
     return returnBool;
   }
 
 
-  public static int getFileIDFromFileName(String fileName) {
+  public static int getFileIDFromFileNameSizeLen(String fileName, double fileSizeSec, int fileSizeKb) {
     int fileID = 0;
 
+//TODO Den här förutsätter att det inte kan finnas fler filer med samma hamn
     try {
-      String sql = "SELECT fileID FROM fileInfo WHERE fileName =?";
+      String sql = "SELECT fileID FROM fileInfo WHERE fileName =? " +
+          "AND fileLenSec=? AND fileInfo.fileSizeKb=?";
       PreparedStatement ps = myConnection.prepareStatement(sql);
       ps.setString(1, fileName);
+      ps.setDouble(2, fileSizeSec);
+      ps.setInt(3, fileSizeKb);
       ResultSet rs = ps.executeQuery();
       if (rs.next()) {
         fileID = rs.getInt("fileID");
@@ -452,7 +578,7 @@ return false;
   public static boolean deleteInsertAsAdmin(SnippetInfo snippetInfo, FileInfo fileInfo, int snippetID) {
     boolean returnBool = false;
     if(snippetInfo.getUserName().equals(_adminUserName)){
-     deleteSnippetAdm(snippetInfo.getSnippetID());
+      deleteSnippetAdm(snippetInfo.getSnippetID());
       snippetInfo.setSnippetID(snippetID);
       java.sql.Date dateCreate = java.sql.Date.valueOf(snippetInfo.getCreationDate());
       java.sql.Date dateModified = java.sql.Date.valueOf(snippetInfo.getLastModified());
@@ -1120,16 +1246,6 @@ return false;
       }
       return occurance;
 
-
-     /* String sql = "SELECT snippetID FROM bridgeSnippetTagTable WHERE tagID=?";
-      PreparedStatement ps = myConnection.prepareStatement(sql);
-      ps.setInt(1, tagID);
-      ResultSet rs = ps.executeQuery();
-      while (rs.next()) {
-        occurance++;
-      }
-      return occurance;
-      */
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -1327,7 +1443,7 @@ return false;
       psCount.setInt(1,tagID);
       ResultSet rs = psCount.executeQuery();
       if(rs.next()){
-       nrOfOcc = rs.getInt(1);
+        nrOfOcc = rs.getInt(1);
       }
       if(nrOfOcc<1){
         sql = "DELETE FROM tagInfo WHERE tagID=?";
@@ -1382,7 +1498,7 @@ return false;
       insertIntoUserInfo(snippetInfo);
       try {
         PreparedStatement ps = myConnection.prepareStatement
-                ("INSERT INTO snippetInfo (fileID,sizeKb,startTime,lenSec,creationDate,lastModifiedDate,userID) VALUES(?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+            ("INSERT INTO snippetInfo (fileID,sizeKb,startTime,lenSec,creationDate,lastModifiedDate,userID) VALUES(?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
         ps.setInt(1, fileInfo.getFileID());
         ps.setInt(2, snippetInfo.getKbSize());
         ps.setDouble(3, snippetInfo.getStartTime());
@@ -1410,11 +1526,5 @@ return false;
       return returnInt;
     }
   }
-
-  //TODO fixa så att det inte blir dubletter i snippetInfo. Om en snippet skrivs som är likadan så ska de två
-  // snippetsnarnas taggar slås ihop. Den senast editerade snippetens användare blir den slutliga.
-  // Den gamla snippeten tas bort
-
-
 }
 
