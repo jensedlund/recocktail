@@ -51,8 +51,6 @@ public class RestfulService {
   public static void runSpark() {
     Controller controller = Controller.getInstance();
 
-
-
     get("/getAllTags", (request, response) -> controller.getCompleteSetOfTagNames(),
         (src) -> {
           Gson gson = new Gson();
@@ -124,11 +122,23 @@ public class RestfulService {
       return gson.toJson(fileName);
     }));
 
-    get("/getSets", (request, response) -> {
+    get("/getActiveSets", (request, response) -> {
       List<String> setList = controller.getAllSavedSetsName();
       Gson gson = new Gson();
       return gson.toJson(setList);
     });
+
+//    get("/users/:name", (request, response) -> "Selected user: " + request.params(":name"));
+
+
+    get("/getSet/:name", (request, response) -> {
+      String setName = request.params(":name");
+      SnippetSet snippetSet = controller.getStoredSet(setName);
+      Gson gson = new Gson();
+      return gson.toJson(snippetSet);
+    });
+
+
   }
 }
 
