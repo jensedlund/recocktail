@@ -20,6 +20,11 @@
 var serverUrl = "http://localhost:4567";
 
 var globalSnippetSets = [];
+var globalActiveSnippetSet = new SnippetSet();
+var zipForUpload = new JSZip();
+var zipForDownload = new JSZip();
+var snippetZipDir = zipForUpload.folder("snippets");
+var newSnippetSetGlobal = new SnippetSet();
 
 function getAllTags(callback) {
     var xhttp = new XMLHttpRequest();
@@ -29,6 +34,30 @@ function getAllTags(callback) {
         }
     };
     xhttp.open("GET", serverUrl + "/getAllTags", true);
+    xhttp.send();
+}
+
+function getActiveSets(callback) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function(){
+        if(xhttp.readyState == 4 && xhttp.status == 200) {
+            // callback(xhttp.response);
+            console.log(xhttp.response)
+        }
+    };
+    xhttp.open("GET", serverUrl + "/getActiveSets", true);
+    xhttp.send();
+}
+
+function getSet(setName, callback) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function(){
+        if(xhttp.readyState == 4 && xhttp.status == 200) {
+            // callback(xhttp.response);
+            console.log(JSON.parse(xhttp.response));
+        }
+    };
+    xhttp.open("GET", serverUrl + "/getSet/" + setName, true);
     xhttp.send();
 }
 
@@ -85,8 +114,6 @@ function search() {
            });
 }
 
-
-
 function getXmlFromSet(snippetSet) {
     $.ajax({
                url: serverUrl + "/getSnippetSetXml",
@@ -106,7 +133,7 @@ function getXmlFromSet(snippetSet) {
            });
 }
 
-function getZipUrl() {
+function getZip() {
     $.ajax({
                url: serverUrl + "/getZipUrl",
                contentType: 'application/json; charset=utf-8',
@@ -114,6 +141,9 @@ function getZipUrl() {
                async: true,
                success: function (data) {
                    console.log(data);
+                   var fileUrl = data;
+                   console.log(fileUrl);
+                   parseZip("tmp/download.zip");
                },
                error: function (xhr, status) {
                    console.log(status);
@@ -122,8 +152,15 @@ function getZipUrl() {
            });
 }
 
-var xmlFileTest;
+// var xmlFileTest;
+var loadedSoundSets = [];
+
 function parseZip(zipFileUrl) {
+    var localContext = new AudioContext();
+    var newSoundSet = {};
+    loadedSoundSets.push(newSoundSet);
+    newSoundSet.files = [];
+
     JSZipUtils.getBinaryContent(zipFileUrl, function(err, data) {
         if(err) {
             console.log(err);
@@ -131,15 +168,34 @@ function parseZip(zipFileUrl) {
         JSZip.loadAsync(data)
             .then(function(zip) {
                 zip.forEach(function (relativePath, zipEntry) {
-                    console.log(zipEntry.name);
-                    console.log(zipEntry.dir);
+                    var reWav = new RegExp("wav$");
                     if (zipEntry.name == "SnippetSet.xml") {
                         zipEntry.async("String")
                             .then(function success(content) {
-                                parser = new DOMParser();
-                                xmlFileTest = parser.parseFromString(content,"text/xml");
-                                // xmlFileTest = content;
+                                var parser = new DOMParser();
+                                var xmlFileTest = parser.parseFromString(content,"text/xml");
+                                newSoundSet.label = xmlFileTest
+                                    .getElementsByTagName("setName")[0]
+                                    .childNodes[0]
+                                    .nodeValue;
+
+                                var soundSelector = document.getElementById("soundSets");
+                                var option = document.createElement("option");
+                                option.text = newSoundSet.label;
+                                option.value = newSoundSet.label;
+                                soundSelector.add(option);
                             });
+                        
+                    } else if (reWav.test(zipEntry.name)) {
+
+                        zipEntry.async("arraybuffer")
+                            .then(function (content) {
+                                // console.log(zipEntry.name);
+                                localContext.decodeAudioData(content).then(function(decodedData) {
+                                    newSoundSet.files.push(decodedData);
+                                    console.log(zipEntry.name);
+                            })
+                        });
                     }
                 });
                 console.log("Funka!");
@@ -151,7 +207,6 @@ function parseZip(zipFileUrl) {
             });
     });
 }
-
 
 function addServerFileToZip(name,url) {
     $.ajax({
@@ -200,10 +255,6 @@ function getComplementaryTags() {
     xhttp.open("GET", serverUrl + "/searchByTagName/complementary", true);
     xhttp.send();
 }
-
-var zipForUpload = new JSZip();
-var snippetZipDir = zipForUpload.folder("snippets");
-var newSnippetSetGlobal = new SnippetSet();
 
 function newSnippet() {
     var fileButton = document.getElementById("newFile");
