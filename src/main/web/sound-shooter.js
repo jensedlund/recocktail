@@ -81,6 +81,7 @@ function startSound(contextVar) {
     );
     bufferLoader[contextVar].load();
 }
+
 function stopSound() {
     staph = true;
 }
