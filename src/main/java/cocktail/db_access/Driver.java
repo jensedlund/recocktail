@@ -7,7 +7,9 @@ import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.sql.*;
 import java.util.*;
 
@@ -87,6 +89,10 @@ public class Driver {
 
   public static int writeSnippet(SnippetInfo snippetInfo, int fileID) {
     int returnInt = 0;
+    List<String> tempTagList = utf8Decode(snippetInfo.getTagNames());
+    snippetInfo.getTagNames().clear();
+    snippetInfo.setTagNames(tempTagList);
+
     if(isSnippetADuplicate(snippetInfo,fileID)){
       joinTwoSnippets(snippetInfo,fileID);
     }
@@ -187,8 +193,36 @@ public class Driver {
     return false;
   }
 
+  public static List<String> utf8Decode(List<String> strings){
+    List<String> tempList = new ArrayList<>();
+    try {
+      for(String tag : strings) {
+        tempList.add(URLDecoder.decode(tag, "UTF-8"));
+      }
+    }catch (IOException e){
+      e.printStackTrace();
+    }
+    return tempList;
+  }
+
+  public static String utf8Decode(String s){
+    String returnString = "";
+    try {
+        returnString = URLDecoder.decode(s, "UTF-8");
+    }catch (IOException e){
+      e.printStackTrace();
+    }
+    return returnString;
+  }
 
   public static int writeSnippet(FileInfo fileInfo, SnippetInfo snippetInfo) {
+   List<String> tempTagList = utf8Decode(snippetInfo.getTagNames());
+    snippetInfo.getTagNames().clear();
+    snippetInfo.setTagNames(tempTagList);
+
+  String tempFileName = fileInfo.getFileName();
+    fileInfo.setFileName(utf8Decode(tempFileName));
+
     int returnInt = 0;
     if(isSnippetADuplicate(snippetInfo,fileInfo)){
       returnInt = joinTwoSnippets(snippetInfo,fileInfo);
@@ -864,6 +898,7 @@ public class Driver {
     id.add(snippetID);
     List<String> tags = getTagNamesFromIDs(id);
     for(String tag : tags){
+      System.out.println(" I is snippetProtected " + tag);
       if(tag.charAt(0)=='.'){
         isProtected = true;
       }
@@ -1487,6 +1522,13 @@ public class Driver {
 
   public static int writeSnippetAsAdmin(SnippetInfo snippetInfo, FileInfo fileInfo) {
     int returnInt = 0;
+    List<String> tempTagList = utf8Decode(snippetInfo.getTagNames());
+    snippetInfo.getTagNames().clear();
+    snippetInfo.setTagNames(tempTagList);
+
+    String tempFileName = fileInfo.getFileName();
+    fileInfo.setFileName(utf8Decode(tempFileName));
+
     if (snippetInfo.getUserName().equals(_adminUserName)) {
       tagsToLowerCase(snippetInfo);
       List<String> newTagList = removeUnwantedCharacters(snippetInfo.getTagNames());

@@ -1,6 +1,5 @@
 package DriverTest;
 
-import cocktail.db_access.DbAccessHandler;
 import cocktail.db_access.DbAdapterImpl;
 import cocktail.db_access.Driver;
 import cocktail.snippet.FileInfo;
@@ -43,16 +42,7 @@ private static SnippetSet snippetSet;
     return getSnippetJsonObject();
   }
   public static void main(String[] args) {
-   //createSampelList();
-   // System.out.println( impl.getOccuranceOfTag("clap"));
- // writeSampelsSnippet();
-    System.out.println(DbAccessHandler.getUserName());
-    System.out.println(DbAccessHandler.getPassword());
-
-    System.out.println(DbAccessHandler.getIp());
-
-    System.out.println(DbAccessHandler.getDbName());
-
+createSampelList();
   }
 
 
@@ -128,7 +118,7 @@ private static SnippetSet snippetSet;
     //Driver.connectToMySql();
 
   public static void writeSampelsSnippet(){
-    String sampleName = ".demo-sample-skogsfågel";
+  /*  String sampleName = ".demo-sample-skogsfågel";
     FileInfo fileInfo;
     SnippetInfo snippetInfo;
     List<Integer> listOfSampelSnippetIDs = new ArrayList<>();
@@ -155,7 +145,7 @@ private static SnippetSet snippetSet;
       listOfSampelSnippetIDs.add(ansInt);
     } catch (Exception e){
       e.printStackTrace();
-    }
+    }*/
   }
 
 
@@ -171,7 +161,7 @@ private static SnippetSet snippetSet;
     SnippetInfo snippetInfo;
       List<Integer> listOfSampelSnippetIDs = new ArrayList<>();
     try {
-      FileInputStream input = new FileInputStream("C:\\Users\\Rickard\\IdeaProjects\\recocktail\\src\\test\\resources\\clap1.wav");
+      FileInputStream input = new FileInputStream("src/test/resources/clap1.wav");
       byte[] b = spark.utils.IOUtils.toByteArray(input);
       ByteArrayInputStream bInput = new ByteArrayInputStream(b);
       fileInfo = new FileInfo(bInput, "clap1", 498, 0.5);
@@ -190,7 +180,7 @@ private static SnippetSet snippetSet;
     }
 
     try {
-      FileInputStream input = new FileInputStream("C:\\Users\\Rickard\\IdeaProjects\\recocktail\\src\\test\\resources\\clap2.wav");
+      FileInputStream input = new FileInputStream("src/test/resources/clap2.wav");
       byte[] b = spark.utils.IOUtils.toByteArray(input);
       ByteArrayInputStream bInput = new ByteArrayInputStream(b);
       fileInfo = new FileInfo(bInput, "clap2", 263, 3.0);
@@ -211,7 +201,7 @@ private static SnippetSet snippetSet;
     }
 
     try {
-      FileInputStream input = new FileInputStream("C:\\Users\\Rickard\\IdeaProjects\\recocktail\\src\\test\\resources\\clap3.wav");
+      FileInputStream input = new FileInputStream("src/test/resources/clap3.wav");
       byte[] b = spark.utils.IOUtils.toByteArray(input);
       ByteArrayInputStream bInput = new ByteArrayInputStream(b);
       fileInfo = new FileInfo(bInput, "clap3", 294, 3.0);
@@ -220,6 +210,7 @@ private static SnippetSet snippetSet;
       tagNames.add("clap");
       tagNames.add("test2");
       tagNames.add("test3");
+      tagNames.add("test4");
       LocalDate ld1 = LocalDate.now();
       LocalDate ld2 = LocalDate.now();
 
@@ -233,7 +224,7 @@ private static SnippetSet snippetSet;
     }
 
       try {
-          FileInputStream input = new FileInputStream("C:\\Users\\Rickard\\IdeaProjects\\recocktail\\src\\test\\resources\\clap4.wav");
+          FileInputStream input = new FileInputStream("src/test/resources/clap4.wav");
           byte[] b = spark.utils.IOUtils.toByteArray(input);
           ByteArrayInputStream bInput = new ByteArrayInputStream(b);
           fileInfo = new FileInfo(bInput, "clap4", 233, 2.0);
