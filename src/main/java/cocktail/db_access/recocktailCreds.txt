@@ -1,0 +1,4 @@
+username:bloodymary
+password:parasoll
+dbname:recocktail
+ip-adress:130.237.67.145
