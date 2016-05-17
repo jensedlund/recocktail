@@ -40,25 +40,46 @@ function create_zip() {
     oReq.send();
 }
 
+var xmlFileTest;
 function read_zip() {
-    var f = document.getElementById("file").files[0];
-    JSZip.loadAsync(f)
-        .then(function(zip) {
-            // var dateAfter = new Date();
-            // $title.append($("<span>", {
-            //     text:" (loaded in " + (dateAfter - dateBefore) + "ms)"
-            // }));
-            zip.forEach(function (relativePath, zipEntry) {
-                console.log(zipEntry.name);
+    JSZipUtils.getBinaryContent('tmp/download.zip', function(err, data) {
+        if(err) {
+            console.log(err);
+        }
 
+        JSZip.loadAsync(data)
+            .then(function(zip) {
+                // var dateAfter = new Date();
+                // $title.append($("<span>", {
+                //     text:" (loaded in " + (dateAfter - dateBefore) + "ms)"
+                // }));
+                // zip.file("SnippetSet.xml")
+                //     .asynch("String")
+                //     .then(function success(content) {
+                //         xmlFileTest = content;
+                //         console.log(content)
+                //     }, function error(e) {
+                //         console.log(e);
+                //     });
+                zip.forEach(function (relativePath, zipEntry) {
+                    console.log(zipEntry.name);
+                    console.log(zipEntry.dir);
+                    if (zipEntry.name == "SnippetSet.xml") {
+                        zipEntry.async("String")
+                            .then(function success(content) {
+                                parser = new DOMParser();
+                                xmlFileTest = parser.parseFromString(content,"text/xml");
+                               // xmlFileTest = content;
+                            });
+                    }
+
+                });
+                console.log("Funka!");
+            }, function (e) {
+                $fileContent = $("<div>", {
+                    "class" : "alert alert-danger",
+                    text : "Error reading " + f.name + " : " + e.message
+                });
             });
-            console.log("Funka!");
-        }, function (e) {
-            $fileContent = $("<div>", {
-                "class" : "alert alert-danger",
-                text : "Error reading " + f.name + " : " + e.message
-            });
-        });
-    // var zip = new JSZip();
-    // zip.loadAsync(zipDataFromXHR);
+    });
 }

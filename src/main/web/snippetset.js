@@ -94,14 +94,14 @@ SnippetSet.prototype.addXmlToZip = function() {
 
     return new Promise(function(resolve, reject) {
         $.ajax({
-                   url: "http://localhost:4567/getSnippetSetXml",
+                   url: serverUrl + "/getSnippetSetXml",
                    contentType: 'application/json; charset=utf-8',
                    type: 'POST',
                    data: JSON.stringify(localThis),
                    dataType: 'json',
                    async: true,
                    success: function (filename) {
-                       var fileUrl = "http://localhost:4567/tmp/" + filename;
+                       var fileUrl = serverUrl + "/tmp/" + filename;
                        $.get( fileUrl )
                            .done(function( data ) {
                                localThis.zip.file(filename,data);
