@@ -5,7 +5,6 @@ package cocktail.db_access;
 import cocktail.snippet.FileInfo;
 import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -957,13 +956,14 @@ public class Driver {
     return returnBool;
   }
 
+
+  //Method check if the snippet has tags that ar protected, like ".demo-sea-bird"
   public static boolean isSnippetProtectedSample(int snippetID) {
     boolean isProtected = false;
     List<Integer> id = new ArrayList<>();
     id.add(snippetID);
     List<String> tags = getTagNamesFromTagIDs(id);
     for (String tag : tags) {
-      System.out.println(" I is snippetProtected " + tag);
       if (tag.charAt(0) == '.') {
         isProtected = true;
       }
@@ -971,6 +971,7 @@ public class Driver {
     return isProtected;
   }
 
+  //Method deletes one snippet by calling severel methods that deletes from all the tables
   public static boolean deleteSnippet(int snippetID) {
     boolean returnBool;
     String userName = getUserNameForSnippet(snippetID);
@@ -995,6 +996,8 @@ public class Driver {
     return returnBool;
   }
 
+
+  //Method read the file from fileInfo table and return it as a bite array
   public static byte[] readSnippet(int snippetID) {
     int sourceID = getFileIDFromSnippetID(snippetID);
     byte[] buffer = null;
@@ -1008,7 +1011,6 @@ public class Driver {
         input = rs.getBinaryStream("file");
         buffer = new byte[input.available()];
         input.read(buffer);
-        System.out.println(buffer.length);
       }
 
     } catch (Exception e) {
@@ -1017,6 +1019,8 @@ public class Driver {
     return buffer;
   }
 
+
+  //Returns the userName and takes a userID as an argument
   private static String getUserName(int userID) {
     String userName = null;
     try {
@@ -1034,6 +1038,8 @@ public class Driver {
     return userName;
   }
 
+
+  //Method returns one SnippetInfo object whit information from severel tables
   public static SnippetInfo readSnippetInf(int snippetID) {
     SnippetInfo snippetInfo = new SnippetInfo();
     snippetInfo.setSnippetID(snippetID);
@@ -1060,6 +1066,7 @@ public class Driver {
         snippetInfo.setCreationDate(rs.getDate("creationDate").toLocalDate());
         snippetInfo.setLastModified(rs.getDate("lastModifiedDate").toLocalDate());
         snippetInfo.setUserID(rs.getInt("userID"));
+        snippetInfo.setStartTime(rs.getDouble("startTime"));
       }
       snippetInfo.setUserName(getUserName(snippetInfo.getUserID()));
     } catch (Exception e) {
@@ -1068,6 +1075,8 @@ public class Driver {
     return snippetInfo;
   }
 
+
+  //Returns the complete number of files in database
   public static int getTotlNumberOfFiles() {
     int numberOfFiles = 0;
     try {
@@ -1085,7 +1094,8 @@ public class Driver {
     return numberOfFiles;
   }
 
-  @NotNull
+
+  //Returns the total amount of kb from files stored in database
   public static Integer getTotalFileSizeKb() {
     int total = 0;
     try {
@@ -1104,6 +1114,8 @@ public class Driver {
     return total;
   }
 
+
+  //Returns the size in kb of the smallest file
   public static Integer getMinFileSizeKb() {
     int min = 1000;
     int temp = 0;
@@ -1125,6 +1137,8 @@ public class Driver {
     return min;
   }
 
+
+  //Returns the size in kb of the largest file in database
   public static Integer getMaxFileSizeKb() {
     int max = 0;
     int temp = 0;
@@ -1147,6 +1161,7 @@ public class Driver {
 
   }
 
+  //Returns a double representing the length of the shortest file in database.
   public static double getMinFileLenSec() {
     double min = 0;
     double temp = 0;
@@ -1167,6 +1182,8 @@ public class Driver {
     return 0;
   }
 
+
+  //Method search the database for snippet connected to the tags in the argument list. Returns a list of snippetIDs
   public static List<Integer> searchSnippetIDs(List<String> tagArray, double lengthMaxFilter) {
     List<String> tagLowerCas = new ArrayList<>();
     for (String tag : tagArray) {
@@ -1194,6 +1211,9 @@ public class Driver {
     }
     return snippetIdList;
   }
+
+
+  //Method check if
 
   private static List<Integer> fileterSnippetIDByLenght(List<Integer> snippetIdList, double lengthMaxFilter) {
     List<Integer> snippgetIDs = new ArrayList<>();
@@ -1387,6 +1407,8 @@ public class Driver {
     return null;
   }
 
+
+  //Method is checking two tables and match the results to awnser the question if one snippet is part of a larger file or not
   public static boolean isSnippetPartOfLongerFile(int snippetID) {
     boolean returnBool = false;
     double startTime = 0.0;

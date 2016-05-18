@@ -45,50 +45,10 @@ private static SnippetSet snippetSet;
   //  SnippetInfo{snippetID=0, fileID=0, fileName='Ljudinspelning_2016-03-25_13-04-27', tagNames=[clappy], kbSize=294,
     // startTime=0.0, lengthSec=2.4133333333333336, creationDate=2016-05-18, lastModified=2016-05-18,
     // userID=0, userName='Admin', multiples=0}
-/*SnippetInfo snippetInfo;
-   try {
-      List<String> tagNames = new ArrayList<>();
-      tagNames.clear();
-      tagNames.add("clappy");
 
+    SnippetInfo si = impl.readSnippetInfo(226);
+    System.out.println(si.getStartTime());
 
-      LocalDate ld1 = LocalDate.now();
-      LocalDate ld2 = LocalDate.now();
-
-      snippetInfo = new SnippetInfo("Ljudinspelning_2016-03-25_13-04-27", tagNames, 0.5,2.4133333333333336 , 294, ld1, ld2, "Admin");
-      snippetCollection.add(snippetInfo);
-
-      int ansInt = impl.writeSnippet(snippetInfo,191 );
-      System.out.println(ansInt + "inten som ska ha en tom tagg ");
-    } catch (Exception e){
-      e.printStackTrace();
-    }
-    */
-
-FileInfo fileInfo;
-    SnippetInfo snippetInfo;
-    try {
-      FileInputStream input = new FileInputStream("src/test/resources/clap2.wav");
-      byte[] b = spark.utils.IOUtils.toByteArray(input);
-      ByteArrayInputStream bInput = new ByteArrayInputStream(b);
-      fileInfo = new FileInfo(bInput, "retrobot", 263, 3.0);
-      List<String> tagNames = new ArrayList<>();
-      tagNames.clear();
-      tagNames.add("cl ap");
-      tagNames.add("te st1");
-      tagNames.add("tes$t2@");
-      tagNames.add("ÅÄöåäögl");
-      tagNames.add("får");
-      LocalDate ld1 = LocalDate.now();
-      LocalDate ld2 = LocalDate.now();
-      snippetInfo = new SnippetInfo("clap2", tagNames, 1.0, 3.0, 263, ld1, ld2, "Admin");
-      snippetCollection.add(snippetInfo);
-
-      int ansInt = impl.writeSnippet(fileInfo, snippetInfo);
-      System.out.println(ansInt + "inten som returneras ");
-    } catch (Exception e){
-      e.printStackTrace();
-    }
   }
 
 
