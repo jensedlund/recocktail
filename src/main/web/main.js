@@ -192,10 +192,8 @@ function parseZip(zipFileUrl) {
 
                         zipEntry.async("arraybuffer")
                             .then(function (content) {
-                                // console.log(zipEntry.name);
                                 localContext.decodeAudioData(content).then(function(decodedData) {
                                     newSoundSet.files.push(decodedData);
-                                    console.log(zipEntry.name);
                             })
                         });
                     }
