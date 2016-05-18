@@ -73,7 +73,8 @@ public class Driver {
     snippetInfo.getTagNames().addAll(tempTagNames);
   }
 
-  //Method trhows away
+  //Method trhows away tags that starts with [.], tags like ".demo-sea-birds" are protected sample data and can only be
+  //inserted or alterd if the userName is equal to "Admin"
   private static void removeProtectedTags(SnippetInfo snippetInfo) {
     List<String> listToDel = new ArrayList<>();
     for (String s : snippetInfo.getTagNames()) {
@@ -95,6 +96,8 @@ public class Driver {
     return isAdmin;
   }
 
+//This overloaded method inserts one snippet to the database and is used when the file connected to the snippet
+  // is allready in the database and the fileID is known.
   public static int writeSnippet(SnippetInfo snippetInfo, int fileID) {
     int returnInt = 0;
 
@@ -120,6 +123,7 @@ public class Driver {
     return returnInt;
   }
 
+  //Method check if the snippet already is saved in the database
   public static boolean isSnippetADuplicate(SnippetInfo snippetInfo, FileInfo fileInfo) {
     boolean isDublicate = false;
     if (!isFileInDb(fileInfo)) {
@@ -154,6 +158,9 @@ public class Driver {
     return isDublicate;
   }
 
+
+  //This overloaded method checks if the snippet already is saved in the database when the fileID is already known
+
   public static boolean isSnippetADuplicate(SnippetInfo snippetInfo, int fileID) {
     boolean isDublicate = false;
     double lenSec = 0.0;
@@ -180,6 +187,8 @@ public class Driver {
     return isDublicate;
   }
 
+
+  //Method checks if a file already is saved in database or not
   public static boolean isFileInDb(FileInfo fileInfo) {
 
 //TODO fixa checkusm här
@@ -206,7 +215,7 @@ public class Driver {
     return false;
   }
 
-
+//Method takes a string, fileName, as an argument and return the string decoded in UTF-8
   public static String utf8Decode(String s) {
     String returnString = "";
     System.out.println(s);
@@ -219,6 +228,7 @@ public class Driver {
     return returnString;
   }
 
+  //Overloaded method that inserts one snippet in database
   public static int writeSnippet(FileInfo fileInfo, SnippetInfo snippetInfo) {
 
     String tempFileName = fileInfo.getFileName();
@@ -251,6 +261,9 @@ public class Driver {
     return returnInt;
   }
 
+
+  //Overloaded method is called when a snippet is a duplicate. This method is joining the two lists of tags and
+  //is calling writeSnippet with single, indirect recursion
   public static int joinTwoSnippets(SnippetInfo snippetInfo, FileInfo fileInfo) {
     int oldSnippetID = 0;
     int fileID = getFileIDFromFileNameSizeLen(fileInfo.getFileName(), fileInfo.getFileLenSec(), fileInfo.getFileSizeKb());
@@ -278,11 +291,13 @@ public class Driver {
     tagSet.addAll(tagNames);
     snippetInfo.getTagNames().clear();
     snippetInfo.getTagNames().addAll(tagSet);
-    deleteSnippet(oldSnippetID);
+    deleteSnippet(oldSnippetID); //Really imporant to delete the snippet first, this is the "get out of recursion" call
     int newSnippetID = writeSnippet(fileInfo, snippetInfo);
     return newSnippetID;
   }
 
+  //Overloaded method is called when a snippet is a duplicate. This method is joining the two lists of tags and
+  //is calling writeSnippet with single, indirect recursion
   public static int joinTwoSnippets(SnippetInfo snippetInfo, int fileID) {
     int oldSnippetID = 0;
     try {
@@ -309,11 +324,13 @@ public class Driver {
     tagSet.addAll(tagNames);
     snippetInfo.getTagNames().clear();
     snippetInfo.getTagNames().addAll(tagSet);
-    deleteSnippet(oldSnippetID);
+    deleteSnippet(oldSnippetID);//Really imporant to delete the snippet first, this is the "get out of recursion" call
     int newSnippetID = writeSnippet(snippetInfo, fileID);
     return newSnippetID;
   }
 
+
+//Method write file to database
   public static boolean insertIntoFileInfo(SnippetInfo snippetInfo, FileInfo fileInfo) {
     boolean returnBool = false;
     if (!isFileInDb(fileInfo)) {
@@ -344,11 +361,9 @@ public class Driver {
     return returnBool;
   }
 
-
+//Method returns fileID from information that identifies the file
   public static int getFileIDFromFileNameSizeLen(String fileName, double fileSizeSec, int fileSizeKb) {
     int fileID = 0;
-
-//TODO Den här förutsätter att det inte kan finnas fler filer med samma hamn
     try {
       String sql = "SELECT fileID FROM fileInfo WHERE fileName =? " +
           "AND fileLenSec=? AND fileInfo.fileSizeKb=?";
@@ -370,6 +385,7 @@ public class Driver {
   }
 
 
+//Method returns all users registered in the database
   public static List<String> getAllUsers() {
     List<String> userLIst = new ArrayList<>();
     try {
@@ -388,7 +404,7 @@ public class Driver {
     return null;
   }
 
-
+//Method inserts unserName in userInfo and set the userID in the snippetInfo object
   private static boolean insertIntoUserInfo(SnippetInfo snippetInfo) {
     boolean returnBool = false;
     List<String> userList = getAllUsers();
@@ -425,6 +441,8 @@ public class Driver {
     return returnBool;
   }
 
+
+  //Method inserts values of snippetID and tagID in this bridge table between snippetInfo and tagInfo
   public static boolean insertIntoBrigeTable(SnippetInfo snippetInfo) {
     boolean returBool = false;
     for (int i = 0; i < snippetInfo.getTagIDs().size(); i++) {
@@ -443,6 +461,8 @@ public class Driver {
     return returBool;
   }
 
+
+  
   public static boolean insertIntoTagInfo(SnippetInfo snippetInfo) {
     boolean returnBool = false;
     List<Integer> tagIDs = new ArrayList<>();
