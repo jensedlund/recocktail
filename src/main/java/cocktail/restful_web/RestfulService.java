@@ -44,15 +44,14 @@ public class RestfulService {
 
   static {
 
-    externalStaticFileLocation("/home/zen/Documents/School/LiA/jensGIT/recocktail/src/main/web");
+//    externalStaticFileLocation("/home/zen/Documents/School/LiA/jensGIT/recocktail/src/main/web");
+    externalStaticFileLocation("/Users/Janne/JavaProj/git-jens/recocktail/src/main/web");
 //    externalStaticFileLocation("/root/github/recocktail/src/main/web");
 //    staticFiles.location("/web");;
   }
 
   public static void runSpark() {
     Controller controller = Controller.getInstance();
-
-
 
     get("/getAllTags", (request, response) -> controller.getCompleteSetOfTagNames(),
         (src) -> {
@@ -125,11 +124,23 @@ public class RestfulService {
       return gson.toJson(fileName);
     }));
 
-    get("/getSets", (request, response) -> {
+    get("/getActiveSets", (request, response) -> {
       List<String> setList = controller.getAllSavedSetsName();
       Gson gson = new Gson();
       return gson.toJson(setList);
     });
+
+//    get("/users/:name", (request, response) -> "Selected user: " + request.params(":name"));
+
+
+    get("/getSet/:name", (request, response) -> {
+      String setName = request.params(":name");
+      SnippetSet snippetSet = controller.getStoredSet(setName);
+      Gson gson = new Gson();
+      return gson.toJson(snippetSet);
+    });
+
+
   }
 }
 

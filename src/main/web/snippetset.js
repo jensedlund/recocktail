@@ -67,7 +67,6 @@ SnippetSet.prototype.getSnippet = function(id) {
     return this.snippetCollection.find(function(snippetInfo){return snippetInfo.snippetId});
 };
 
-
 SnippetSet.prototype.uploadNewSnippets = function() {
     if(!this.zip) {
         this.zip = new JSZip();

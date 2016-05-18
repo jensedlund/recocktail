@@ -24,12 +24,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script src="sound-shooter.js"></script>
     <script src="buffer-loader.js"></script>
-    <script src="sound-sets-plain-text.js"></script>
+    <!--<script src="sound-sets-plain-text.js"></script>-->
     <script src="css-range-slider/js/index.js"></script>
     <script src="jszip/jszip.min.js"></script>
     <script src="jszip/jszip-utils.min.js"></script>
     <script src="jszip/FileSaver.js"></script>
-    <script src="ziptest.js"></script>
+    <!--<script src="ziptest.js"></script>-->
     <script src="snippetset.js"></script>
     <script src="main.js"></script>
     <link rel="stylesheet" href="css-range-slider/css/style.css">
@@ -55,7 +55,7 @@
         <input type="checkbox" id="exclusiveSearch">Exclusive search?</input> <br>
 
         <button id="sendButton" onclick="search()">Search</button>
-        <button id="downloadButton">Download Set</button>
+        <button id="downloadButton" onclick="getZip()">Download Set</button>
     </div>
     <div id="setInfoDiv">
         <h2>Snippet set Information</h2> <br>
