@@ -1,6 +1,5 @@
 package DriverTest;
 
-import cocktail.db_access.DbAccessHandler;
 import cocktail.db_access.DbAdapterImpl;
 import cocktail.db_access.Driver;
 import cocktail.snippet.FileInfo;
@@ -43,7 +42,29 @@ private static SnippetSet snippetSet;
     return getSnippetJsonObject();
   }
   public static void main(String[] args) {
-    System.out.println(DbAccessHandler.getAccessInfo("password"));
+
+SnippetInfo snippetInfo;
+    try {
+
+      List<String> tagNames = new ArrayList<>();
+      tagNames.clear();
+      tagNames.add("clap");
+      tagNames.add("test2");
+      tagNames.add("test3");
+      tagNames.add(" ");
+
+      LocalDate ld1 = LocalDate.now();
+      LocalDate ld2 = LocalDate.now();
+
+      snippetInfo = new SnippetInfo("bb-gra%CC%8Ahakedopping-4", tagNames, 0.0, 3.0, 294, ld1, ld2, "Devel1");
+      snippetCollection.add(snippetInfo);
+
+      int ansInt = impl.writeSnippet(snippetInfo,191 );
+      System.out.println(ansInt + "inten som ska ha en tom tagg ");
+
+    } catch (Exception e){
+      e.printStackTrace();
+    }
   }
 
 
