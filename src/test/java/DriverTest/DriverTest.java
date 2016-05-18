@@ -1,5 +1,6 @@
 package DriverTest;
 
+import cocktail.db_access.DbAccessHandler;
 import cocktail.db_access.DbAdapterImpl;
 import cocktail.db_access.Driver;
 import cocktail.snippet.FileInfo;
@@ -42,7 +43,7 @@ private static SnippetSet snippetSet;
     return getSnippetJsonObject();
   }
   public static void main(String[] args) {
-impl.removeAllUnusedTags();
+    System.out.println(DbAccessHandler.getAccessInfo("password"));
   }
 
 

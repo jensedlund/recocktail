@@ -32,7 +32,7 @@ public class Driver {
     boolean returnBool = false;
 
     try {
-      myConnection = DriverManager.getConnection("jdbc:mysql://130.237.67.145:3306/recocktail?aoutoReconnect=true&useSSL=false",DbAccessHandler.getUserName(), DbAccessHandler.getPassword());
+      myConnection = DriverManager.getConnection("jdbc:mysql://130.237.67.145:3306/recocktail?aoutoReconnect=true&useSSL=false",DbAccessHandler.getAccessInfo("username"), DbAccessHandler.getAccessInfo("password"));
       myStatment = myConnection.createStatement();
       returnBool = true;
 
