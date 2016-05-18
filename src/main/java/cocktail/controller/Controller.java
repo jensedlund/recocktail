@@ -17,17 +17,17 @@ package cocktail.controller;
         * @version 1.0
         * @since 2016-04-18
 **/
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import cocktail.archive_handler.ArchiveHandler;
 import cocktail.db_access.DbAdapter;
 import cocktail.db_access.DbAdapterImpl;
 import cocktail.snippet.SetOperation;
 import cocktail.snippet.SnippetSet;
 import cocktail.storage.SnippetStorageImpl;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Controller implements ControllerInterface {
 
@@ -174,6 +174,11 @@ public class Controller implements ControllerInterface {
   @Override
   public boolean deleteSnippetAsAdmin(int snippetID) {
    return dbAdapter.deleteSnippetAsAdmin(snippetID);
+  }
+
+  @Override
+  public void deleteAllTagsNotInUse() {
+    dbAdapter.removeAllUnusedTags();
   }
 
 }

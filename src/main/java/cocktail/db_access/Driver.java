@@ -32,7 +32,7 @@ public class Driver {
     boolean returnBool = false;
 
     try {
-      myConnection = DriverManager.getConnection("jdbc:mysql://130.237.67.145:3306/recocktail?aoutoReconnect=true&useSSL=false",DbAccessHandler.getUserName(), DbAccessHandler.getPassword());
+      myConnection = DriverManager.getConnection("jdbc:mysql://130.237.67.145:3306/recocktail?aoutoReconnect=true&useSSL=false",DbAccessHandler.getAccessInfo("username"), DbAccessHandler.getAccessInfo("password"));
       myStatment = myConnection.createStatement();
       returnBool = true;
 
@@ -91,9 +91,6 @@ public class Driver {
 
   public static int writeSnippet(SnippetInfo snippetInfo, int fileID) {
     int returnInt = 0;
-    List<String> tempTagList = utf8Decode(snippetInfo.getTagNames());
-    snippetInfo.getTagNames().clear();
-    snippetInfo.setTagNames(tempTagList);
 
     if(isSnippetADuplicate(snippetInfo,fileID)){
       joinTwoSnippets(snippetInfo,fileID);
@@ -201,33 +198,20 @@ public class Driver {
     return false;
   }
 
-  public static List<String> utf8Decode(List<String> strings){
-    List<String> tempList = new ArrayList<>();
-    try {
-      for(String tag : strings) {
-        System.out.println(tag + "tag listan ");
-        tempList.add(URLDecoder.decode(tag, "UTF-8"));
-      }
-    }catch (IOException e){
-      e.printStackTrace();
-    }
-    return tempList;
-  }
 
   public static String utf8Decode(String s){
     String returnString = "";
+    System.out.println(s);
     try {
         returnString = URLDecoder.decode(s, "UTF-8");
     }catch (IOException e){
       e.printStackTrace();
     }
+    System.out.println(returnString);
     return returnString;
   }
 
   public static int writeSnippet(FileInfo fileInfo, SnippetInfo snippetInfo) {
-   List<String> tempTagList = utf8Decode(snippetInfo.getTagNames());
-    snippetInfo.getTagNames().clear();
-    snippetInfo.setTagNames(tempTagList);
 
   String tempFileName = fileInfo.getFileName();
     fileInfo.setFileName(utf8Decode(tempFileName));
@@ -330,7 +314,7 @@ public class Driver {
             ("INSERT INTO fileInfo (file,fileName,fileSizeKb,fileLenSec) VALUES(?,?,?,?)",
                 Statement.RETURN_GENERATED_KEYS);
         ps.setBinaryStream(1, fileInfo.getInputStream());
-        ps.setString(2, snippetInfo.getFileName());
+        ps.setString(2, fileInfo.getFileName());
         ps.setInt(3, fileInfo.getFileSizeKb());
         ps.setDouble(4, fileInfo.getFileLenSec());
         ps.executeUpdate();
@@ -1535,10 +1519,6 @@ public class Driver {
 
   public static int writeSnippetAsAdmin(SnippetInfo snippetInfo, FileInfo fileInfo) {
     int returnInt = 0;
-    List<String> tempTagList = utf8Decode(snippetInfo.getTagNames());
-    snippetInfo.getTagNames().clear();
-    snippetInfo.setTagNames(tempTagList);
-
     String tempFileName = fileInfo.getFileName();
     fileInfo.setFileName(utf8Decode(tempFileName));
 
