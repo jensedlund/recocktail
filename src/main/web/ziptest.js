@@ -49,18 +49,6 @@ function parseZip() {
 
         JSZip.loadAsync(data)
             .then(function(zip) {
-                // var dateAfter = new Date();
-                // $title.append($("<span>", {
-                //     text:" (loaded in " + (dateAfter - dateBefore) + "ms)"
-                // }));
-                // zip.file("SnippetSet.xml")
-                //     .asynch("String")
-                //     .then(function success(content) {
-                //         xmlFileTest = content;
-                //         console.log(content)
-                //     }, function error(e) {
-                //         console.log(e);
-                //     });
                 zip.forEach(function (relativePath, zipEntry) {
                     console.log(zipEntry.name);
                     console.log(zipEntry.dir);

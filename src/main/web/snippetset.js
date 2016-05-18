@@ -10,7 +10,6 @@ function DateStrings() {
     this.year = actualDate.getFullYear();
 }
 
-// Todo fixa blob
 function SnippetInfo() {
     this.snippetID = 0;
     this.fileID = 0;

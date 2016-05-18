@@ -3,6 +3,8 @@ package cocktail.db_access;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  ** Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
@@ -23,81 +25,36 @@ import java.io.IOException;
  * @since 2016-04-18
  */
 public class DbAccessHandler {
+    private static Map<String, String> accessMap;
 
+    private static void getInfoFromFile() {
+        accessMap = new HashMap<>();
 
-    public static String getPassword(){
-        String[] password = new String[2];
         try {
+            String[] temp = new String[2];
             FileReader fileReader = new FileReader("./src/main/java/cocktail/db_access/creds.txt");
             BufferedReader bR = new BufferedReader(fileReader);
             String str;
             int i = 0;
-            while ((str = bR.readLine()) != null){
-                if(str.contains("password")) {
-                    password = str.split(".*\\:");
-                }
+            while ((str = bR.readLine()) != null) {
+                temp = str.split(":");
+                accessMap.put(temp[0], temp[1]);
+
             }
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return password[1];
     }
 
+    public static String getAccessInfo(String string) {
+        String returnString = null;
+        if (accessMap == null) {
+            getInfoFromFile();
+            returnString = accessMap.get(string);
 
-
-    public static String getUserName(){
-        String[] userName = new String[2];
-        try {
-            FileReader fileReader = new FileReader("./src/main/java/cocktail/db_access/creds.txt");
-            BufferedReader bR = new BufferedReader(fileReader);
-            String str;
-            int i = 0;
-            while ((str = bR.readLine()) != null){
-                if(str.contains("username")) {
-                    userName = str.split(".*\\:");
-                }
-            }
-        }catch (IOException e){
-            e.printStackTrace();
+        } else {
+            returnString = accessMap.get(string);
         }
-        return userName[1];
-    }
-
-
-    public static String getIp(){
-        String[] ip = new String[2];
-        try {
-            FileReader fileReader = new FileReader("./src/main/java/cocktail/db_access/creds.txt");
-            BufferedReader bR = new BufferedReader(fileReader);
-            String str;
-            int i = 0;
-            while ((str = bR.readLine()) != null){
-                if(str.contains("ip")) {
-                    ip = str.split(".*\\:");
-                }
-            }
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        return ip[1];
-    }
-
-
-    public static String getDbName(){
-        String[] name = new String[2];
-        try {
-            FileReader fileReader = new FileReader("./src/main/java/cocktail/db_access/creds.txt");
-            BufferedReader bR = new BufferedReader(fileReader);
-            String str;
-            int i = 0;
-            while ((str = bR.readLine()) != null){
-                if(str.contains("dbname")) {
-                    name = str.split(".*\\:");
-                }
-            }
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        return name[1];
+        return returnString;
     }
 }

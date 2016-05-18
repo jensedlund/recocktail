@@ -25,6 +25,9 @@ var zipForUpload = new JSZip();
 var zipForDownload = new JSZip();
 var snippetZipDir = zipForUpload.folder("snippets");
 var newSnippetSetGlobal = new SnippetSet();
+var localContext = new AudioContext();
+var loadedSoundSets = [];
+
 
 function getAllTags(callback) {
     var xhttp = new XMLHttpRequest();
@@ -153,10 +156,9 @@ function getZip() {
 }
 
 // var xmlFileTest;
-var loadedSoundSets = [];
 
 function parseZip(zipFileUrl) {
-    var localContext = new AudioContext();
+    // var localContext = new AudioContext();
     var newSoundSet = {};
     loadedSoundSets.push(newSoundSet);
     newSoundSet.files = [];
@@ -190,10 +192,8 @@ function parseZip(zipFileUrl) {
 
                         zipEntry.async("arraybuffer")
                             .then(function (content) {
-                                // console.log(zipEntry.name);
                                 localContext.decodeAudioData(content).then(function(decodedData) {
                                     newSoundSet.files.push(decodedData);
-                                    console.log(zipEntry.name);
                             })
                         });
                     }
@@ -241,6 +241,12 @@ function populateSetInfo (response) {
         cellName.innerHTML = item.fileName;
         cellTags.innerHTML = item.tagNames;
     });
+
+    // var soundSelector = document.getElementById("snippetSets");
+    // var option = document.createElement("option");
+    // option.text = newSoundSet.label;
+    // option.value = newSoundSet.label;
+    // soundSelector.add(option);
 }
 
 function getComplementaryTags() {
@@ -287,8 +293,8 @@ function newSnippet() {
         addSnippetToTable(newSnippetInfo);
     };
 }
-
 function fileSelectionUpdate() {
+
     var fileButton = document.getElementById("newFile");
 
     var files = fileButton.files; // FileList object
@@ -308,7 +314,7 @@ function fileSelectionUpdate() {
     fileReader.readAsArrayBuffer(files[0]);
     fileReader.onloadend = function(event) {
         snippetZipDir.file(files[0].name, event.target.result, {base64 : true});
-        var localContext = new AudioContext();
+
         localContext.decodeAudioData(event.target.result).then(function(decodedData) {
             var startTime = document.getElementById("newStart");
             var duration = document.getElementById("newDuration");
