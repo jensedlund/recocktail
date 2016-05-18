@@ -387,7 +387,7 @@ public class DbAdapterImplTest {
             snippetInfo = new SnippetInfo("sourceFileName", tagNames, 0.2, 2.0, 2, ld1, ld2, "userName");
             snippetID = adapter.writeSnippet(fileInfo, snippetInfo);
            userName = snippetInfo.getUserName();
-           fileID =  Driver.getFileID(snippetID);
+           fileID =  Driver.getFileIDFromSnippetID(snippetID);
             listToDelete.add(snippetID);
         }catch (Exception e ){
             e.printStackTrace();
