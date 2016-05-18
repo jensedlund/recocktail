@@ -17,22 +17,25 @@ public class Driver {
   private static Connection myConnection;
   private static Statement myStatment;
   private static String _adminUserName;
+
   static {
     _adminUserName = "Admin";
   }
 
-  public static void setAdminUserName(String adminUserName){
+  public static void setAdminUserName(String adminUserName) {
     _adminUserName = adminUserName;
   }
 
-  public static String getAdminUserName(){
+  public static String getAdminUserName() {
     return _adminUserName;
   }
+
+
   public static boolean connectToMySql() {
     boolean returnBool = false;
 
     try {
-      myConnection = DriverManager.getConnection("jdbc:mysql://130.237.67.145:3306/recocktail?aoutoReconnect=true&useSSL=false",DbAccessHandler.getAccessInfo("username"), DbAccessHandler.getAccessInfo("password"));
+      myConnection = DriverManager.getConnection("jdbc:mysql://130.237.67.145:3306/recocktail?aoutoReconnect=true&useSSL=false", DbAccessHandler.getAccessInfo("username"), DbAccessHandler.getAccessInfo("password"));
       myStatment = myConnection.createStatement();
       returnBool = true;
 
@@ -44,11 +47,12 @@ public class Driver {
     return returnBool;
   }
 
-  private static List<String> removeUnwantedCharacters(List<String> tagNames){
+  //Method use regex to remove charachter such as &%# from tagNames. [. - _ ] are allowed
+  private static List<String> removeUnwantedCharacters(List<String> tagNames) {
     List<String> newTagList = new ArrayList<>();
-    for(String s : tagNames) {
+    for (String s : tagNames) {
       String temp = s.replaceAll("[^\\.\\_\\-åäö\\w]", "");
-      if(temp.length()>1) {
+      if (temp.length() > 1) {
         newTagList.add(temp);
       }
 
@@ -56,11 +60,12 @@ public class Driver {
     return newTagList;
   }
 
-  private static void tagsToLowerCase(SnippetInfo snippetInfo){
+  //Method is transforming tags with upperCase to new tags in lowerCase
+  private static void tagsToLowerCase(SnippetInfo snippetInfo) {
     List<String> tempTagNames = new ArrayList<>();
 
     int size = snippetInfo.getTagNames().size();
-    for (int i = 0; i < size; i++ ) {
+    for (int i = 0; i < size; i++) {
       String temp = snippetInfo.getTagNames().get(i).toLowerCase();
       tempTagNames.add(temp);
     }
@@ -68,10 +73,11 @@ public class Driver {
     snippetInfo.getTagNames().addAll(tempTagNames);
   }
 
-  private static void removeProtectedTags(SnippetInfo snippetInfo){
+  //Method trhows away
+  private static void removeProtectedTags(SnippetInfo snippetInfo) {
     List<String> listToDel = new ArrayList<>();
-    for(String s : snippetInfo.getTagNames()){
-      if(s.charAt(0)=='.'){
+    for (String s : snippetInfo.getTagNames()) {
+      if (s.charAt(0) == '.') {
         listToDel.add(s);
       }
     }
@@ -79,9 +85,9 @@ public class Driver {
 
   }
 
-  public static boolean isCallProtectedAdmin(SnippetInfo snippetInfo){
+  public static boolean isCallProtectedAdmin(SnippetInfo snippetInfo) {
     boolean isAdmin;
-    if(snippetInfo.getUserName().equals(_adminUserName)){
+    if (snippetInfo.getUserName().equals(_adminUserName)) {
       isAdmin = true;
     } else {
       isAdmin = false;
@@ -92,8 +98,8 @@ public class Driver {
   public static int writeSnippet(SnippetInfo snippetInfo, int fileID) {
     int returnInt = 0;
 
-    if(isSnippetADuplicate(snippetInfo,fileID)){
-      joinTwoSnippets(snippetInfo,fileID);
+    if (isSnippetADuplicate(snippetInfo, fileID)) {
+      joinTwoSnippets(snippetInfo, fileID);
     }
     if (!isCallProtectedAdmin(snippetInfo)) {
       removeProtectedTags(snippetInfo);
@@ -108,37 +114,39 @@ public class Driver {
       insertIntoBrigeTable(snippetInfo);
       returnInt = snippetInfo.getSnippetID();
       return returnInt;
+    } else {
+      returnInt = writeSnippetAsAdmin(snippetInfo, fileID);
     }
     return returnInt;
   }
 
   public static boolean isSnippetADuplicate(SnippetInfo snippetInfo, FileInfo fileInfo) {
     boolean isDublicate = false;
-    if(!isFileInDb(fileInfo)){
+    if (!isFileInDb(fileInfo)) {
       isDublicate = false;
       return isDublicate;
     } else {
       int fileID = getFileIDFromFileNameSizeLen(fileInfo.getFileName(),
-          fileInfo.getFileLenSec(),fileInfo.getFileSizeKb());
+          fileInfo.getFileLenSec(), fileInfo.getFileSizeKb());
       double lenSec = 0.0;
       double startTime = 0.0;
 
       try {
         String sql = "SELECT startTime, lenSec FROM snippetInfo WHERE fileID=?";
         PreparedStatement ps = myConnection.prepareStatement(sql);
-        ps.setInt(1,fileID);
+        ps.setInt(1, fileID);
         ResultSet rs = ps.executeQuery();
-        while (rs.next()){
+        while (rs.next()) {
           lenSec = rs.getDouble("lenSec");
           startTime = rs.getDouble("startTime");
         }
         ps.close();
         rs.close();
-      }catch (Exception e ){
+      } catch (Exception e) {
         e.printStackTrace();
       }
 
-      if(lenSec == snippetInfo.getLengthSec() && startTime == snippetInfo.getStartTime()){
+      if (lenSec == snippetInfo.getLengthSec() && startTime == snippetInfo.getStartTime()) {
         isDublicate = true;
         return isDublicate;
       }
@@ -153,18 +161,18 @@ public class Driver {
     try {
       String sql = "SELECT startTime, lenSec FROM snippetInfo WHERE fileID=?";
       PreparedStatement ps = myConnection.prepareStatement(sql);
-      ps.setInt(1,fileID);
+      ps.setInt(1, fileID);
       ResultSet rs = ps.executeQuery();
-      while (rs.next()){
+      while (rs.next()) {
         lenSec = rs.getDouble("lenSec");
         startTime = rs.getDouble("startTime");
       }
       ps.close();
       rs.close();
-    }catch (Exception e ){
+    } catch (Exception e) {
       e.printStackTrace();
     }
-    if(lenSec == snippetInfo.getLengthSec() && startTime == snippetInfo.getStartTime()){
+    if (lenSec == snippetInfo.getLengthSec() && startTime == snippetInfo.getStartTime()) {
       isDublicate = true;
       return isDublicate;
     }
@@ -172,7 +180,7 @@ public class Driver {
     return isDublicate;
   }
 
-  public static boolean isFileInDb(FileInfo fileInfo){
+  public static boolean isFileInDb(FileInfo fileInfo) {
 
 //TODO fixa checkusm här
     boolean isFileInDb = false;
@@ -180,10 +188,10 @@ public class Driver {
       String sql = "SELECT fileName, fileSizeKb, fileLenSec FROM fileInfo";
       PreparedStatement ps = myConnection.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
-      while (rs.next()){
-        if(fileInfo.getFileName().equals(rs.getString("fileName"))){
-          if(fileInfo.getFileLenSec()== rs.getDouble("fileLenSec") &&
-              fileInfo.getFileSizeKb() == rs.getDouble("fileSizeKb")){
+      while (rs.next()) {
+        if (fileInfo.getFileName().equals(rs.getString("fileName"))) {
+          if (fileInfo.getFileLenSec() == rs.getDouble("fileLenSec") &&
+              fileInfo.getFileSizeKb() == rs.getDouble("fileSizeKb")) {
             isFileInDb = true;
             return isFileInDb;
           }
@@ -192,19 +200,19 @@ public class Driver {
       ps.close();
       rs.close();
       return isFileInDb;
-    }catch (Exception e){
+    } catch (Exception e) {
       e.printStackTrace();
     }
     return false;
   }
 
 
-  public static String utf8Decode(String s){
+  public static String utf8Decode(String s) {
     String returnString = "";
     System.out.println(s);
     try {
-        returnString = URLDecoder.decode(s, "UTF-8");
-    }catch (IOException e){
+      returnString = URLDecoder.decode(s, "UTF-8");
+    } catch (IOException e) {
       e.printStackTrace();
     }
     System.out.println(returnString);
@@ -213,14 +221,14 @@ public class Driver {
 
   public static int writeSnippet(FileInfo fileInfo, SnippetInfo snippetInfo) {
 
-  String tempFileName = fileInfo.getFileName();
+    String tempFileName = fileInfo.getFileName();
     fileInfo.setFileName(utf8Decode(tempFileName));
 
     int returnInt = 0;
-    if(isSnippetADuplicate(snippetInfo,fileInfo)){
-      returnInt = joinTwoSnippets(snippetInfo,fileInfo);
-    } else if(isCallProtectedAdmin(snippetInfo)){
-      returnInt = writeSnippetAsAdmin(snippetInfo,fileInfo);
+    if (isSnippetADuplicate(snippetInfo, fileInfo)) {
+      returnInt = joinTwoSnippets(snippetInfo, fileInfo);
+    } else if (isCallProtectedAdmin(snippetInfo)) {
+      returnInt = writeSnippetAsAdmin(snippetInfo, fileInfo);
     } else {
       removeProtectedTags(snippetInfo);
       tagsToLowerCase(snippetInfo);
@@ -608,7 +616,7 @@ public class Driver {
 
   public static boolean deleteInsertAsAdmin(SnippetInfo snippetInfo, FileInfo fileInfo, int snippetID) {
     boolean returnBool = false;
-    if(snippetInfo.getUserName().equals(_adminUserName)){
+    if (snippetInfo.getUserName().equals(_adminUserName)) {
       deleteSnippetAdm(snippetInfo.getSnippetID());
       snippetInfo.setSnippetID(snippetID);
       java.sql.Date dateCreate = java.sql.Date.valueOf(snippetInfo.getCreationDate());
@@ -644,7 +652,7 @@ public class Driver {
   public static boolean deleteSnippetAdm(int snippetID) {
     boolean returnBool;
     String userName = getUserNameForSnippet(snippetID);
-    if(userName.equals(_adminUserName)) {
+    if (userName.equals(_adminUserName)) {
       int fileID = getFileID(snippetID);
       List<Integer> tagIdsSnippet = getTagIDsForSnippetID(snippetID);
 
@@ -889,14 +897,14 @@ public class Driver {
     return returnBool;
   }
 
-  public static boolean isSnippetProtectedSample(int snippetID){
+  public static boolean isSnippetProtectedSample(int snippetID) {
     boolean isProtected = false;
     List<Integer> id = new ArrayList<>();
     id.add(snippetID);
     List<String> tags = getTagNamesFromIDs(id);
-    for(String tag : tags){
+    for (String tag : tags) {
       System.out.println(" I is snippetProtected " + tag);
-      if(tag.charAt(0)=='.'){
+      if (tag.charAt(0) == '.') {
         isProtected = true;
       }
     }
@@ -906,7 +914,7 @@ public class Driver {
   public static boolean deleteSnippet(int snippetID) {
     boolean returnBool;
     String userName = getUserNameForSnippet(snippetID);
-    if(!isSnippetProtectedSample(snippetID)|| userName.equals(_adminUserName)){
+    if (!isSnippetProtectedSample(snippetID) || userName.equals(_adminUserName)) {
       int fileID = getFileID(snippetID);
       List<Integer> tagIdsSnippet = getTagIDsForSnippetID(snippetID);
 
@@ -1101,7 +1109,7 @@ public class Driver {
 
   public static List<Integer> searchSnippetIDs(List<String> tagArray, double lengthMaxFilter) {
     List<String> tagLowerCas = new ArrayList<>();
-    for(String tag : tagArray){
+    for (String tag : tagArray) {
       tagLowerCas.add(tag.toLowerCase());
     }
     List<Integer> snippetIdList = new ArrayList<>();
@@ -1181,9 +1189,9 @@ public class Driver {
     int tagID = getTagID(tagName);
     int snippetID = getSnippetIDForTagID(tagID);
     SnippetInfo snippetInfo = readSnippetInf(snippetID);
-    if(lengthMaxFilter<=0){
+    if (lengthMaxFilter <= 0) {
       snippetIDs.add(snippetID);
-    }else if (snippetInfo.getLengthSec() <= lengthMaxFilter) {
+    } else if (snippetInfo.getLengthSec() <= lengthMaxFilter) {
       snippetIDs.add(snippetID);
     }
     return snippetIDs;
@@ -1271,9 +1279,9 @@ public class Driver {
     try {
       String sql = "SELECT COUNT(*) FROM bridgeSnippetTagTable WHERE tagID=?";
       PreparedStatement ps = myConnection.prepareStatement(sql);
-      ps.setInt(1,tagID);
+      ps.setInt(1, tagID);
       ResultSet rs = ps.executeQuery();
-      while (rs.next()){
+      while (rs.next()) {
         occurance = rs.getInt(1);
       }
       return occurance;
@@ -1445,73 +1453,73 @@ public class Driver {
   }
 
 
-  public static String getFileNameFromSnippetId(int snippetID){
+  public static String getFileNameFromSnippetId(int snippetID) {
     String returnString = "";
     int fileID = getFileID(snippetID);
     try {
       String sql = "SELECT fileName FROM fileInfo WHERE fileID=?";
       PreparedStatement ps = myConnection.prepareStatement(sql);
-      ps.setInt(1,fileID);
+      ps.setInt(1, fileID);
       ResultSet rs = ps.executeQuery();
-      if(rs.next()){
+      if (rs.next()) {
         returnString = rs.getString("fileName");
       }
       ps.close();
       rs.close();
       return returnString;
-    } catch (Exception e){
+    } catch (Exception e) {
       e.printStackTrace();
     }
     return returnString;
   }
 
-  public static boolean deleteUnusedTag(String tagName){
+  public static boolean deleteUnusedTag(String tagName) {
     boolean returnBool = false;
     int tagID = getTagID(tagName);
     int nrOfOcc = 0;
-    try{
+    try {
       String sql = "SELECT COUNT(snippetID) FROM bridgeSnippetTagTable WHERE tagID=?";
       PreparedStatement psCount = myConnection.prepareStatement(sql);
-      psCount.setInt(1,tagID);
+      psCount.setInt(1, tagID);
       ResultSet rs = psCount.executeQuery();
-      if(rs.next()){
+      if (rs.next()) {
         nrOfOcc = rs.getInt(1);
       }
-      if(nrOfOcc<1){
+      if (nrOfOcc < 1) {
         sql = "DELETE FROM tagInfo WHERE tagID=?";
         PreparedStatement psDelTag = myConnection.prepareStatement(sql);
-        psDelTag.setInt(1,tagID);
+        psDelTag.setInt(1, tagID);
         psDelTag.executeUpdate();
 
         sql = "DELETE FROM bridgeSnippetTagTable WHERE tagID=?";
         PreparedStatement psDelBride = myConnection.prepareStatement(sql);
-        psDelBride.setInt(1,tagID);
+        psDelBride.setInt(1, tagID);
         psDelBride.executeUpdate();
         returnBool = true;
       }
       return returnBool;
 
-    }catch (Exception e){
+    } catch (Exception e) {
       e.printStackTrace();
     }
     return returnBool;
   }
 
-  public static String getUserNameForSnippet(int snippetID){
+  public static String getUserNameForSnippet(int snippetID) {
     String userName = "";
     int userID = 0;
-    try{
+    try {
       String sql = "SELECT userID FROM snippetInfo WHERE snippetID=?";
       PreparedStatement ps = myConnection.prepareStatement(sql);
-      ps.setInt(1,snippetID);
+      ps.setInt(1, snippetID);
       ResultSet rs = ps.executeQuery();
-      if(rs.next()){
+      if (rs.next()) {
         userID = rs.getInt("userID");
       }
       ps.close();
       rs.close();
       return getUserName(userID);
-    }catch (Exception e){
+    } catch (Exception e) {
       e.printStackTrace();
     }
     return userName;
@@ -1561,5 +1569,48 @@ public class Driver {
       return returnInt;
     }
   }
-}
 
+
+  public static int writeSnippetAsAdmin(SnippetInfo snippetInfo, int fileID) {
+    int returnInt = 0;
+    snippetInfo.setFileID(fileID);
+
+    if (snippetInfo.getUserName().equals(_adminUserName)) {
+      tagsToLowerCase(snippetInfo);
+      List<String> newTagList = removeUnwantedCharacters(snippetInfo.getTagNames());
+      snippetInfo.getTagNames().clear();
+      snippetInfo.getTagNames().addAll(newTagList);
+      java.sql.Date date = java.sql.Date.valueOf(snippetInfo.getCreationDate());
+      java.sql.Date date2 = java.sql.Date.valueOf(snippetInfo.getLastModified());
+      insertIntoUserInfo(snippetInfo);
+      try {
+        PreparedStatement ps = myConnection.prepareStatement
+            ("INSERT INTO snippetInfo (fileID,sizeKb,startTime,lenSec,creationDate,lastModifiedDate,userID) VALUES(?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+        ps.setInt(1, fileID);
+        ps.setInt(2, snippetInfo.getKbSize());
+        ps.setDouble(3, snippetInfo.getStartTime());
+        ps.setDouble(4, snippetInfo.getLengthSec());
+        ps.setDate(5, date);
+        ps.setDate(6, date2);
+        ps.setInt(7, snippetInfo.getUserID());
+        ps.executeUpdate();
+        ResultSet tableKeys = ps.getGeneratedKeys();
+        tableKeys.next();
+        snippetInfo.setSnippetID(tableKeys.getInt(1));
+        ps.close();
+        tableKeys.close();
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
+
+      insertIntoTagInfo(snippetInfo);
+
+      insertIntoBrigeTable(snippetInfo);
+
+      returnInt = snippetInfo.getSnippetID();
+      return returnInt;
+    } else {
+      return returnInt;
+    }
+  }
+}
