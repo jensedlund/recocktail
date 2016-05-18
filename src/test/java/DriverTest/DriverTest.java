@@ -42,7 +42,7 @@ private static SnippetSet snippetSet;
     return getSnippetJsonObject();
   }
   public static void main(String[] args) {
-createSampelList();
+impl.removeAllUnusedTags();
   }
 
 
@@ -189,6 +189,7 @@ createSampelList();
       tagNames.add("cl ap");
       tagNames.add("te st1");
       tagNames.add("tes$t2@");
+      tagNames.add("ÅÄöåäö");
       LocalDate ld1 = LocalDate.now();
       LocalDate ld2 = LocalDate.now();
       snippetInfo = new SnippetInfo("clap2", tagNames, 0.0, 3.0, 263, ld1, ld2, "Devel2");
@@ -204,7 +205,7 @@ createSampelList();
       FileInputStream input = new FileInputStream("src/test/resources/clap3.wav");
       byte[] b = spark.utils.IOUtils.toByteArray(input);
       ByteArrayInputStream bInput = new ByteArrayInputStream(b);
-      fileInfo = new FileInfo(bInput, "clap3", 294, 3.0);
+      fileInfo = new FileInfo(bInput, "bb-gra%CC%8Ahakedopping-4", 394, 4.0);
       List<String> tagNames = new ArrayList<>();
       tagNames.clear();
       tagNames.add("clap");
@@ -215,7 +216,7 @@ createSampelList();
       LocalDate ld1 = LocalDate.now();
       LocalDate ld2 = LocalDate.now();
 
-      snippetInfo = new SnippetInfo("clap3", tagNames, 0.0, 3.0, 294, ld1, ld2, "Devel1");
+      snippetInfo = new SnippetInfo("bb-gra%CC%8Ahakedopping-4", tagNames, 0.0, 3.0, 294, ld1, ld2, "Devel1");
         snippetCollection.add(snippetInfo);
 
        int ansInt = impl.writeSnippet(fileInfo, snippetInfo);
