@@ -36,18 +36,23 @@ import cocktail.snippet.SnippetSet;
 import cocktail.stream_io.XmlStreamer;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static spark.Spark.externalStaticFileLocation;
 import static spark.Spark.get;
 import static spark.Spark.post;
+import static spark.Spark.staticFiles;
 
 public class RestfulService {
 
   static {
 
-//    externalStaticFileLocation("/home/zen/Documents/School/LiA/jensGIT/recocktail/src/main/web");
-    externalStaticFileLocation("/Users/Janne/JavaProj/git-jens/recocktail/src/main/web");
-//    externalStaticFileLocation("/root/github/recocktail/src/main/web");
-//    staticFiles.location("/web");;
+    boolean localhost = true;
+    if (localhost) {
+      String projectDir = System.getProperty("user.dir");
+      String staticDir = "/src/main/web";
+      staticFiles.externalLocation(projectDir + staticDir);
+    } else {
+      staticFiles.location("/public");
+    }
+
   }
 
   public static void runSpark() {
