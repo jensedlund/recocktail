@@ -115,9 +115,9 @@ public class ControllerTest {
   public void updateUserName() throws Exception {
     String oldUserName = "userName";
     String newUserName = "newUserName";
-    int oldUserID = Driver.getUserID(oldUserName);
+    int oldUserID = Driver.getUserIDForUserName(oldUserName);
     Controller.getInstance().updateUserName(newUserName, oldUserName);
-    int newUserID = Driver.getUserID(newUserName);
+    int newUserID = Driver.getUserIDForUserName(newUserName);
     Driver.updateUserInfo(oldUserName, newUserName);
 
     Assert.assertEquals(oldUserID, newUserID);

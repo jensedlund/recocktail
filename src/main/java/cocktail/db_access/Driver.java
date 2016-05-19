@@ -1213,7 +1213,7 @@ public class Driver {
   }
 
 
-  //Method check if
+  //Method check if the snippet from search is whitin the limits of the length filter
 
   private static List<Integer> fileterSnippetIDByLenght(List<Integer> snippetIdList, double lengthMaxFilter) {
     List<Integer> snippgetIDs = new ArrayList<>();
@@ -1226,6 +1226,8 @@ public class Driver {
     return snippetIdList;
   }
 
+
+  //Returns the list of snippetIDs that is conected with tagIDs from argument
   private static List<Integer> getSnippetIDForTagID(List<Integer> tagIDs) {
     List<Integer> snippetIDs = new ArrayList<>();
 
@@ -1246,6 +1248,7 @@ public class Driver {
     return null;
   }
 
+  //Returns the snippetID from one row defined by the argument, tagID
   public static int getSnippetIDForTagID(int tagID) {
     int snippetID = 0;
     try {
@@ -1263,6 +1266,7 @@ public class Driver {
     return 0;
   }
 
+  //Search for snippets connected to a collection of tagNames and sort out snippets that are larger than the length filter
   public static List<Integer> searchSnippetIDs(String tagName, double lengthMaxFilter) {
     List<Integer> snippetIDs = new ArrayList<>();
     tagName = tagName.toLowerCase();
@@ -1277,6 +1281,8 @@ public class Driver {
     return snippetIDs;
   }
 
+
+  //Returns a double representing the longest file in database in seconds
   public static Double getMaxFileLenSec() {
     double max = 0;
     double temp = 0;
@@ -1297,6 +1303,8 @@ public class Driver {
     return 0.0;
   }
 
+
+  //Returns the total number of snippets in the database
   public static int getNumberOfSnippets() {
     int numberOfSnippets = 0;
     try {
@@ -1408,7 +1416,7 @@ public class Driver {
   }
 
 
-  //Method is checking two tables and match the results to awnser the question if one snippet is part of a larger file or not
+  //Method is checking two tables and match the results to answer the question if one snippet is part of a larger file or not
   public static boolean isSnippetPartOfLongerFile(int snippetID) {
     boolean returnBool = false;
     double startTime = 0.0;
@@ -1450,8 +1458,9 @@ public class Driver {
   }
 
 
+  //Change userName for a user, for one userID
   public static void updateUserInfo(String newUserName, String oldUserName) {
-    int userID = getUserID(oldUserName);
+    int userID = getUserIDForUserName(oldUserName);
     try {
       String sql = "UPDATE userInfo SET userName=? WHERE userID=?";
       PreparedStatement psUserInfo = myConnection.prepareStatement(sql);
@@ -1463,6 +1472,8 @@ public class Driver {
     }
   }
 
+
+  //Change one tagName, the tagID stays the same
   public static boolean updateTagInfo(String newTagName, String oldTagName) {
     //TODO denna metod måste överlagras som en koll om det är en skyddad tagg eller inte
     boolean returnBool = false;
@@ -1484,7 +1495,11 @@ public class Driver {
     return returnBool;
   }
 
-  public static int getUserID(String userName) {
+
+  //Returns the userID and take the userName as argument. This method need some work in order to be useful in a program where
+  //the user is logged in. Example: getUserIDForUserNameUserPassword(String userName, String password); If there is more than one user with the same userName
+  //there will be problem.
+  public static int getUserIDForUserName(String userName) {
     int userID = 0;
     try {
       String sql = "SELECT userID FROM userInfo WHERE userName=?";
@@ -1501,6 +1516,8 @@ public class Driver {
     return userID;
   }
 
+
+  //Method returns a snippetSet including all the snippets connected to one specific file
   public static SnippetSet getAllSnippetFromFile(int fileID) {
     SnippetSet snippetSet;
     SortedSet<SnippetInfo> snippetInfoSet = new TreeSet<>();
@@ -1535,6 +1552,7 @@ public class Driver {
   }
 
 
+  //Returns the name of the file connected to one specific snippetID
   public static String getFileNameFromSnippetId(int snippetID) {
     String returnString = "";
     int fileID = getFileIDFromSnippetID(snippetID);
@@ -1555,6 +1573,8 @@ public class Driver {
     return returnString;
   }
 
+
+  
   public static boolean deleteUnusedTag(String tagName) {
     boolean returnBool = false;
     int tagID = getTagID(tagName);
