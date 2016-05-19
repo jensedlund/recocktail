@@ -1,7 +1,6 @@
 package DriverTest;
 
 import cocktail.db_access.DbAdapterImpl;
-import cocktail.db_access.Driver;
 import cocktail.snippet.FileInfo;
 import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
@@ -158,7 +157,7 @@ private static SnippetSet snippetSet;
   public static boolean deletSampels(int snippetID){
 
     boolean returnBool = false;
-    returnBool = Driver.deleteSnippet(snippetID);
+    //returnBool = Driver.deleteSnippet(snippetID);
     return returnBool;
   }
 

@@ -25,10 +25,30 @@ import cocktail.snippet.SnippetSet;
 
 import java.util.List;
 
+/**
+ * Class that provide the programm with information from database and uppload information to the database.
+ *
+ * @version 1.0
+ *
+ */
 public interface DbAdapter {
+  /**
+   * Insert information and a file into the database.
+   *
+   * @param fileInfo object with a file and information about the file
+   * @param snippetInfo object with information about the snippet
+   * @return The id of the snippet that is generated in the database
+   */
+  int writeSnippet(FileInfo fileInfo, SnippetInfo snippetInfo);
 
-  int writeSnippet(FileInfo fileInfo, SnippetInfo info);
-
+  /**
+   *
+   * 
+   * @param snippetInfo
+   * @param fileInfo
+   * @param snippetID
+   * @return
+   */
   boolean editSnippet(SnippetInfo snippetInfo, FileInfo fileInfo, int snippetID);
 
   boolean deleteSnippet(int snippetID);
@@ -93,6 +113,7 @@ public interface DbAdapter {
   boolean editSnippetAsAdmin(SnippetInfo snippetInfo,FileInfo fileInfo, int snippetID);
 
   boolean deleteSnippetAsAdmin(int SnippetID);
+
 }
 
 
