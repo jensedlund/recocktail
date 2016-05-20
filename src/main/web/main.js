@@ -143,9 +143,9 @@ function getZip() {
                type: 'GET',
                async: true,
                success: function (data) {
-                   console.log(data);
+                   // console.log(data);
                    var fileUrl = data;
-                   console.log(fileUrl);
+                   // console.log(fileUrl);
                    // parseZip("tmp/download.zip");
                    parseZip2("tmp/download.zip");
                },
@@ -156,32 +156,37 @@ function getZip() {
            });
 }
 
-var soundSetTest = new SoundSet(localContext);
+// var soundSetTest = new SoundSet(localContext);
 function parseZip2(zipFileUrl) {
     // var localContext = new AudioContext();
     var newSoundSet = new SoundSet(localContext);
     loadedSoundSets.push(newSoundSet);
-    newSoundSet.files = [];
+
+    // newSoundSet.files = [];
 
     JSZipUtils.getBinaryContent(zipFileUrl, function(err, data) {
         if (err) {
             console.log(err);
         }
         // soundSetTest.populateFromZip(data);
-        newSoundSet.populateFromZip(data).then(function success() {
-            console.log("Trace me!")
-            $("#soundSets").empty();
-            var soundSelector = document.getElementById("soundSets");
-            for (var i = 0; i < loadedSoundSets.length; i++) {
-                var option = document.createElement("option");
-                var setName = loadedSoundSets[i].name;
-                option.text = setName;
-                option.value = setName;
-                soundSelector.add(option);
-            }
-        });
-    })
+        newSoundSet.populateFromZip(data);
+    });
 }
+
+function updateSoundSetList() {
+    $("#soundSets").empty();
+    var soundSelector = document.getElementById("soundSets");
+    for (var i = 0; i < loadedSoundSets.length; i++) {
+
+        var option = document.createElement("option");
+        var setName = loadedSoundSets[i].name;
+        console.log(setName);
+        option.text = setName;
+        option.value = setName;
+        soundSelector.add(option);
+    }
+}
+
 
 function parseZip(zipFileUrl) {
     // var localContext = new AudioContext();
