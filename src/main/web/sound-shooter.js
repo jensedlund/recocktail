@@ -30,24 +30,34 @@ function init() {
     // Fix up prefixing
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     context = new AudioContext();
+
     // context[0] = new AudioContext();
     // context[1] = new AudioContext();
     // otherContext = new AudioContext();
 
     // Populating drop down selection.
-    var soundSelector = document.getElementById("soundSets");
-    loadedSoundSets.forEach(function (val) {
-        var option = document.createElement("option");
-        option.text = val.label;
-        option.value = val.label;
-        soundSelector.add(option);
-    });
-    document.getElementById("soundstart1").disabled = false;
-    document.getElementById("soundstart2").disabled = false;
-    document.getElementById("soundstop1").disabled = false;
-    document.getElementById("soundstop2").disabled = false;
+    // var soundSelector = document.getElementById("soundSets");
+    // loadedSoundSets.forEach(function (val) {
+    //     var option = document.createElement("option");
+    //     option.text = val.label;
+    //     option.value = val.label;
+    //     soundSelector.add(option);
+    // });
+    // document.getElementById("soundstart1").disabled = false;
+    // document.getElementById("soundstart2").disabled = false;
+    // document.getElementById("soundstop1").disabled = false;
+    // document.getElementById("soundstop2").disabled = false;
     rangeSlider();
     getAllTags(populateAllTagsList);
+}
+
+function collectSoundParams(soundSet) {
+    soundSet.gain = parseFloat(document.getElementById("gain").value);
+    soundSet.gainVar = parseFloat(document.getElementById("gainVar").value);
+    soundSet.balance = parseFloat(document.getElementById("balance").value);
+    soundSet.delay = document.getElementById("delay").value;
+    soundSet.delayVar = document.getElementById("delayVar").value;
+
 }
 
 var staph = [false, false];

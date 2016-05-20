@@ -6,10 +6,10 @@ function SoundSet(context) {
     this.name = "";
     this.soundArray = [];
     this.processedSoundArray = [];
-    this.gain = 0;
-    this.gainVar = 0;
-    this.delay = 0;
-    this.delayVar = 0;
+    this.gain = 0.2;
+    this.gainVar = 0.2;
+    this.delay = 50;
+    this.delayVar = 10;
     this.balance = 0;
     this.balanceVar = 0;
     this.playing = false;
@@ -62,39 +62,42 @@ SoundSet.prototype.populateFromZip = function (zipBlob) {
 // todo move sound process settings to callback
 // todo create gain, pan etc on context creation
 // todo check if elemtnt exist
-SoundSet.prototype.shootSound = function () {
+SoundSet.prototype.shootSound = function (soundParamFunc) {
     if (this.playing) {
 
         var localContext = this.context;
         var bufferList = this.processedSoundArray;
 
         var source = localContext.createBufferSource();
-        var soundIndex = Math.floor((Math.random() * bufferList.length));
-        source.buffer = bufferList[soundIndex];
-
+        var source = localContext.createBufferSource();
         var gainBox = localContext.createGain();
-        var gain = parseFloat(document.getElementById("gain").value);
-        var gainVar = parseFloat(document.getElementById("gainVar").value);
-        var gainSum = gain + (Math.random() * gainVar);
-        console.log("Gainsum " + gainSum + " Gain " + gain);
-        gainBox.gain.value = gainSum;
-        source.connect(gainBox);
-
         var balanceBox = localContext.createStereoPanner();
 
-        // var panVal = (Math.round(Math.random() * 2)) - 1.0;
-        var panVal = parseFloat(document.getElementById("balance").value);
-        balanceBox.pan.value = panVal;
+        source.connect(gainBox);
         gainBox.connect(balanceBox);
         balanceBox.connect(localContext.destination);
 
+        soundParamFunc(this);
+
+        var soundIndex = Math.floor((Math.random() * bufferList.length));
+        source.buffer = bufferList[soundIndex];
+
+        var gainSum = this.gain + (Math.random() * this.gainVar);
+        console.log("Gainsum " + this.gainSum + " Gain " + this.gain);
+        gainBox.gain.value = gainSum;
+
+        // var panVal = (Math.round(Math.random() * 2)) - 1.0;
+        balanceBox.pan.value = this.balance;
+        gainBox.connect(balanceBox);
+
         source.start(0);
 
-        var delay = document.getElementById("delay").value;
         // var gaussGen = new PolarDistribution();
         // console.log("Pan value " + panVal + " Gain " + gainSum);
         // console.log("Gaussian " + gaussGen.getGaussian(1, 0.25).toFixed(2));
-        setTimeout(shootSound.bind(null), delay);
+        var delaySum = this.delay;
+        setTimeout(this.shootSound.bind(this,soundParamFunc), delaySum);
+        // setTimeout(this.shootSound, delay);
     }
 };
 
@@ -102,16 +105,16 @@ SoundSet.prototype.stopPlayback = function () {
     this.playing = false;
 };
 
-SoundSet.prototype.startPlaback = function (weightedTime) {
+SoundSet.prototype.startPlaback = function (weightedTime, soundParamFunc) {
 
     // Create processedSoundArray for playback, by either duplicate for
     // equal play time (weightedTime), or just copy.
     if (weightedTime) {
         this.soundArray.sort(function(a,b) {return a.duration - b.duration;});
         this.processedSoundArray = [];
-        var minDuration = bufferList[0].duration;
+        var minDuration = this.soundArray[0].duration;
 
-        for (var i = 0; i < bufferList.length; i++) {
+        for (var i = 0; i < this.soundArray.length; i++) {
             var localSound = this.soundArray[i];
             var bufferDuration = localSound.duration;
             var weight = Math.round(bufferDuration / minDuration);
@@ -123,6 +126,6 @@ SoundSet.prototype.startPlaback = function (weightedTime) {
         this.processedSoundArray = this.soundArray;
     }
     this.playing = true;
-    this.shootSound();
+    this.shootSound(soundParamFunc);
 };
 
