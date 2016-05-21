@@ -101,31 +101,33 @@ SoundSet.prototype.shootSound = function (soundParamFunc) {
     }
 };
 
+SoundSet.prototype.startPlaback = function (weightedTime, soundParamFunc) {
+    if (!this.playing) {
+        // Create processedSoundArray for playback, by either duplicate for
+        // equal play time (weightedTime), or just copy.
+        if (weightedTime) {
+            this.soundArray.sort(function (a, b) {
+                return a.duration - b.duration;
+            });
+            this.processedSoundArray = [];
+            var minDuration = this.soundArray[0].duration;
+
+            for (var i = 0; i < this.soundArray.length; i++) {
+                var localSound = this.soundArray[i];
+                var bufferDuration = localSound.duration;
+                var weight = Math.round(bufferDuration / minDuration);
+                for (var j = 0; j < weight; j++) {
+                    this.processedSoundArray.push(localSound);
+                }
+            }
+        } else {
+            this.processedSoundArray = this.soundArray;
+        }
+        this.playing = true;
+        this.shootSound(soundParamFunc);
+    }
+};
+
 SoundSet.prototype.stopPlayback = function () {
     this.playing = false;
 };
-
-SoundSet.prototype.startPlaback = function (weightedTime, soundParamFunc) {
-
-    // Create processedSoundArray for playback, by either duplicate for
-    // equal play time (weightedTime), or just copy.
-    if (weightedTime) {
-        this.soundArray.sort(function(a,b) {return a.duration - b.duration;});
-        this.processedSoundArray = [];
-        var minDuration = this.soundArray[0].duration;
-
-        for (var i = 0; i < this.soundArray.length; i++) {
-            var localSound = this.soundArray[i];
-            var bufferDuration = localSound.duration;
-            var weight = Math.round(bufferDuration / minDuration);
-            for (var j = 0; j < weight; j++) {
-                this.processedSoundArray.push(localSound);
-            }
-        }
-    } else {
-        this.processedSoundArray = this.soundArray;
-    }
-    this.playing = true;
-    this.shootSound(soundParamFunc);
-};
-
