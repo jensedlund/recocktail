@@ -85,13 +85,16 @@ function finishedLoading(contextVar, bufferList) {
 }
 
 function startSound(contextVar) {
-    staph[contextVar] = false;
     var selected = document.getElementById("soundSets").selectedIndex;
-    finishedLoading(contextVar, loadedSoundSets[selected].files);
+    var weighted = document.getElementById("weighted").checked;
+    loadedSoundSets[selected].startPlaback(weighted,collectSoundParams);
+
+    // finishedLoading(contextVar, loadedSoundSets[selected].files);
 }
 
 function stopSound(contextVar) {
-    staph[contextVar] = true;
+    var selected = document.getElementById("soundSets").selectedIndex;
+    loadedSoundSets[selected].stopPlayback();
 }
 
 function shootSound(contextVar, bufferList) {

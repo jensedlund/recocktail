@@ -175,16 +175,21 @@ function parseZip2(zipFileUrl) {
 
 function updateSoundSetList() {
     $("#soundSets").empty();
+    document.getElementById("soundstart").disabled = true;
+    document.getElementById("soundstop").disabled = true;
+
     var soundSelector = document.getElementById("soundSets");
     for (var i = 0; i < loadedSoundSets.length; i++) {
-
         var option = document.createElement("option");
         var setName = loadedSoundSets[i].name;
         console.log(setName);
         option.text = setName;
         option.value = setName;
         soundSelector.add(option);
+        document.getElementById("soundstart").disabled = false;
+        document.getElementById("soundstop").disabled = false;
     }
+
 }
 
 
