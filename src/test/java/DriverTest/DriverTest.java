@@ -1,6 +1,5 @@
 package DriverTest;
 
-import cocktail.db_access.DbAccessHandler;
 import cocktail.db_access.DbAdapterImpl;
 import cocktail.db_access.Driver;
 import cocktail.snippet.FileInfo;
@@ -43,7 +42,28 @@ private static SnippetSet snippetSet;
     return getSnippetJsonObject();
   }
   public static void main(String[] args) {
-    System.out.println(DbAccessHandler.getAccessInfo("password"));
+  //  SnippetInfo{snippetID=0, fileID=0, fileName='Ljudinspelning_2016-03-25_13-04-27', tagNames=[clappy], kbSize=294,
+    // startTime=0.0, lengthSec=2.4133333333333336, creationDate=2016-05-18, lastModified=2016-05-18,
+    // userID=0, userName='Admin', multiples=0}
+SnippetInfo snippetInfo;
+    try {
+      List<String> tagNames = new ArrayList<>();
+      tagNames.clear();
+      tagNames.add("clappy");
+
+
+      LocalDate ld1 = LocalDate.now();
+      LocalDate ld2 = LocalDate.now();
+
+      snippetInfo = new SnippetInfo("Ljudinspelning_2016-03-25_13-04-27", tagNames, 0.0,2.4133333333333336 , 294, ld1, ld2, "Admin");
+      snippetCollection.add(snippetInfo);
+
+      int ansInt = impl.writeSnippet(snippetInfo,191 );
+      System.out.println(ansInt + "inten som ska ha en tom tagg ");
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+
   }
 
 
