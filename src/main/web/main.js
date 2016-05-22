@@ -28,7 +28,6 @@ var newSnippetSetGlobal = new SnippetSet();
 var localContext = new AudioContext();
 var loadedSoundSets = [];
 
-
 function getAllTags(callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
@@ -44,7 +43,7 @@ function getActiveSets(callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
         if(xhttp.readyState == 4 && xhttp.status == 200) {
-            // callback(xhttp.response);
+            callback(JSON.parse(xhttp.response));
             console.log(xhttp.response)
         }
     };
@@ -56,8 +55,13 @@ function getSet(setName, callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
         if(xhttp.readyState == 4 && xhttp.status == 200) {
-            // callback(xhttp.response);
-            console.log(JSON.parse(xhttp.response));
+            console.log(setName);
+            var snippetSet = new SnippetSet();
+            snippetSet.populateFromJson(JSON.parse(xhttp.response));
+
+            globalActiveSnippetSet = snippetSet;
+            // callback(JSON.parse(xhttp.response));
+            callback(snippetSet);
         }
     };
     xhttp.open("GET", serverUrl + "/getSet/" + setName, true);
@@ -105,10 +109,14 @@ function search() {
                async: true,
                success: function (data) {
                    // console.log(data);
-                   populateSetInfo(data);
+                   // populateSetInfo(data);
                    var snippetSet = new SnippetSet();
                    snippetSet.populateFromJson(data);
+                   console.log(data);
+                   globalActiveSnippetSet = snippetSet;
                    globalSnippetSets.push(snippetSet);
+                   getActiveSets(updateSnippetSetList);
+                   updateSnippetSetStats(snippetSet);
                },
                error: function (xhr, status) {
                    console.log(status);
@@ -137,8 +145,10 @@ function getXmlFromSet(snippetSet) {
 }
 
 function getZip() {
+    var snippetSelector = document.getElementById("snippetSets");
+    var setName = snippetSelector.item(snippetSelector.selectedIndex).value;
     $.ajax({
-               url: serverUrl + "/getZipUrl",
+               url: serverUrl + "/getZipUrl/" + setName,
                contentType: 'application/json; charset=utf-8',
                type: 'GET',
                async: true,
@@ -189,9 +199,47 @@ function updateSoundSetList() {
         document.getElementById("soundstart").disabled = false;
         document.getElementById("soundstop").disabled = false;
     }
+}
+
+function updateSnippetSetList(setNames) {
+    $("#snippetSets").empty();
+
+    var snippetSelector = document.getElementById("snippetSets");
+    for (var i = 0; i < setNames.length; i++) {
+        var option = document.createElement("option");
+        var setName = setNames[i];
+        console.log(setName);
+        option.text = setName;
+        option.value = setName;
+        snippetSelector.add(option);
+    }
 
 }
 
+function updateSnippetSetStats(snippetSet) {
+    $("#setInfoName")[0].value = snippetSet.setName;
+    $("#setInfoNum")[0].value = snippetSet.numSnippets;
+    $("#setInfoTags")[0].value = snippetSet.tagsInSet.toString();
+    $("#snippetsInSet").empty();
+    var snippetInfoSelector = document.getElementById("snippetsInSet");
+    for (var i = 0; i < snippetSet.snippetCollection.length; i++) {
+        var option = document.createElement("option");
+        var setName = snippetSet.snippetCollection[i].snippetID;
+        option.text = setName;
+        option.value = setName;
+        snippetInfoSelector.add(option);
+    }
+    updateSnippetStats(0);
+}
+
+function updateSnippetStats(selected) {
+    var snippetInfo = globalActiveSnippetSet.snippetCollection[selected];
+    $("#snippetInfoId")[0].value = snippetInfo.snippetID;
+    $("#snippetInfoTags")[0].value = snippetInfo.tagNames.toString();
+    $("#snippetInfoFile")[0].value = snippetInfo.fileName;
+    $("#snippetInfoStart")[0].value = snippetInfo.startTime;
+    $("#snippetInfoDuration")[0].value = snippetInfo.lengthSec;
+}
 
 function parseZip(zipFileUrl) {
     // var localContext = new AudioContext();
@@ -259,33 +307,7 @@ function addServerFileToZip(name,url) {
            });
 }
 
-var snippetSetTest;
-function populateSetInfo (response) {
-    // snippetSetTest1 = JSON.parse(response.responseText);
-    snippetSetTest = response;
-    // getXmlFromSet(snippetSetTest);
-    // var newSet = JSON.parse(response.responseText);
-    var snippetInfoArr = response.snippetCollection;
-    
-    var snippTab = document.getElementById("snippetSetTab");
-    snippetInfoArr.forEach(function (item) {
-        var row = snippTab.insertRow(0);
-        var cellLen = row.insertCell(0);
-        var cellName = row.insertCell(1);
-        var cellTags = row.insertCell(2);
-        cellLen.innerHTML = item.lengthSec;
-        cellName.innerHTML = item.fileName;
-        cellTags.innerHTML = item.tagNames;
-    });
-
-    // var soundSelector = document.getElementById("snippetSets");
-    // var option = document.createElement("option");
-    // option.text = newSoundSet.label;
-    // option.value = newSoundSet.label;
-    // soundSelector.add(option);
-}
-
-function getComplementaryTags() {
+function getRelatedTags() {
     console.log(document.getElementById("searchInput").innerHTML);
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
@@ -329,6 +351,7 @@ function newSnippet() {
         addSnippetToTable(newSnippetInfo);
     };
 }
+
 function fileSelectionUpdate() {
 
     var fileButton = document.getElementById("newFile");

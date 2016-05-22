@@ -58,7 +58,6 @@ SoundSet.prototype.populateFromZip = function (zipBlob) {
     });
 };
 
-
 // todo move sound process settings to callback
 // todo create gain, pan etc on context creation
 // todo check if elemtnt exist

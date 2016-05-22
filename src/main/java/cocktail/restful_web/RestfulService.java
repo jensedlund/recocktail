@@ -64,10 +64,14 @@ public class RestfulService {
           return gson.toJson(src);
         });
 
-    get("/getZipUrl", (request, response) -> {
+    get("/getZipUrl/:name", (request, response) -> {
+      String setName = request.params(":name");
+      System.out.println(setName);
+      SnippetSet snippetSet = controller.getStoredSet(setName);
+
       new File("src/main/web/tmp").mkdirs();
       String zipFileName = "src/main/web/tmp/download.zip";
-      SnippetSet snippetSet = controller.getCurrentSet();
+//      SnippetSet snippetSet = controller.getCurrentSet();
       String tmpZipName = controller.getZippedFiles(snippetSet);
       Files.move(Paths.get(tmpZipName), Paths.get(zipFileName), REPLACE_EXISTING);
       Gson gson = new Gson();
@@ -102,13 +106,13 @@ public class RestfulService {
       }
 
       if (existingKeys.contains("tagNames")) {
-        List<String> tagList = new ArrayList<String>();
+        List<String> tagList = new ArrayList<>();
         for(String s : reqBodyMap.get("tagNames").split("\\+")) {
           tagList.add(URLDecoder.decode(s, "UTF-8"));
         }
 
-
         SnippetSet snippetSet = controller.searchSnippetSet(tagList, maxLength, exclusiveSearch);
+        snippetSet.populateDerivedFields();
         Gson gson = new Gson();
         return gson.toJson(snippetSet);
       } else {
@@ -136,11 +140,10 @@ public class RestfulService {
     });
 
 //    get("/users/:name", (request, response) -> "Selected user: " + request.params(":name"));
-
-
     get("/getSet/:name", (request, response) -> {
       String setName = request.params(":name");
       SnippetSet snippetSet = controller.getStoredSet(setName);
+      System.out.println("Get set with info " + snippetSet.toString());
       Gson gson = new Gson();
       return gson.toJson(snippetSet);
     });

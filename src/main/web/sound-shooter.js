@@ -47,6 +47,7 @@ function init() {
     // document.getElementById("soundstart2").disabled = false;
     // document.getElementById("soundstop1").disabled = false;
     // document.getElementById("soundstop2").disabled = false;
+    getActiveSets(updateSnippetSetList);
     rangeSlider();
     getAllTags(populateAllTagsList);
 }
