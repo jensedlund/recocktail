@@ -40,6 +40,10 @@ import static spark.Spark.get;
 import static spark.Spark.post;
 import static spark.Spark.staticFiles;
 
+/**
+ * REST service to handle frontend to backend calls.
+ * Based on Spark Framework.
+ */
 public class RestfulService {
 
   static {
@@ -58,6 +62,7 @@ public class RestfulService {
   public static void runSpark() {
     Controller controller = Controller.getInstance();
 
+
     get("/getAllTags", (request, response) -> controller.getCompleteSetOfTagNames(),
         (src) -> {
           Gson gson = new Gson();
@@ -66,12 +71,10 @@ public class RestfulService {
 
     get("/getZipUrl/:name", (request, response) -> {
       String setName = request.params(":name");
-      System.out.println(setName);
       SnippetSet snippetSet = controller.getStoredSet(setName);
 
       new File("src/main/web/tmp").mkdirs();
       String zipFileName = "src/main/web/tmp/download.zip";
-//      SnippetSet snippetSet = controller.getCurrentSet();
       String tmpZipName = controller.getZippedFiles(snippetSet);
       Files.move(Paths.get(tmpZipName), Paths.get(zipFileName), REPLACE_EXISTING);
       Gson gson = new Gson();
@@ -139,7 +142,6 @@ public class RestfulService {
       return gson.toJson(setList);
     });
 
-//    get("/users/:name", (request, response) -> "Selected user: " + request.params(":name"));
     get("/getSet/:name", (request, response) -> {
       String setName = request.params(":name");
       SnippetSet snippetSet = controller.getStoredSet(setName);
@@ -147,8 +149,6 @@ public class RestfulService {
       Gson gson = new Gson();
       return gson.toJson(snippetSet);
     });
-
-
   }
 }
 

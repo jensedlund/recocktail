@@ -22,7 +22,6 @@ var serverUrl = "http://localhost:4567";
 var globalSnippetSets = [];
 var globalActiveSnippetSet = new SnippetSet();
 var zipForUpload = new JSZip();
-var zipForDownload = new JSZip();
 var snippetZipDir = zipForUpload.folder("snippets");
 var newSnippetSetGlobal = new SnippetSet();
 var localContext = new AudioContext();
@@ -153,11 +152,8 @@ function getZip() {
                type: 'GET',
                async: true,
                success: function (data) {
-                   // console.log(data);
                    var fileUrl = data;
-                   // console.log(fileUrl);
-                   // parseZip("tmp/download.zip");
-                   parseZip2("tmp/download.zip");
+                   parseZip("tmp/download.zip");
                },
                error: function (xhr, status) {
                    console.log(status);
@@ -166,8 +162,7 @@ function getZip() {
            });
 }
 
-// var soundSetTest = new SoundSet(localContext);
-function parseZip2(zipFileUrl) {
+function parseZip(zipFileUrl) {
     // var localContext = new AudioContext();
     var newSoundSet = new SoundSet(localContext);
     loadedSoundSets.push(newSoundSet);
@@ -239,57 +234,6 @@ function updateSnippetStats(selected) {
     $("#snippetInfoFile")[0].value = snippetInfo.fileName;
     $("#snippetInfoStart")[0].value = snippetInfo.startTime;
     $("#snippetInfoDuration")[0].value = snippetInfo.lengthSec;
-}
-
-function parseZip(zipFileUrl) {
-    // var localContext = new AudioContext();
-    var newSoundSet = {};
-    loadedSoundSets.push(newSoundSet);
-    newSoundSet.files = [];
-
-    JSZipUtils.getBinaryContent(zipFileUrl, function(err, data) {
-        if(err) {
-            console.log(err);
-        }
-        JSZip.loadAsync(data)
-            .then(function(zip) {
-                zip.forEach(function (relativePath, zipEntry) {
-                    var reWav = new RegExp("wav$");
-                    if (zipEntry.name == "SnippetSet.xml") {
-                        zipEntry.async("String")
-                            .then(function success(content) {
-                                var parser = new DOMParser();
-                                var xmlFileTest = parser.parseFromString(content,"text/xml");
-                                newSoundSet.label = xmlFileTest
-                                    .getElementsByTagName("setName")[0]
-                                    .childNodes[0]
-                                    .nodeValue;
-
-                                var soundSelector = document.getElementById("soundSets");
-                                var option = document.createElement("option");
-                                option.text = newSoundSet.label;
-                                option.value = newSoundSet.label;
-                                soundSelector.add(option);
-                            });
-                        
-                    } else if (reWav.test(zipEntry.name)) {
-
-                        zipEntry.async("arraybuffer")
-                            .then(function (content) {
-                                localContext.decodeAudioData(content).then(function(decodedData) {
-                                    newSoundSet.files.push(decodedData);
-                            })
-                        });
-                    }
-                });
-                console.log("Funka!");
-            }, function (e) {
-                $fileContent = $("<div>", {
-                    "class" : "alert alert-danger",
-                    text : "Error reading " + f.name + " : " + e.message
-                });
-            });
-    });
 }
 
 function addServerFileToZip(name,url) {
