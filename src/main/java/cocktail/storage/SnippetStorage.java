@@ -35,12 +35,11 @@ public interface SnippetStorage {
 
   /**
    * Get the latest added set.
-   * @return A snippet set.
+   * @return The last added snippet set.
    */
   SnippetSet getLatestSet();
 
   boolean addSet(SnippetSet snippetSet);
-
 
   List<String> getWorkingSetNames();
 
