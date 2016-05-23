@@ -162,7 +162,7 @@ public class DbAdapterImpl implements DbAdapter {
 
   @Override
   public void updateTagName(String newTagName, String oldTagName) {
-    Driver.updateTagInfo(newTagName, oldTagName);
+    Driver.updateTagName(newTagName, oldTagName);
   }
 
   @Override

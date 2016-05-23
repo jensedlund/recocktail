@@ -1459,8 +1459,9 @@ public enum Driver {
 
 
   //Change one tagName, the tagID stays the same
-  protected static boolean updateTagInfo(String newTagName, String oldTagName) {
-    //TODO denna metod måste överlagras som en koll om det är en skyddad tagg eller inte
+  protected static boolean updateTagName(String newTagName, String oldTagName) {
+    //TODO denna metod måste överlagras som en koll om det är en skyddad tagg eller inte.
+    //TODO om en tag ändras och får samma namn som en redan befintlig tag, hur funkar det då tro?
     boolean returnBool = false;
     int tagID = getTagID(oldTagName);
     try {

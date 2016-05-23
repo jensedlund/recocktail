@@ -80,7 +80,7 @@ public class ControllerTest {
   @Test
   public void getComplementaryTags() throws Exception {
     List<String> testComplementary;
-    testComplementary = Controller.getInstance().getComplementaryTags("test1");
+    testComplementary = Controller.getInstance().getAssociatedTags("test1");
     boolean testBool = false;
     if (testComplementary.size() != 0) {
       testBool = true;

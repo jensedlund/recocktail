@@ -45,9 +45,7 @@ private static SnippetSet snippetSet;
     // startTime=0.0, lengthSec=2.4133333333333336, creationDate=2016-05-18, lastModified=2016-05-18,
     // userID=0, userName='Admin', multiples=0}
 
-    SnippetInfo si = impl.readSnippetInfo(226);
-    System.out.println(si.getStartTime());
-
+    System.out.println("Programmet kör");
   }
 
 
