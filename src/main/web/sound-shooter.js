@@ -21,35 +21,48 @@
 
 window.onload = init;
 
-var context = [];
+// var context = [];
+var context ;
 // var otherContext;
 var bufferLoader = [];
 
 function init() {
     // Fix up prefixing
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    context[0] = new AudioContext();
-    context[1] = new AudioContext();
+    context = new AudioContext();
+
+    // context[0] = new AudioContext();
+    // context[1] = new AudioContext();
     // otherContext = new AudioContext();
 
     // Populating drop down selection.
-    var soundSelector = document.getElementById("soundSets");
-    loadedSoundSets.forEach(function (val) {
-        var option = document.createElement("option");
-        option.text = val.label;
-        option.value = val.label;
-        soundSelector.add(option);
-    });
-    document.getElementById("soundstart1").disabled = false;
-    document.getElementById("soundstart2").disabled = false;
-    document.getElementById("soundstop1").disabled = false;
-    document.getElementById("soundstop2").disabled = false;
+    // var soundSelector = document.getElementById("soundSets");
+    // loadedSoundSets.forEach(function (val) {
+    //     var option = document.createElement("option");
+    //     option.text = val.label;
+    //     option.value = val.label;
+    //     soundSelector.add(option);
+    // });
+    // document.getElementById("soundstart1").disabled = false;
+    // document.getElementById("soundstart2").disabled = false;
+    // document.getElementById("soundstop1").disabled = false;
+    // document.getElementById("soundstop2").disabled = false;
+    getActiveSets(updateSnippetSetList);
     rangeSlider();
     getAllTags(populateAllTagsList);
 }
 
-var staph = false;
-function finishedLoading(context, bufferList) {
+function collectSoundParams(soundSet) {
+    soundSet.gain = parseFloat(document.getElementById("gain").value);
+    soundSet.gainVar = parseFloat(document.getElementById("gainVar").value);
+    soundSet.balance = parseFloat(document.getElementById("balance").value);
+    soundSet.delay = document.getElementById("delay").value;
+    soundSet.delayVar = document.getElementById("delayVar").value;
+
+}
+
+var staph = [false, false];
+function finishedLoading(contextVar, bufferList) {
     var snippetList = [];
     if (document.getElementById("weighted").checked) {
         bufferList.sort(function(a,b) {return a.duration - b.duration;});
@@ -69,31 +82,32 @@ function finishedLoading(context, bufferList) {
         // bufferLoader.snippetList = bufferList;
         snippetList = bufferList;
     }
-    shootSound(context, snippetList);
+    shootSound(contextVar, snippetList);
 }
 
 function startSound(contextVar) {
-    staph = false;
     var selected = document.getElementById("soundSets").selectedIndex;
-    finishedLoading(context[contextVar], loadedSoundSets[selected].files);
-    // bufferLoader[contextVar] = new BufferLoader(
-    //     context[contextVar], soundSets[selected].files, finishedLoading
-    // );
-    // bufferLoader[contextVar].load();
+    var weighted = document.getElementById("weighted").checked;
+    loadedSoundSets[selected].startPlaback(weighted,collectSoundParams);
+
+    // finishedLoading(contextVar, loadedSoundSets[selected].files);
 }
 
-function stopSound() {
-    staph = true;
+function stopSound(contextVar) {
+    var selected = document.getElementById("soundSets").selectedIndex;
+    loadedSoundSets[selected].stopPlayback();
 }
 
-function shootSound(context, bufferList) {
-    if (staph === false) {
+function shootSound(contextVar, bufferList) {
+    if (staph[contextVar] === false) {
 
-        var source = context.createBufferSource();
+        var localContext = context;
+
+        var source = localContext.createBufferSource();
         var soundIndex = Math.floor((Math.random() * bufferList.length));
         source.buffer = bufferList[soundIndex];
 
-        var gainBox = context.createGain();
+        var gainBox = localContext.createGain();
         var gain = parseFloat(document.getElementById("gain").value);
         var gainVar = parseFloat(document.getElementById("gainVar").value);
         var gainSum = gain + (Math.random() * gainVar);
@@ -101,21 +115,21 @@ function shootSound(context, bufferList) {
         gainBox.gain.value = gainSum;
         source.connect(gainBox);
 
-        var balanceBox = context.createStereoPanner();
+        var balanceBox = localContext.createStereoPanner();
         
         // var panVal = (Math.round(Math.random() * 2)) - 1.0;
         var panVal = parseFloat(document.getElementById("balance").value);
         balanceBox.pan.value = panVal;
         gainBox.connect(balanceBox);
-        balanceBox.connect(context.destination);
+        balanceBox.connect(localContext.destination);
 
         source.start(0);
 
         var delay = document.getElementById("delay").value;
-        var gaussGen = new PolarDistribution();
+        // var gaussGen = new PolarDistribution();
         // console.log("Pan value " + panVal + " Gain " + gainSum);
-        console.log("Gaussian " + gaussGen.getGaussian(1, 0.25).toFixed(2));
-        setTimeout(shootSound.bind(null,context,bufferList), delay);
+        // console.log("Gaussian " + gaussGen.getGaussian(1, 0.25).toFixed(2));
+        setTimeout(shootSound.bind(null,contextVar,bufferList), delay);
     }
 }
 

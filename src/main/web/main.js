@@ -22,9 +22,10 @@ var serverUrl = "http://localhost:4567";
 var globalSnippetSets = [];
 var globalActiveSnippetSet = new SnippetSet();
 var zipForUpload = new JSZip();
-var zipForDownload = new JSZip();
 var snippetZipDir = zipForUpload.folder("snippets");
 var newSnippetSetGlobal = new SnippetSet();
+var localContext = new AudioContext();
+var loadedSoundSets = [];
 
 function getAllTags(callback) {
     var xhttp = new XMLHttpRequest();
@@ -41,7 +42,7 @@ function getActiveSets(callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
         if(xhttp.readyState == 4 && xhttp.status == 200) {
-            // callback(xhttp.response);
+            callback(JSON.parse(xhttp.response));
             console.log(xhttp.response)
         }
     };
@@ -53,8 +54,13 @@ function getSet(setName, callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
         if(xhttp.readyState == 4 && xhttp.status == 200) {
-            // callback(xhttp.response);
-            console.log(JSON.parse(xhttp.response));
+            console.log(setName);
+            var snippetSet = new SnippetSet();
+            snippetSet.populateFromJson(JSON.parse(xhttp.response));
+
+            globalActiveSnippetSet = snippetSet;
+            // callback(JSON.parse(xhttp.response));
+            callback(snippetSet);
         }
     };
     xhttp.open("GET", serverUrl + "/getSet/" + setName, true);
@@ -102,10 +108,14 @@ function search() {
                async: true,
                success: function (data) {
                    // console.log(data);
-                   populateSetInfo(data);
+                   // populateSetInfo(data);
                    var snippetSet = new SnippetSet();
                    snippetSet.populateFromJson(data);
+                   console.log(data);
+                   globalActiveSnippetSet = snippetSet;
                    globalSnippetSets.push(snippetSet);
+                   getActiveSets(updateSnippetSetList);
+                   updateSnippetSetStats(snippetSet);
                },
                error: function (xhr, status) {
                    console.log(status);
@@ -134,15 +144,15 @@ function getXmlFromSet(snippetSet) {
 }
 
 function getZip() {
+    var snippetSelector = document.getElementById("snippetSets");
+    var setName = snippetSelector.item(snippetSelector.selectedIndex).value;
     $.ajax({
-               url: serverUrl + "/getZipUrl",
+               url: serverUrl + "/getZipUrl/" + setName,
                contentType: 'application/json; charset=utf-8',
                type: 'GET',
                async: true,
                success: function (data) {
-                   console.log(data);
                    var fileUrl = data;
-                   console.log(fileUrl);
                    parseZip("tmp/download.zip");
                },
                error: function (xhr, status) {
@@ -152,60 +162,78 @@ function getZip() {
            });
 }
 
-// var xmlFileTest;
-var loadedSoundSets = [];
-
 function parseZip(zipFileUrl) {
-    var localContext = new AudioContext();
-    var newSoundSet = {};
+    // var localContext = new AudioContext();
+    var newSoundSet = new SoundSet(localContext);
     loadedSoundSets.push(newSoundSet);
-    newSoundSet.files = [];
+
+    // newSoundSet.files = [];
 
     JSZipUtils.getBinaryContent(zipFileUrl, function(err, data) {
-        if(err) {
+        if (err) {
             console.log(err);
         }
-        JSZip.loadAsync(data)
-            .then(function(zip) {
-                zip.forEach(function (relativePath, zipEntry) {
-                    var reWav = new RegExp("wav$");
-                    if (zipEntry.name == "SnippetSet.xml") {
-                        zipEntry.async("String")
-                            .then(function success(content) {
-                                var parser = new DOMParser();
-                                var xmlFileTest = parser.parseFromString(content,"text/xml");
-                                newSoundSet.label = xmlFileTest
-                                    .getElementsByTagName("setName")[0]
-                                    .childNodes[0]
-                                    .nodeValue;
-
-                                var soundSelector = document.getElementById("soundSets");
-                                var option = document.createElement("option");
-                                option.text = newSoundSet.label;
-                                option.value = newSoundSet.label;
-                                soundSelector.add(option);
-                            });
-                        
-                    } else if (reWav.test(zipEntry.name)) {
-
-                        zipEntry.async("arraybuffer")
-                            .then(function (content) {
-                                // console.log(zipEntry.name);
-                                localContext.decodeAudioData(content).then(function(decodedData) {
-                                    newSoundSet.files.push(decodedData);
-                                    console.log(zipEntry.name);
-                            })
-                        });
-                    }
-                });
-                console.log("Funka!");
-            }, function (e) {
-                $fileContent = $("<div>", {
-                    "class" : "alert alert-danger",
-                    text : "Error reading " + f.name + " : " + e.message
-                });
-            });
+        // soundSetTest.populateFromZip(data);
+        newSoundSet.populateFromZip(data);
     });
+}
+
+function updateSoundSetList() {
+    $("#soundSets").empty();
+    document.getElementById("soundstart").disabled = true;
+    document.getElementById("soundstop").disabled = true;
+
+    var soundSelector = document.getElementById("soundSets");
+    for (var i = 0; i < loadedSoundSets.length; i++) {
+        var option = document.createElement("option");
+        var setName = loadedSoundSets[i].name;
+        console.log(setName);
+        option.text = setName;
+        option.value = setName;
+        soundSelector.add(option);
+        document.getElementById("soundstart").disabled = false;
+        document.getElementById("soundstop").disabled = false;
+    }
+}
+
+function updateSnippetSetList(setNames) {
+    $("#snippetSets").empty();
+
+    var snippetSelector = document.getElementById("snippetSets");
+    for (var i = 0; i < setNames.length; i++) {
+        var option = document.createElement("option");
+        var setName = setNames[i];
+        console.log(setName);
+        option.text = setName;
+        option.value = setName;
+        snippetSelector.add(option);
+    }
+
+}
+
+function updateSnippetSetStats(snippetSet) {
+    $("#setInfoName")[0].value = snippetSet.setName;
+    $("#setInfoNum")[0].value = snippetSet.numSnippets;
+    $("#setInfoTags")[0].value = snippetSet.tagsInSet.toString();
+    $("#snippetsInSet").empty();
+    var snippetInfoSelector = document.getElementById("snippetsInSet");
+    for (var i = 0; i < snippetSet.snippetCollection.length; i++) {
+        var option = document.createElement("option");
+        var setName = snippetSet.snippetCollection[i].snippetID;
+        option.text = setName;
+        option.value = setName;
+        snippetInfoSelector.add(option);
+    }
+    updateSnippetStats(0);
+}
+
+function updateSnippetStats(selected) {
+    var snippetInfo = globalActiveSnippetSet.snippetCollection[selected];
+    $("#snippetInfoId")[0].value = snippetInfo.snippetID;
+    $("#snippetInfoTags")[0].value = snippetInfo.tagNames.toString();
+    $("#snippetInfoFile")[0].value = snippetInfo.fileName;
+    $("#snippetInfoStart")[0].value = snippetInfo.startTime;
+    $("#snippetInfoDuration")[0].value = snippetInfo.lengthSec;
 }
 
 function addServerFileToZip(name,url) {
@@ -223,27 +251,7 @@ function addServerFileToZip(name,url) {
            });
 }
 
-var snippetSetTest;
-function populateSetInfo (response) {
-    // snippetSetTest1 = JSON.parse(response.responseText);
-    snippetSetTest = response;
-    // getXmlFromSet(snippetSetTest);
-    // var newSet = JSON.parse(response.responseText);
-    var snippetInfoArr = response.snippetCollection;
-    
-    var snippTab = document.getElementById("snippetSetTab");
-    snippetInfoArr.forEach(function (item) {
-        var row = snippTab.insertRow(0);
-        var cellLen = row.insertCell(0);
-        var cellName = row.insertCell(1);
-        var cellTags = row.insertCell(2);
-        cellLen.innerHTML = item.lengthSec;
-        cellName.innerHTML = item.fileName;
-        cellTags.innerHTML = item.tagNames;
-    });
-}
-
-function getComplementaryTags() {
+function getRelatedTags() {
     console.log(document.getElementById("searchInput").innerHTML);
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
@@ -289,6 +297,7 @@ function newSnippet() {
 }
 
 function fileSelectionUpdate() {
+
     var fileButton = document.getElementById("newFile");
 
     var files = fileButton.files; // FileList object
@@ -308,7 +317,7 @@ function fileSelectionUpdate() {
     fileReader.readAsArrayBuffer(files[0]);
     fileReader.onloadend = function(event) {
         snippetZipDir.file(files[0].name, event.target.result, {base64 : true});
-        var localContext = new AudioContext();
+
         localContext.decodeAudioData(event.target.result).then(function(decodedData) {
             var startTime = document.getElementById("newStart");
             var duration = document.getElementById("newDuration");

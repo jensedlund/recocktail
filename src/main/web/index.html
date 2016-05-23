@@ -23,14 +23,15 @@
     <meta charset="UTF-8">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script src="sound-shooter.js"></script>
-    <script src="buffer-loader.js"></script>
+    <!--<script src="buffer-loader.js"></script>-->
     <!--<script src="sound-sets-plain-text.js"></script>-->
     <script src="css-range-slider/js/index.js"></script>
     <script src="jszip/jszip.min.js"></script>
     <script src="jszip/jszip-utils.min.js"></script>
     <script src="jszip/FileSaver.js"></script>
-    <script src="ziptest.js"></script>
+    <!--<script src="ziptest.js"></script>-->
     <script src="snippetset.js"></script>
+    <script src="soundset.js"></script>
     <script src="main.js"></script>
     <link rel="stylesheet" href="css-range-slider/css/style.css">
     <link rel="stylesheet" href="style.css">
@@ -58,14 +59,31 @@
         <button id="downloadButton" onclick="getZip()">Download Set</button>
     </div>
     <div id="setInfoDiv">
-        <h2>Snippet set Information</h2> <br>
-
-        <select id="snippetSets">
+        <h2>Snippet set Information</h2>
+        <select id="snippetSets" onchange="getSet(this.value,updateSnippetSetStats)">
             <!--<option value="empty">Emptyness is form.</option>-->
-        </select>
+        </select> <br>
+        SetName:
+        <input id="setInfoName" type="text"> <br>
+        Number of snippets:
+        <input id="setInfoNum" type="text" disabled="true"> <br>
+        Tags in set:
+        <input id="setInfoTags" type="text" disabled="true"> <br>
+        Snippets in set:
+        <select id="snippetsInSet" onchange="updateSnippetStats(this.selectedIndex)">
+            <!--<option value="empty">Emptyness is form.</option>-->
+        </select> <br>
+        Snippet Id:
+        <input id="snippetInfoId" type="text" disabled="true"> <br>
+        Tags in set:
+        <input id="snippetInfoTags" type="text"> <br>
+        Snippet file name:
+        <input id="snippetInfoFile" type="text"> <br>
+        Snippet start time:
+        <input id="snippetInfoStart" type="text"> <br>
+        Snippet duration:
+        <input id="snippetInfoDuration" type="text"> <br>
 
-        <table id="snippetSetTab">
-        </table>
     </div>
     <div id="soundscapeDiv">
         <h2>Area for editing</h2>
@@ -88,7 +106,7 @@
         <tr>
             <th>Filename</th>
             <th>Start time</th>
-            <th>End time</th>
+            <th>Duration</th>
             <th>Tags</th>
         </tr>
     </table>
@@ -98,10 +116,8 @@
 <div id="soundScape">
     <h1>Stage area.</h1>
     <div>
-        <button id="soundstart1" type="button" onclick="startSound(0)" disabled>START 1</button>
-        <button id="soundstart2" type="button" onclick="startSound(1)" disabled>START 2</button>
-        <button id="soundstop1" type="button" onclick="stopSound(0)" disabled>STOP 1</button>
-        <button id="soundstop2" type="button" onclick="stopSound(1)" disabled>STOP 2</button>
+        <button id="soundstart" type="button" onclick="startSound(0)" disabled>START</button>
+        <button id="soundstop" type="button" onclick="stopSound(0)" disabled>STOP</button>
         <select id="soundSets">
             <!--<option value="empty">Emptyness is form.</option>-->
         </select>

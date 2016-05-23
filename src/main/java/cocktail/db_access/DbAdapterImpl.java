@@ -205,7 +205,7 @@ public class DbAdapterImpl implements DbAdapter {
 
   @Override
   public int getFileIdFromSnippetId(int snippetID){
-    return Driver.getFileID(snippetID);
+    return Driver.getFileIDFromSnippetID(snippetID);
   }
 
   @Override

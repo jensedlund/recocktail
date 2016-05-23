@@ -62,6 +62,15 @@ public class SnippetSet {
     setName = createUniqueSetName();
   }
 
+  public void populateDerivedFields() {
+    // Execute getters to set the fields.
+    getAvgLenSec();
+    getMaxLenSec();
+    getMinLenSec();
+    getNumSnippets();
+    getTagsInSet();
+  }
+
   public String createUniqueSetName(){
     String str = "" + creationDate.toString() + " " + LocalTime.now();
     str = str.replace(':','-');
@@ -125,12 +134,12 @@ public class SnippetSet {
 
 
   public double getMinLenSec() {
-if(snippetCollection.size()>0) {
-  minLenSec = snippetCollection.first().getLengthSec();
-  return minLenSec;
-}else {
-  return 0.0;
-}
+    if(snippetCollection.size()>0) {
+      minLenSec = snippetCollection.first().getLengthSec();
+      return minLenSec;
+    } else {
+      return 0.0;
+    }
   }
 
   public double getAvgLenSec() {
