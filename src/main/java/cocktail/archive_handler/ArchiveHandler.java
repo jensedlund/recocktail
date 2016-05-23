@@ -33,6 +33,7 @@ public class ArchiveHandler {
   /*
   Creates a zip file, mounts it as a zip filesystem and starts to populate it with snippets from
   the database. snippets are trimmed from longer files if needed.
+
    */
   public String zip(SnippetSet set) {
     File zipWorkspace = new File("./src/main/resources/zip/");
