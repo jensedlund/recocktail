@@ -23,6 +23,10 @@ import java.time.LocalDate;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+/**
+ * Adapter for LocalDate to use when streaming/marshalling xml files using
+ * javax.xml.
+ */
 public class LocalDateXmlAdapter extends XmlAdapter<String, LocalDate>{
 
   public LocalDate unmarshal(String dateStr) throws Exception {
