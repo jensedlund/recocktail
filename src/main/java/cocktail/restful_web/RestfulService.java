@@ -84,6 +84,7 @@ public class RestfulService {
       String zipFileName = "src/main/web/tmp/download.zip";
       String tmpZipName = controller.getZippedFiles(snippetSet);
       Files.move(Paths.get(tmpZipName), Paths.get(zipFileName), REPLACE_EXISTING);
+      controller.deleteUsedZip(setName);
       Gson gson = new Gson();
       return gson.toJson(new String("tmp/download.zip"));
     });
@@ -153,7 +154,7 @@ public class RestfulService {
       return gson.toJson(setList);
     });
 
-    // Get a specific set from StorageUnit
+    // Get a specific set from StorageUnit and return as JSON.
     get("/getSet/:name", (request, response) -> {
       String setName = request.params(":name");
       SnippetSet snippetSet = controller.getStoredSet(setName);

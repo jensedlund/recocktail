@@ -109,7 +109,7 @@ public class SnippetStorageImpl implements SnippetStorage {
 
   @Override
   public void restoreContext(String setName) {
-    //TODO impala saparandet av att spara kontext
+    //TODO impalementera att spara kontext
     System.out.println("Will load your working set " + setName + " from file...");
   }
 
