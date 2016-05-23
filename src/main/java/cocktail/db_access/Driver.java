@@ -1460,27 +1460,58 @@ public enum Driver {
 
   //Change one tagName, the tagID stays the same
   protected static boolean updateTagName(String newTagName, String oldTagName) {
-    //TODO denna metod måste överlagras som en koll om det är en skyddad tagg eller inte.
-    //TODO om en tag ändras och får samma namn som en redan befintlig tag, hur funkar det då tro?
+
     boolean returnBool = false;
-    int tagID = getTagID(oldTagName);
-    try {
-
-      String sql = "UPDATE tagInfo SET tagName=? WHERE tagID=?";
-      PreparedStatement ps = myConnection.prepareStatement(sql);
-      ps.setString(1, newTagName);
-      ps.setInt(2, tagID);
-      ps.executeUpdate();
-      returnBool = true;
+    if(newTagName.charAt(0)=='.'){
       return returnBool;
-
-    } catch (Exception e) {
-      e.printStackTrace();
     }
+    if(getAllTagNames().contains(newTagName)){
+      return returnBool;
+    }else {
+      int tagID = getTagID(oldTagName);
+      try {
 
+        String sql = "UPDATE tagInfo SET tagName=? WHERE tagID=?";
+        PreparedStatement ps = myConnection.prepareStatement(sql);
+        ps.setString(1, newTagName);
+        ps.setInt(2, tagID);
+        ps.executeUpdate();
+        returnBool = true;
+        return returnBool;
+
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
     return returnBool;
   }
 
+  //Method is called when the new or old tag is protected and the userName is equal to the adminUserName
+  protected static boolean updateTagNameAsAdmin(String newTagName, String oldTagName, String userName){
+    boolean returnBool = false;
+    if(!userName.equals(_adminUserName)){
+      return returnBool;
+    }
+    if(getAllTagNames().contains(newTagName)){
+      return returnBool;
+    }else {
+      int tagID = getTagID(oldTagName);
+      try {
+
+        String sql = "UPDATE tagInfo SET tagName=? WHERE tagID=?";
+        PreparedStatement ps = myConnection.prepareStatement(sql);
+        ps.setString(1, newTagName);
+        ps.setInt(2, tagID);
+        ps.executeUpdate();
+        returnBool = true;
+        return returnBool;
+
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    return returnBool;
+  }
 
   //Returns the userID and take the userName as argument. This method need some work in order to be useful in a program where
   //the user is logged in. Example: getUserIDForUserNameUserPassword(String userName, String password); If there is more than one user with the same userName
@@ -1708,4 +1739,5 @@ public enum Driver {
       return returnInt;
     }
   }
+
 }

@@ -293,6 +293,12 @@ public interface DbAdapter {
    */
   boolean deleteSnippetAsAdmin(int SnippetID);
 
+  /**
+   * Updates one tag name and is used when the one of the two tag names are protected and the userName is equal to admin user name.
+   * @param newTagName String
+   * @param oldTagName String
+   */
+ boolean updateTagNameAsAdmin(String newTagName, String oldTagName, String userName);
 }
 
 

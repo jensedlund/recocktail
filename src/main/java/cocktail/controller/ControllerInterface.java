@@ -184,7 +184,7 @@ public interface ControllerInterface {
    *  and one of the tags are a protected tag. Protected tag starts whit a (dot) [.].
    *
    * @param snippetID int
-   * @return
+   * @return boolean
    */
   boolean deleteSnippetAsAdmin(int snippetID);
 

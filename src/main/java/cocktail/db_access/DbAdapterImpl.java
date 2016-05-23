@@ -181,7 +181,6 @@ public class DbAdapterImpl implements DbAdapter {
     SnippetSet snippetSet = new SnippetSet();
     for(int i = 0; i< snippetIDs.size(); i++) {
       SnippetInfo temp = Driver.readSnippetInf(snippetIDs.get(i));
-      System.out.println("temp " + temp);
       snippetSet.addSnippet(temp);
 
     }
@@ -248,4 +247,21 @@ public class DbAdapterImpl implements DbAdapter {
   public boolean deleteSnippetAsAdmin(int snippetID) {
     return Driver.deleteSnippetAdm(snippetID);
   }
+
+  @Override
+  public boolean updateTagNameAsAdmin(String newTagName, String oldTagName, String userName) {
+    boolean returnBool = false;
+    if(userName.equals(Driver.getAdminUserName())){
+      if(newTagName.charAt(0)=='.'|| oldTagName.charAt(0)=='.'){
+        Driver.updateTagNameAsAdmin(newTagName,oldTagName, userName);
+        returnBool = true;
+      }
+    }
+    return returnBool;
+  }
+
+  public List<String> getAllUsers(){
+    return Driver.getAllUsers();
+  }
 }
+

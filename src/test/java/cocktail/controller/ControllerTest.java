@@ -1,7 +1,7 @@
 package cocktail.controller;
 
+import cocktail.archive_handler.ArchiveHandler;
 import cocktail.db_access.DbAdapterImpl;
-import cocktail.snippet.SetOperation;
 import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
 import cocktail.storage.SnippetStorageImpl;
@@ -15,15 +15,30 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
-/**
- * @author Marcus Vidén Ulrika, Goloconda Fahlén, Jan Eriksson
+/*
+ * Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  * @version 1.0
- * @since 2016-04-27
+ * @since 2016-03-25
  */
 public class ControllerTest {
   private SnippetSet snippetSet;
+
   private SnippetInfo snippetInfo;
   private DbAdapterImpl impl;
+  private ArchiveHandler archiveHandler;
 
 
   @Test
@@ -51,7 +66,7 @@ public class ControllerTest {
   @Test
   public void executeSetOperation() throws Exception {
     //TODO Denna test får skrivas om när metoden har implementerats i controller
-    boolean testBool = true;
+    /*boolean testBool = true;
     SnippetSet testSnippetSet = Controller.getInstance().executeSetOperation(snippetSet, SetOperation.COMPLEMENT);
     List<Integer> listToDelete = new ArrayList<>();
     for(SnippetInfo info : testSnippetSet.getSnippetCollection()){
@@ -61,6 +76,7 @@ public class ControllerTest {
       testBool = false;
     }
     Assert.assertEquals(testBool, true);
+    */
   }
 
   @Test
@@ -91,40 +107,43 @@ public class ControllerTest {
 
   @Test
   public void getZippedFiles() throws Exception {
-    //TODO denna mteod vet jag inte hur jag ska kunna vaildera i nuläget. Den ger ett fel i testet eftersom det blir error i koden.
     boolean testBool = false;
     String path = Controller.getInstance().getZippedFiles(snippetSet);
 
     if (path.length() > 1) {
       testBool = true;
     }
+    System.out.println(path);
+    Controller.getInstance().deleteUsedZip(path);
     Assert.assertEquals(testBool, true);
   }
 
   @Test
   public void updateTagName() throws Exception {
+    boolean testBool = false;
     String oldTagName = "TagName";
     String newTagName = "testTagName";
-    //Metoden kan inte längre testat  på detta sätt eftersom metoden blivit protected
-    //int oldTagID = Driver.getTagID(oldTagName);
     Controller.getInstance().updateTagName(newTagName, oldTagName);
- //   int newTagID = Driver.getTagID(newTagName);
+
+   if(impl.getAllTags().contains(newTagName)){
+      testBool = true;
+    }
     Controller.getInstance().updateTagName(oldTagName, newTagName);
 
- //   Assert.assertEquals(oldTagID, newTagID);
+    Assert.assertEquals(testBool, true);
   }
 
   @Test
   public void updateUserName() throws Exception {
-    //Metoden går inte att testa på detta sätt sedan metoderna i Driver blivit protected
+    boolean testBool = false;
     String oldUserName = "userName";
     String newUserName = "newUserName";
-    //int oldUserID = Driver.getUserIDForUserName(oldUserName);
     Controller.getInstance().updateUserName(newUserName, oldUserName);
-   // int newUserID = Driver.getUserIDForUserName(newUserName);
-   // Driver.updateUserInfo(oldUserName, newUserName);
 
-    //Assert.assertEquals(oldUserID, newUserID);
+    if(impl.getAllUsers().contains(newUserName)){
+      testBool = true;
+    }
+    Assert.assertEquals(testBool, true);
 
   }
 
@@ -198,13 +217,13 @@ public class ControllerTest {
     Assert.assertEquals(testBool,true);
   }
 
- /* @Test
+  @Test
   public void deleteUsedZip() throws Exception {
-//TODO denna metod borde kanske returnera en boolean som bekräftelse. För att kunna testa metoden behöver metoden implementeras.
-    boolean testBool = Controller.getInstance().deleteUsedZip("zipNaame");
+    String filePath = archiveHandler.zip(snippetSet);
+    boolean testBool = Controller.getInstance().deleteUsedZip(filePath);
     Assert.assertEquals(testBool,true);
   }
-  */
+
 
   @Test
   public void getSingelSourceFileAndItsSnippets() throws Exception {
@@ -213,12 +232,14 @@ public class ControllerTest {
     if (path.length() > 1) {
       testBool = true;
     }
+    Controller.getInstance().deleteUsedZip(path);
     Assert.assertEquals(testBool, true);
   }
 
 
   @Before
   public void setUp() throws Exception {
+    archiveHandler = new ArchiveHandler();
     impl = new DbAdapterImpl();
     List<String> tagNames = new ArrayList<>();
     tagNames.add("test1");
@@ -233,6 +254,4 @@ public class ControllerTest {
   public void tearDown() throws Exception {
 
   }
-
-
 }
