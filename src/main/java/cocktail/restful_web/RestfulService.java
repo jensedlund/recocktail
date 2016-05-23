@@ -124,7 +124,7 @@ public class RestfulService {
         }
 
         SnippetSet snippetSet = controller.searchSnippetSet(tagList, maxLength, exclusiveSearch);
-        snippetSet.populateDerivedFields();
+        snippetSet.updateDerivedFields();
         Gson gson = new Gson();
         return gson.toJson(snippetSet);
       } else {
