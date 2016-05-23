@@ -117,12 +117,12 @@ public class DbAdapterImpl implements DbAdapter {
   }
 
   @Override
-  public Integer getOccuranceOfTag(String tag) {
+  public Integer getOccurrenceOfTag(String tag) {
     return Driver.getOccuranceOfTag(tag);
   }
 
   @Override
-  public ArrayList<String> getComplementaryTags(String tag) {
+  public ArrayList<String> getAssociatedTags(String tag) {
     return Driver.getComplementaryTags(tag);
   }
 

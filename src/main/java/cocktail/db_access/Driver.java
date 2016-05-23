@@ -12,6 +12,9 @@ import java.net.URLDecoder;
 import java.sql.*;
 import java.util.*;
 
+// I chose to use enum instead of a regular class with static methods. This way the call for the methods looks just like
+//it would have done whit a regular class whit static methods but it is impossible to instantiate the class and still have the
+//benefit of using static methods. It's like belt and suspenders to avoid instantiation.
 public enum Driver {
   ;
   private static Connection myConnection;

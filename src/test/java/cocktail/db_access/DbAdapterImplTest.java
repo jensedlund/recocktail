@@ -248,7 +248,7 @@ public class DbAdapterImplTest {
     @Test
     public void getOccuranceOfTag() throws Exception {
         boolean testBool = false;
-        int testInt = adapter.getOccuranceOfTag("test1");
+        int testInt = adapter.getOccurrenceOfTag("test1");
         if (testInt > 0) {
             testBool = true;
         }
@@ -258,7 +258,7 @@ public class DbAdapterImplTest {
     @Test
     public void getComplementaryTags() throws Exception {
         boolean testBool = false;
-        List<String> compTags = adapter.getComplementaryTags("test1");
+        List<String> compTags = adapter.getAssociatedTags("test1");
         if(compTags.size() > 0){
             testBool = true;
         }

@@ -27,9 +27,6 @@ import java.util.List;
 
 /**
  * Class that provide the programm with information from database and uppload information to the database.
- *
- * @version 1.0
- *
  */
 public interface DbAdapter {
   /**
@@ -42,45 +39,118 @@ public interface DbAdapter {
   int writeSnippet(FileInfo fileInfo, SnippetInfo snippetInfo);
 
   /**
+   *Updates the information in by executing a delete-insert operation.
    *
-   * 
-   * @param snippetInfo
-   * @param fileInfo
-   * @param snippetID
-   * @return
+   * @param snippetInfo object with information about the snippet
+   * @param fileInfo object with a file and information about the file
+   * @param snippetID the ID of the snippet will stay the same after editing
+   * @return boolean
    */
   boolean editSnippet(SnippetInfo snippetInfo, FileInfo fileInfo, int snippetID);
 
+  /**
+   * Deletes one snippet from database.
+   *
+   * @param snippetID
+   * @return boolean
+   */
   boolean deleteSnippet(int snippetID);
 
+  /**
+   * Returns the file as a byte array. Method don't read all the information, just the file.
+   *
+   * @param snippetID
+   * @return byte[]
+   */
   byte[] readSnippet(int snippetID);
 
+  /**
+   * Returns an object with all the information about one snippet. The object dose not include the file.
+   *
+   * @param snippetID
+   * @return
+   */
   SnippetInfo readSnippetInfo(int snippetID);
 
+  /**
+   * Returns the complete number of files that is stored in the database
+   *
+   * @return number of files as Integer
+   */
   Integer getNumberOfFiles();
 
+  /**
+   *Returns the total kb size of the files stored in the database.
+   *
+   * @return int
+   */
   Integer getTotalFileSizeKb();
 
+  /**
+   * Returns the size of the smallest file in the database.
+   * @return int
+   */
   Integer getMinFileSizeKb();
 
+  /**
+   * Returns the kb size of the largest file stored in the database.
+   * @return int
+   */
   Integer getMaxFileSizeKb();
 
-
+  /**
+   * Returns the length in second of the shortest file in the database.
+   * @return double
+   */
   Double getMinFileLenSec();
 
+  /**
+   * Returns the length in second of the longest file in the database.
+   * @return double
+   */
   Double getMaxFileLenSec();
 
+  /**
+   * Returns the total amout of snippets stored in the database.
+   * @return double
+   */
   Integer getNumSnippets();
 
+  /**
+   * Returns the length in second of the shortest snippet in the database.
+   *
+   * @return double
+   */
   Double getMinSnippetLenSec();
 
+  /**
+   * Returns the length in second of the longest snippet in the database.
+   * @return double
+   */
   Double getMaxSnippetLenSec();
 
+  /**
+   * Returns a list of all the tags stored in the database.
+   * @return List<String> list of tags
+   */
   List<String> getAllTags();
 
-  Integer getOccuranceOfTag(String tag);
+  /**
+   * Returns the number of times one specific tag is occurring in the database.
+   * @param tag a tagname as a String
+   * @return int number of occurrence
+   */
+  Integer getOccurrenceOfTag(String tag);
 
-  List<String> getComplementaryTags(String tag);
+  /**
+   * Returns a list of tagas that is usually connected to the tag that is passed as an argument.
+   * There could bee duplicates in the list. The number of times one tag is occurring in the list
+   * tells how often the tag is associated together with the tag in question.
+   *
+   * @param tag tagName as a String
+   * @return
+   */
+  List<String> getAssociatedTags(String tag);
 
   SnippetSet search(String[] tagArray, boolean exclusive);
 
