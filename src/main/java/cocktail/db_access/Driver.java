@@ -5,7 +5,6 @@ package cocktail.db_access;
 import cocktail.snippet.FileInfo;
 import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -285,7 +284,7 @@ public class Driver {
     }
 
     List<Integer> tagIds = getTagIDsForSnippetID(oldSnippetID);
-    List<String> tagNames = getTagNamesFromIDs(tagIds);
+    List<String> tagNames = getTagNamesFromTagIDs(tagIds);
     tagNames.addAll(snippetInfo.getTagNames());
     Set<String> tagSet = new HashSet<>();
     tagSet.addAll(tagNames);
@@ -318,7 +317,7 @@ public class Driver {
     }
 
     List<Integer> tagIds = getTagIDsForSnippetID(oldSnippetID);
-    List<String> tagNames = getTagNamesFromIDs(tagIds);
+    List<String> tagNames = getTagNamesFromTagIDs(tagIds);
     tagNames.addAll(snippetInfo.getTagNames());
     Set<String> tagSet = new HashSet<>();
     tagSet.addAll(tagNames);
@@ -462,7 +461,7 @@ public class Driver {
   }
 
 
-  
+//Method inserts tags into tagInfo table and sets a list of tagIDs in snippetInfo object
   public static boolean insertIntoTagInfo(SnippetInfo snippetInfo) {
     boolean returnBool = false;
     List<Integer> tagIDs = new ArrayList<>();
@@ -490,6 +489,8 @@ public class Driver {
     return returnBool;
   }
 
+
+  //Overloaded method inserts info into table snippetInfo and sets the generated snippetID in the snippetInfo object
   private static boolean insertIntoSnippetinfo(SnippetInfo snippetInfo, int fileID) {
     removeProtectedTags(snippetInfo);
     boolean returnBool = false;
@@ -518,6 +519,7 @@ public class Driver {
     return returnBool;
   }
 
+  //Method returns all file names
   private static List<String> getAllFileNames() {
     List<String> returnList = new ArrayList<>();
     try {
@@ -537,6 +539,8 @@ public class Driver {
     return returnList;
   }
 
+
+  //Method returns all tag names in database.
   public static List<String> getAllTagNames() {
     List<String> tempListOfTagNames = new ArrayList<>();
     try {
@@ -557,6 +561,7 @@ public class Driver {
     return tempListOfTagNames;
   }
 
+  //Method takes a tagName as argument and returns the tagID
   public static int getTagID(String tagName) {
     int returnInt = 0;
     try {
@@ -576,6 +581,8 @@ public class Driver {
     return returnInt;
   }
 
+
+  //Method updates info in fileInfo but is limited by foregin key constraints. The fileID can not be changed
   private static boolean updateFileInfo(FileInfo fileInfo) {
     boolean returnBool = false;
     try {
@@ -597,6 +604,9 @@ public class Driver {
     return returnBool;
   }
 
+
+  //Method is a way to update a snippet by deleteing it and then reinsert it with the same snippetID. This method
+  //is therefore a way to walk around all the constraints in the design.
   public static boolean deleteInsertSnippetInfo(FileInfo fileInfo, SnippetInfo snippetInfo, int snippetID) {
     boolean returnBool = false;
     if (isCallProtectedAdmin(snippetInfo)) {
@@ -634,6 +644,9 @@ public class Driver {
     return returnBool;
   }
 
+  ///Method is a way to update a snippet by deleteing it and then reinsert it with the same snippetID. This method
+  //is therefore a way to walk around all the constraints in the design. This method is called when the userName is equal to the admin name
+  //and if the tags are protected, like ".demo-sea-bird"
   public static boolean deleteInsertAsAdmin(SnippetInfo snippetInfo, FileInfo fileInfo, int snippetID) {
     boolean returnBool = false;
     if (snippetInfo.getUserName().equals(_adminUserName)) {
@@ -669,11 +682,12 @@ public class Driver {
   }
 
 
+  //Method deletes a snippet and is called when the snippet has a protected tag and the userName is equal to teh admin name.
   public static boolean deleteSnippetAdm(int snippetID) {
     boolean returnBool;
     String userName = getUserNameForSnippet(snippetID);
     if (userName.equals(_adminUserName)) {
-      int fileID = getFileID(snippetID);
+      int fileID = getFileIDFromSnippetID(snippetID);
       List<Integer> tagIdsSnippet = getTagIDsForSnippetID(snippetID);
 
       deleteFromBridgeTable(snippetID);
@@ -693,14 +707,16 @@ public class Driver {
     return returnBool;
   }
 
-  private static boolean updateTagInfo(SnippetInfo snippetInfo) {
+
+  /*Method updates the tag names in a snippetInfo
+  private static boolean updateTagInfo(String oldTagName, String newTagName) {
     boolean returnBool = false;
-    for (String s : snippetInfo.getTagNames()) {
-      int tagID = getTagID(s);
+
+      int tagID = getTagID(oldTagName);
       try {
         String sql = "UPDATE tagInfo SET tagName=? WHERE tagID=?";
         PreparedStatement ps = myConnection.prepareStatement(sql);
-        ps.setString(1, s);
+        ps.setString(1, newTagName);
         ps.setInt(2, tagID);
         ps.close();
         returnBool = true;
@@ -708,11 +724,13 @@ public class Driver {
       } catch (Exception e) {
         e.printStackTrace();
       }
-    }
-    return returnBool;
-  }
 
-  public static int getFileID(int snippetID) {
+    return returnBool;
+  }*/
+
+
+  //Returns the fileID ant takes a snippetID as argument
+  public static int getFileIDFromSnippetID(int snippetID) {
     int returnInt = 0;
     try {
       String sql = "SELECT fileID FROM snippetInfo WHERE snippetID=?";
@@ -731,6 +749,8 @@ public class Driver {
     return returnInt;
   }
 
+
+  //Returns a list of tagIDs from a snippetID
   public static List<Integer> getTagIDsForSnippetID(int snippetID) {
     List<Integer> tagIDList = new ArrayList<>();
 
@@ -751,7 +771,9 @@ public class Driver {
     return tagIDList;
   }
 
-  public static List<String> getTagNamesFromIDs(List<Integer> tagIDs) {
+
+  //Returns a list of tagNams and takes a list of tagIDs as argument
+  public static List<String> getTagNamesFromTagIDs(List<Integer> tagIDs) {
     List<String> tagNames = new ArrayList<>();
     try {
       for (int i = 0; i < tagIDs.size(); i++) {
@@ -771,6 +793,8 @@ public class Driver {
     return tagNames;
   }
 
+
+  //Returns a list of all fileIds in the database
   public static List<Integer> getAllFileIDs() {
     List<Integer> returnList = new ArrayList<>();
     try {
@@ -789,9 +813,11 @@ public class Driver {
     return null;
   }
 
+
+  //Method is called from method deleteSnippet and is deletign the informatione where the snippetID is occuring
   private static boolean deleteFromBridgeTable(int snippetID) {
     boolean returnBool = false;
-    int fileID = getFileID(snippetID);
+    int fileID = getFileIDFromSnippetID(snippetID);
     try {
       String sql = "DELETE FROM bridgeSnippetTagTable WHERE snippetID=?";
       PreparedStatement psBridgeTable = myConnection.prepareStatement(sql);
@@ -806,6 +832,7 @@ public class Driver {
     return returnBool;
   }
 
+  //Method is deleteing one row in table snippetInfo
   private static boolean deleteFromSnippetInfo(int snippetID) {
     boolean returnBool = false;
     try {
@@ -823,6 +850,8 @@ public class Driver {
     return returnBool;
   }
 
+
+  //Returns the fileID from a row specified by the snippetID from the argument
   public static int getFileIDFromSnippetInfoTable(int snippetID) {
     int returnInt = 0;
     try {
@@ -840,6 +869,8 @@ public class Driver {
     return returnInt;
   }
 
+
+  //Returns a complete list of all the snippetIDs in the database
   public static List<Integer> getAllSnippetIDs() {
     List<Integer> snippetIDs = new ArrayList<>();
     try {
@@ -856,6 +887,8 @@ public class Driver {
     return snippetIDs;
   }
 
+
+  //Method check if one specific file is connected to any snippet
   private static boolean isFileInUse(int fileID) {
     boolean returnBool = false;
     List<Integer> snippetIDs = getAllSnippetIDs();
@@ -869,6 +902,8 @@ public class Driver {
     return returnBool;
   }
 
+
+  //Method delete one row in fileInfo table
   private static boolean deleteFromFileInfo(int fileID) {
     boolean returnBool = false;
     try {
@@ -884,6 +919,8 @@ public class Driver {
     return returnBool;
   }
 
+
+  //Check if one tag is connected to äny snippetor not
   public static boolean isTagInUse(int tagID) {
     boolean returnBool = false;
     try {
@@ -902,6 +939,8 @@ public class Driver {
     return returnBool;
   }
 
+
+  //Method deletes one tag in tagInfo table
   private static boolean deleteFromTagInfo(int tagID) {
     boolean returnBool = false;
     try {
@@ -917,13 +956,14 @@ public class Driver {
     return returnBool;
   }
 
+
+  //Method check if the snippet has tags that ar protected, like ".demo-sea-bird"
   public static boolean isSnippetProtectedSample(int snippetID) {
     boolean isProtected = false;
     List<Integer> id = new ArrayList<>();
     id.add(snippetID);
-    List<String> tags = getTagNamesFromIDs(id);
+    List<String> tags = getTagNamesFromTagIDs(id);
     for (String tag : tags) {
-      System.out.println(" I is snippetProtected " + tag);
       if (tag.charAt(0) == '.') {
         isProtected = true;
       }
@@ -931,11 +971,12 @@ public class Driver {
     return isProtected;
   }
 
+  //Method deletes one snippet by calling severel methods that deletes from all the tables
   public static boolean deleteSnippet(int snippetID) {
     boolean returnBool;
     String userName = getUserNameForSnippet(snippetID);
     if (!isSnippetProtectedSample(snippetID) || userName.equals(_adminUserName)) {
-      int fileID = getFileID(snippetID);
+      int fileID = getFileIDFromSnippetID(snippetID);
       List<Integer> tagIdsSnippet = getTagIDsForSnippetID(snippetID);
 
       deleteFromBridgeTable(snippetID);
@@ -955,8 +996,10 @@ public class Driver {
     return returnBool;
   }
 
+
+  //Method read the file from fileInfo table and return it as a bite array
   public static byte[] readSnippet(int snippetID) {
-    int sourceID = getFileID(snippetID);
+    int sourceID = getFileIDFromSnippetID(snippetID);
     byte[] buffer = null;
     try {
       String sql = "SELECT file FROM fileInfo WHERE fileID=?";
@@ -968,7 +1011,6 @@ public class Driver {
         input = rs.getBinaryStream("file");
         buffer = new byte[input.available()];
         input.read(buffer);
-        System.out.println(buffer.length);
       }
 
     } catch (Exception e) {
@@ -977,6 +1019,8 @@ public class Driver {
     return buffer;
   }
 
+
+  //Returns the userName and takes a userID as an argument
   private static String getUserName(int userID) {
     String userName = null;
     try {
@@ -994,12 +1038,14 @@ public class Driver {
     return userName;
   }
 
+
+  //Method returns one SnippetInfo object whit information from severel tables
   public static SnippetInfo readSnippetInf(int snippetID) {
     SnippetInfo snippetInfo = new SnippetInfo();
     snippetInfo.setSnippetID(snippetID);
-    snippetInfo.setFileID(getFileID(snippetID));
+    snippetInfo.setFileID(getFileIDFromSnippetID(snippetID));
     List<Integer> tagIDs = getTagIDsForSnippetID(snippetID);
-    List<String> tagNames = getTagNamesFromIDs(tagIDs);
+    List<String> tagNames = getTagNamesFromTagIDs(tagIDs);
     snippetInfo.setTagNames(tagNames);
 
     try {
@@ -1020,6 +1066,7 @@ public class Driver {
         snippetInfo.setCreationDate(rs.getDate("creationDate").toLocalDate());
         snippetInfo.setLastModified(rs.getDate("lastModifiedDate").toLocalDate());
         snippetInfo.setUserID(rs.getInt("userID"));
+        snippetInfo.setStartTime(rs.getDouble("startTime"));
       }
       snippetInfo.setUserName(getUserName(snippetInfo.getUserID()));
     } catch (Exception e) {
@@ -1028,6 +1075,8 @@ public class Driver {
     return snippetInfo;
   }
 
+
+  //Returns the complete number of files in database
   public static int getTotlNumberOfFiles() {
     int numberOfFiles = 0;
     try {
@@ -1045,7 +1094,8 @@ public class Driver {
     return numberOfFiles;
   }
 
-  @NotNull
+
+  //Returns the total amount of kb from files stored in database
   public static Integer getTotalFileSizeKb() {
     int total = 0;
     try {
@@ -1064,6 +1114,8 @@ public class Driver {
     return total;
   }
 
+
+  //Returns the size in kb of the smallest file
   public static Integer getMinFileSizeKb() {
     int min = 1000;
     int temp = 0;
@@ -1085,6 +1137,8 @@ public class Driver {
     return min;
   }
 
+
+  //Returns the size in kb of the largest file in database
   public static Integer getMaxFileSizeKb() {
     int max = 0;
     int temp = 0;
@@ -1107,6 +1161,7 @@ public class Driver {
 
   }
 
+  //Returns a double representing the length of the shortest file in database.
   public static double getMinFileLenSec() {
     double min = 0;
     double temp = 0;
@@ -1127,6 +1182,8 @@ public class Driver {
     return 0;
   }
 
+
+  //Method search the database for snippet connected to the tags in the argument list. Returns a list of snippetIDs
   public static List<Integer> searchSnippetIDs(List<String> tagArray, double lengthMaxFilter) {
     List<String> tagLowerCas = new ArrayList<>();
     for (String tag : tagArray) {
@@ -1154,6 +1211,9 @@ public class Driver {
     }
     return snippetIdList;
   }
+
+
+  //Method check if
 
   private static List<Integer> fileterSnippetIDByLenght(List<Integer> snippetIdList, double lengthMaxFilter) {
     List<Integer> snippgetIDs = new ArrayList<>();
@@ -1333,7 +1393,7 @@ public class Driver {
         tempTagIDs.addAll(getTagIDsForSnippetID(i));
       }
 
-      tempComplementaryTags.addAll(getTagNamesFromIDs(tempTagIDs));
+      tempComplementaryTags.addAll(getTagNamesFromTagIDs(tempTagIDs));
       complementaryTags = tempComplementaryTags;
       for (int i = 0; i < tempComplementaryTags.size(); i++) {
         if (tempComplementaryTags.get(i).equals(tag)) {
@@ -1347,6 +1407,8 @@ public class Driver {
     return null;
   }
 
+
+  //Method is checking two tables and match the results to awnser the question if one snippet is part of a larger file or not
   public static boolean isSnippetPartOfLongerFile(int snippetID) {
     boolean returnBool = false;
     double startTime = 0.0;
@@ -1463,7 +1525,7 @@ public class Driver {
       ps.close();
       rs.close();
       snippetSet = new SnippetSet(snippetInfoSet);
-      tagNamesList = getTagNamesFromIDs(tagIDsList);
+      tagNamesList = getTagNamesFromTagIDs(tagIDsList);
       tagNamesSet.addAll(tagNamesList);
       return snippetSet;
     } catch (Exception e) {
@@ -1475,7 +1537,7 @@ public class Driver {
 
   public static String getFileNameFromSnippetId(int snippetID) {
     String returnString = "";
-    int fileID = getFileID(snippetID);
+    int fileID = getFileIDFromSnippetID(snippetID);
     try {
       String sql = "SELECT fileName FROM fileInfo WHERE fileID=?";
       PreparedStatement ps = myConnection.prepareStatement(sql);

@@ -30,24 +30,35 @@ function init() {
     // Fix up prefixing
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     context = new AudioContext();
+
     // context[0] = new AudioContext();
     // context[1] = new AudioContext();
     // otherContext = new AudioContext();
 
     // Populating drop down selection.
-    var soundSelector = document.getElementById("soundSets");
-    loadedSoundSets.forEach(function (val) {
-        var option = document.createElement("option");
-        option.text = val.label;
-        option.value = val.label;
-        soundSelector.add(option);
-    });
-    document.getElementById("soundstart1").disabled = false;
-    document.getElementById("soundstart2").disabled = false;
-    document.getElementById("soundstop1").disabled = false;
-    document.getElementById("soundstop2").disabled = false;
+    // var soundSelector = document.getElementById("soundSets");
+    // loadedSoundSets.forEach(function (val) {
+    //     var option = document.createElement("option");
+    //     option.text = val.label;
+    //     option.value = val.label;
+    //     soundSelector.add(option);
+    // });
+    // document.getElementById("soundstart1").disabled = false;
+    // document.getElementById("soundstart2").disabled = false;
+    // document.getElementById("soundstop1").disabled = false;
+    // document.getElementById("soundstop2").disabled = false;
+    getActiveSets(updateSnippetSetList);
     rangeSlider();
     getAllTags(populateAllTagsList);
+}
+
+function collectSoundParams(soundSet) {
+    soundSet.gain = parseFloat(document.getElementById("gain").value);
+    soundSet.gainVar = parseFloat(document.getElementById("gainVar").value);
+    soundSet.balance = parseFloat(document.getElementById("balance").value);
+    soundSet.delay = document.getElementById("delay").value;
+    soundSet.delayVar = document.getElementById("delayVar").value;
+
 }
 
 var staph = [false, false];
@@ -75,13 +86,16 @@ function finishedLoading(contextVar, bufferList) {
 }
 
 function startSound(contextVar) {
-    staph[contextVar] = false;
     var selected = document.getElementById("soundSets").selectedIndex;
-    finishedLoading(contextVar, loadedSoundSets[selected].files);
+    var weighted = document.getElementById("weighted").checked;
+    loadedSoundSets[selected].startPlaback(weighted,collectSoundParams);
+
+    // finishedLoading(contextVar, loadedSoundSets[selected].files);
 }
 
 function stopSound(contextVar) {
-    staph[contextVar] = true;
+    var selected = document.getElementById("soundSets").selectedIndex;
+    loadedSoundSets[selected].stopPlayback();
 }
 
 function shootSound(contextVar, bufferList) {
