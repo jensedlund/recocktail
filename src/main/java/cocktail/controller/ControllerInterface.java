@@ -110,32 +110,87 @@ public interface ControllerInterface {
   void updateUserName(String newUserName, String oldUserName);
 
   /**
+   *Method removes one snippetInfo from the SnippetSet passed as argument.
+   * Returns a new snippetSet that not includes the unwanted snippetInfo.
    *
-   * @param snippetID
+   * @param snippetID int
    * @param snippetSet
-   * @return
+   * @return snippetSet new SnippetSet
    */
   SnippetSet removeSnippetFromSet(int snippetID, SnippetSet snippetSet);
 
+  /**
+   * Method reads one snippetInfo based on snippetID that is passed as argument and add the snippetInfo
+   * to the collection of snippetInfos that is embedded in the snippetSet object. Returns a new snippetSet.
+   * @param snippetID int
+   * @param snippetSet object of class SnippetSet
+   * @return snippetSet a new object
+   */
   SnippetSet addSnippetToSet(int snippetID, SnippetSet snippetSet);
 
+  /**
+   * Returns a SnippetSet from storage. The id of the set is passed as argument.
+   * @param setID String
+   * @return SnippetSet
+   */
   SnippetSet getStoredSet(String setID);
 
+  /**
+   * Returns the SnippetSet from SnippetStorage that is marked as currentSet.
+   * @return SnippetSet
+   */
   SnippetSet getCurrentSet();
 
+  /**
+   * Returns a collection of tag names. All tags in the database are included.
+   * @return set of strings
+   */
   Set<String> getCompleteSetOfTagNames();
 
+  /**
+   * Method deletes one zip file that is no longer in use.
+   *
+   * @param setName String
+   * @return boolean
+   */
   boolean deleteUsedZip(String setName);
 
+  /**
+   * Method returns one file and all the snippets that is associated whit that file as an object of class
+   * SnippetSet. The snippetSet object includes a collection of SnippetInfo representing the marked snippet on the file.
+   *
+   * @param fileID int
+   * @return snippetSet
+   */
   SnippetSet getSingelSourceFileAndItsSnippets(int fileID);
 
+  /**
+   * Returns a list of all the stored sets.
+   *
+   * @return list of Strings
+   */
   List<String> getAllSavedSetsName();
 
+  /**
+   * Method deletes saved sets, the sets are specified by the list of names that is passed as argument.
+   *
+   * @param savedSetNames list of strings
+   * @return boolean
+   */
   boolean deleteSavedSets(List<String> savedSetNames);
 
+  /**
+   *  Method deletes one snippet in the database. The method is used when the user name is equal to the admin user name
+   *  and one of the tags are a protected tag. Protected tag starts whit a (dot) [.].
+   *
+   * @param snippetID int
+   * @return
+   */
   boolean deleteSnippetAsAdmin(int snippetID);
 
+  /**
+   * Method deletes all tags in the database that are not connected to any snippets.
+   *
+   */
   void deleteAllTagsNotInUse();
-
-
 }
