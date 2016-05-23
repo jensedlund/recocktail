@@ -5,7 +5,7 @@ import java.io.File;
 public interface SoundExtractor {
 
   /*
-  These methods depend on having sox and ffpeg installed on the system!
+  These methods depend on having sox and ffmpeg installed on the system!
   MAKE SURE THEY ARE INSTALLED BEFORE USING THIS.
 
    */
