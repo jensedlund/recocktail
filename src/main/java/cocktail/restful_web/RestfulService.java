@@ -42,12 +42,13 @@ import static spark.Spark.staticFiles;
 
 /**
  * REST service to handle frontend to backend calls.
- * Based on Spark Framework.
+ * Based on Spark Framework. The built in Jetty server
+ * is used for web.
  */
 public class RestfulService {
 
   static {
-
+    // Static web resources
     boolean localhost = true;
     if (localhost) {
       String projectDir = System.getProperty("user.dir");
@@ -59,16 +60,22 @@ public class RestfulService {
 
   }
 
+  /**
+   * REST resolution is handled in this method.
+   * Gson is used extensively to convert java objects to JSON objects
+   * for convenience in frontend.
+   */
   public static void runSpark() {
     Controller controller = Controller.getInstance();
 
-
+    // Return all tags that exist in database
     get("/getAllTags", (request, response) -> controller.getCompleteSetOfTagNames(),
         (src) -> {
           Gson gson = new Gson();
           return gson.toJson(src);
         });
 
+    // Move generated zip to stic file location and return the URL.
     get("/getZipUrl/:name", (request, response) -> {
       String setName = request.params(":name");
       SnippetSet snippetSet = controller.getStoredSet(setName);
@@ -81,19 +88,21 @@ public class RestfulService {
       return gson.toJson(new String("tmp/download.zip"));
     });
 
+    // Get a zip file as binary stream from frontend
+    // Store it to a static location and pass the path to
+    // controller for processing.
     post("/writeSnippet", (request, response) -> {
       String fileName = "src/main/web/tmp/arkiv.zip";
       FileOutputStream fos = new FileOutputStream(fileName);
       fos.write(request.bodyAsBytes());
       fos.close();
-      System.out.println("Trace1");
       controller.writeEditSnippet(fileName);
-      System.out.println("Trace2");
       return true;
     });
 
-    post("/search", (request, response) -> {
 
+    // Search in database and return a snippetset from the result.
+    post("/search", (request, response) -> {
       Map<String, String> reqBodyMap = RestfulHelper.mapFromRequestBody(request);
       Set<String> existingKeys = reqBodyMap.keySet();
 
@@ -123,6 +132,7 @@ public class RestfulService {
       }
     });
 
+    // Pass a snippetset from frontend and return a xml file URL
     post("/getSnippetSetXml", ((request, response) -> {
       new File("src/main/web/tmp").mkdirs();
       Gson gson = new Gson();
@@ -136,12 +146,14 @@ public class RestfulService {
       return gson.toJson(fileName);
     }));
 
+    // Return a list of all sets in StorgaeUnit.
     get("/getActiveSets", (request, response) -> {
       List<String> setList = controller.getAllSavedSetsName();
       Gson gson = new Gson();
       return gson.toJson(setList);
     });
 
+    // Get a specific set from StorageUnit
     get("/getSet/:name", (request, response) -> {
       String setName = request.params(":name");
       SnippetSet snippetSet = controller.getStoredSet(setName);
