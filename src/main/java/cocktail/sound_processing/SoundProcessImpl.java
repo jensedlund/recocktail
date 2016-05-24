@@ -29,7 +29,7 @@ public class SoundProcessImpl implements SoundProcess {
     AudioInputStream shortenedAudioStream = null;
     ByteArrayOutputStream preOutput = null;
     //ByteArrayInputStream output = null;
-    byte[] out2 = null;
+    byte[] output = null;
     ByteArrayInputStream bais = new ByteArrayInputStream(byteArray);
 
     try {
@@ -70,9 +70,9 @@ public class SoundProcessImpl implements SoundProcess {
       }
     }
     if (preOutput != null) {
-      out2 = preOutput.toByteArray();
+      output = preOutput.toByteArray();
     }
-    return out2;
+    return output;
   }
 
   /**
