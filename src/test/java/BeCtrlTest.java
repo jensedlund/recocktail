@@ -18,9 +18,7 @@
  */
 
 
-import org.junit.Test;
-
-import cocktail.old_controller.BeCtrl;
+/*import cocktail.old_controller.BeCtrl;
 import cocktail.old_controller.CommandResult;
 import cocktail.stream_io.StreamingService;
 import cocktail.stream_io.XmlStreamer;
@@ -59,7 +57,7 @@ public class BeCtrlTest {
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
-    */
+
   }
 
 //  @Test
@@ -84,4 +82,5 @@ public class BeCtrlTest {
 //    }
 
 //  }
-}
+          */
+
