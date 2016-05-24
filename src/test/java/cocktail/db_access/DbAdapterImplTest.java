@@ -331,38 +331,48 @@ public class DbAdapterImplTest {
 
   @Test
   public void createSnippetListFromSnippetIds() throws Exception {
-
-    
+    List<Integer> snippetIDList = new ArrayList<>();
+   snippetIDList.add(95);
+    snippetIDList.add(96);
+    List<SnippetInfo> testLIst = adapter.createSnippetListFromSnippetID(snippetIDList);
+    Assert.assertEquals(testLIst.size(), snippetIDList.size());
   }
 
   @Test
   public void getFileNameFromSnippetId() throws Exception {
-
+    boolean testBool = false;
+    String fileName = adapter.getFileNameFromSnippetId(95);
+    if (fileName.length() > 1) {
+      testBool = true;
+    }
+    Assert.assertEquals(testBool, true);
   }
 
   @Test
   public void removeUnusedTag() throws Exception {
-
+    boolean testBool = false;
+    writeSnippet();
+    adapter.deleteSnippet(snippetID);
+    adapter.removeUnusedTag("removetest");
+    if (!adapter.getAllTags().contains("removetest")) {
+      testBool = true;
+    }
+    Assert.assertEquals(testBool,true);
   }
 
   @Test
   public void removeAllUnusedTags() throws Exception {
+    boolean testBool = false;
+    writeSnippet();
+    adapter.deleteSnippet(snippetID);
+    int numberOfPre = adapter.getAllTags().size();
+    adapter.removeAllUnusedTags();
+    int numberOfPost = adapter.getAllTags().size();
 
-  }
-
-  @Test
-  public void writeSnippetAsAdmin() throws Exception {
-
-  }
-
-  @Test
-  public void editSnippetAsAdmin() throws Exception {
-
-  }
-
-  @Test
-  public void deleteSnippetAsAdmin() throws Exception {
-
+    if(numberOfPost< numberOfPre){
+      testBool = true;
+    }
+    Assert.assertEquals(testBool,true);
   }
 
   public void writeTestSnippet() {
@@ -374,6 +384,7 @@ public class DbAdapterImplTest {
       fileInfo = new FileInfo(bInput, "Filnamn", 39, 3.0);
       List<String> tagNames = new ArrayList<>();
       tagNames.add("TagName");
+      tagNames.add("removetest");
       LocalDate ld1 = LocalDate.now();
       LocalDate ld2 = LocalDate.now();
       snippetInfo = new SnippetInfo("sourceFileName", tagNames, 0.2, 2.0, 2, ld1, ld2, "userName");
