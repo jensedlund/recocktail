@@ -57,5 +57,3 @@ public interface SnippetStorage {
 
   void deleteSavedSets(List<String> savedSetNames );
 }
-
-

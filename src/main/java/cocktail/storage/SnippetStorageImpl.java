@@ -63,8 +63,8 @@ public class SnippetStorageImpl implements SnippetStorage {
   @Override
   public boolean addSet(SnippetSet snippetSet) {
     boolean returnBool = false;
-      latestSet = snippetSet;
-      workingSets.addFirst(snippetSet);
+    latestSet = snippetSet;
+    workingSets.addFirst(snippetSet);
     if(setNames.contains(snippetSet.getSetName())) {
       return returnBool;
     } else {
