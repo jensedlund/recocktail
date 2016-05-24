@@ -327,9 +327,9 @@ public class DbAdapterImplTest {
     LocalDate ld1 = LocalDate.now();
     LocalDate ld2 = LocalDate.now();
     SnippetInfo snippetInfo = new SnippetInfo("sourceFileName", tagNames, 0.2, 2.0, 2, ld1, ld2, "userName");
-    int snippetID = adapter.writeSnippet(snippetInfo, 5);
+    int snippetID = adapter.writeSnippet(snippetInfo, 518);
     listToDelete.add(snippetID);
-    if (snippetID > -1) {
+    if (snippetID > 0) {
       testBool = true;
     }
     Assert.assertEquals(testBool, true);

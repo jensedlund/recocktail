@@ -55,7 +55,11 @@ public class ControllerTest {
   @Test
   public void writeEditSnippet() throws Exception {
     boolean returnBool = false;
-    String path = "./src/test/resources/test.zip";
+    List<String> tagNames = new ArrayList<>();
+    tagNames.add("skog");
+    //SnippetSet snippetSet = snippetSet = impl.search(tagNames, 1.0, false);;
+  //  String path = archiveHandler.zip(snippetSet);
+   String path = "./src/test/resources/test.zip";
     SnippetSet returnSnippetSet = Controller.getInstance().writeEditSnippet(path);
     if (returnSnippetSet.getSnippetCollection().size() > 0) {
       returnBool = true;

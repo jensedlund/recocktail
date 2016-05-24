@@ -1,6 +1,5 @@
-package DriverTest;
+package cocktail.db_access;
 
-import cocktail.db_access.DbAdapterImpl;
 import cocktail.snippet.FileInfo;
 import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
@@ -8,6 +7,7 @@ import com.google.gson.JsonObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,12 +40,34 @@ private static SnippetSet snippetSet;
   public static JsonObject getSnippetJsonObject(){
     return getSnippetJsonObject();
   }
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
   //  SnippetInfo{snippetID=0, fileID=0, fileName='Ljudinspelning_2016-03-25_13-04-27', tagNames=[clappy], kbSize=294,
     // startTime=0.0, lengthSec=2.4133333333333336, creationDate=2016-05-18, lastModified=2016-05-18,
     // userID=0, userName='Admin', multiples=0}
+      List<Integer> snippetIDListTODelete = new ArrayList<>();
+      for(int i = 190; i <= 201; i++) {
+         SnippetSet temp = Driver.getAllSnippetFromFile(i);
+          for(SnippetInfo si : temp.getSnippetCollection()){
+             snippetIDListTODelete.add(si.getSnippetID());
+          }
+      }
 
-    System.out.println("Programmet kör");
+      for(int i = 503; i <= 531; i++) {
+          SnippetSet temp = Driver.getAllSnippetFromFile(i);
+          for(SnippetInfo si : temp.getSnippetCollection()){
+              snippetIDListTODelete.add(si.getSnippetID());
+          }
+      }
+
+      SnippetSet temp = Driver.getAllSnippetFromFile(345);
+      for(SnippetInfo si : temp.getSnippetCollection()){
+          snippetIDListTODelete.add(si.getSnippetID());
+      }
+
+      for(int i : snippetIDListTODelete) {
+          Driver.deleteSnippet(i);
+      }
+
   }
 
 

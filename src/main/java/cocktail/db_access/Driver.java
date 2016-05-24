@@ -104,6 +104,9 @@ public enum Driver {
 //This overloaded method inserts one snippet to the database and is used when the file connected to the snippet
   // is already in the database and the fileID is known.
   protected static int writeSnippet(SnippetInfo snippetInfo, int fileID) {
+   if(!isFileInUse(fileID)){
+      return -1;
+    }
     int returnInt = 0;
 
     if (isSnippetADuplicate(snippetInfo, fileID)) {
@@ -338,6 +341,9 @@ public enum Driver {
 //Method write file to database
   protected static boolean insertIntoFileInfo(SnippetInfo snippetInfo, FileInfo fileInfo) {
     boolean returnBool = false;
+    if(fileInfo.getFileName().length()<1){
+      fileInfo.setFileName("unnamed");
+    }
     if (!isFileInDb(fileInfo)) {
       try {
         PreparedStatement ps = myConnection.prepareStatement
@@ -1636,7 +1642,12 @@ public enum Driver {
       }
       ps.close();
       rs.close();
-      return getUserName(userID);
+      String returnName = getUserName(userID);
+      if(returnName != null) {
+        return returnName;
+      }else {
+        return userName;
+      }
     } catch (Exception e) {
       e.printStackTrace();
     }
