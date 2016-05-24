@@ -29,6 +29,10 @@ public class ArchiveHandler {
   private static final DbAdapter dbAdapter = new DbAdapterImpl();
   private static final SoundProcess process = new SoundProcessImpl();
 
+  public ArchiveHandler() {
+
+  }
+
 
   /*
   Creates a zip file, mounts it as a zip filesystem and starts to populate it with snippets from
@@ -433,15 +437,9 @@ public class ArchiveHandler {
       System.out.println(setName + " is not a file.");
       return false;
     }
-<<<<<<< HEAD
-    System.out.println(deadFile.delete());
     deadFile.delete();
     System.out.println(deadFile.toPath().getParent().toFile());
-=======
-    System.out.println(deadFile + " deleting....");
->>>>>>> e1a6a43ce1c024dda13bce5267ebc7725b02ef90
     removeDirectory(deadFile.toPath().getParent().toFile());
-    deadFile.delete();
     return true;
   }
 

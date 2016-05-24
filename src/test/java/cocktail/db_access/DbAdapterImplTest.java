@@ -305,8 +305,7 @@ public class DbAdapterImplTest {
   public void createSnippetSetFromIds() throws Exception {
     boolean testBool = false;
     List<Integer> snippetIDs = new ArrayList<>();
-
-    for (int i = 1; i < 10; i++) {
+    for (int i = 100; i < 110; i++) {
       snippetIDs.add(i);
     }
     SnippetSet snippetSet1 = adapter.createSnippetSetFromIds(snippetIDs);
