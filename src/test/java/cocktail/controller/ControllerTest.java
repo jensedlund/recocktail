@@ -139,10 +139,11 @@ public class ControllerTest {
     String oldUserName = "userName";
     String newUserName = "newUserName";
     Controller.getInstance().updateUserName(newUserName, oldUserName);
-
     if(impl.getAllUsers().contains(newUserName)){
       testBool = true;
     }
+    Controller.getInstance().updateUserName(oldUserName,newUserName);
+
     Assert.assertEquals(testBool, true);
 
   }
