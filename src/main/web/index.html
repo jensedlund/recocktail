@@ -22,14 +22,11 @@
 <head>
     <meta charset="UTF-8">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
-    <script src="sound-shooter.js"></script>
-    <!--<script src="buffer-loader.js"></script>-->
-    <!--<script src="sound-sets-plain-text.js"></script>-->
+    <script src="polar_distribution.js"></script>
     <script src="css-range-slider/js/index.js"></script>
     <script src="jszip/jszip.min.js"></script>
     <script src="jszip/jszip-utils.min.js"></script>
     <script src="jszip/FileSaver.js"></script>
-    <!--<script src="ziptest.js"></script>-->
     <script src="snippetset.js"></script>
     <script src="soundset.js"></script>
     <script src="main.js"></script>
@@ -116,8 +113,8 @@
 <div id="soundScape">
     <h1>Stage area.</h1>
     <div>
-        <button id="soundstart" type="button" onclick="startSound(0)" disabled>START</button>
-        <button id="soundstop" type="button" onclick="stopSound(0)" disabled>STOP</button>
+        <button id="soundstart" type="button" onclick="startSound()" disabled>START</button>
+        <button id="soundstop" type="button" onclick="stopSound()" disabled>STOP</button>
         <select id="soundSets">
             <!--<option value="empty">Emptyness is form.</option>-->
         </select>

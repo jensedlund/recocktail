@@ -27,6 +27,43 @@ var newSnippetSetGlobal = new SnippetSet();
 var localContext = new AudioContext();
 var loadedSoundSets = [];
 
+
+window.onload = init;
+
+var context ;
+
+function init() {
+    // Fix up prefixing
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    context = new AudioContext();
+
+    getActiveSets(updateSnippetSetList);
+    getAllTags(populateAllTagsList);
+    rangeSlider();
+}
+
+function collectSoundParams(soundSet) {
+    soundSet.gain = parseFloat(document.getElementById("gain").value);
+    soundSet.gainVar = parseFloat(document.getElementById("gainVar").value);
+    soundSet.balance = parseFloat(document.getElementById("balance").value);
+    soundSet.delay = document.getElementById("delay").value;
+    soundSet.delayVar = document.getElementById("delayVar").value;
+
+}
+
+function startSound() {
+    var selected = document.getElementById("soundSets").selectedIndex;
+    var weighted = document.getElementById("weighted").checked;
+    loadedSoundSets[selected].startPlaback(weighted,collectSoundParams);
+
+    // finishedLoading(contextVar, loadedSoundSets[selected].files);
+}
+
+function stopSound() {
+    var selected = document.getElementById("soundSets").selectedIndex;
+    loadedSoundSets[selected].stopPlayback();
+}
+
 function getAllTags(callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){

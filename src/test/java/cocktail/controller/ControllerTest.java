@@ -124,7 +124,6 @@ public class ControllerTest {
     String oldTagName = "skog";
     String newTagName = "sskkoogg";
     Controller.getInstance().updateTagName(newTagName, oldTagName);
-
    if(impl.getAllTags().contains(newTagName)){
       testBool = true;
     }
