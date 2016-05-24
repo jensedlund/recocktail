@@ -121,8 +121,8 @@ public class ControllerTest {
   @Test
   public void updateTagName() throws Exception {
     boolean testBool = false;
-    String oldTagName = "TagName";
-    String newTagName = "testTagName";
+    String oldTagName = "skog";
+    String newTagName = "sskkoogg";
     Controller.getInstance().updateTagName(newTagName, oldTagName);
 
    if(impl.getAllTags().contains(newTagName)){
@@ -220,8 +220,11 @@ public class ControllerTest {
   @Test
   public void deleteUsedZip() throws Exception {
     String filePath = archiveHandler.zip(snippetSet);
+ //  SnippetSet snippetSet = archiveHandler.unzip(filePath);
+    System.out.println(filePath);
+
     boolean testBool = Controller.getInstance().deleteUsedZip(filePath);
-    Assert.assertEquals(testBool,true);
+   Assert.assertEquals(testBool,true);
   }
 
 
@@ -247,8 +250,6 @@ public class ControllerTest {
 
 
   }
-
-
 
   @After
   public void tearDown() throws Exception {

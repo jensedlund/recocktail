@@ -150,10 +150,10 @@ public interface ControllerInterface {
   /**
    * Method deletes one zip file that is no longer in use.
    *
-   * @param setName String
+   * @param filePath String
    * @return boolean
    */
-  boolean deleteUsedZip(String setName);
+  boolean deleteUsedZip(String filePath);
 
   /**
    * Method returns one file and all the snippets that is associated whit that file as an object of class

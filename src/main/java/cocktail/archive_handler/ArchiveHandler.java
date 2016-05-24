@@ -126,7 +126,9 @@ public class ArchiveHandler {
         e1.printStackTrace();
       }
     }
-    xmlFile.delete();
+
+    System.out.println("xml: " + xmlFile);
+    System.out.println(xmlFile.delete() + " delete xmlFile");
     return outputFile;
   }
 
@@ -420,11 +422,14 @@ public class ArchiveHandler {
 
   public boolean deleteUsedZip(String setName) {
     File deadFile = new File(setName);
+
     if (!deadFile.isFile()) {
       System.out.println(setName + " is not a file.");
       return false;
     }
+    System.out.println(deadFile.delete());
     deadFile.delete();
+    System.out.println(deadFile.toPath().getParent().toFile());
     removeDirectory(deadFile.toPath().getParent().toFile());
     return true;
   }

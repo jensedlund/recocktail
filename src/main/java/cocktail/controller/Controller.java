@@ -143,8 +143,8 @@ public class Controller implements ControllerInterface {
   }
 
   @Override
-  public boolean deleteUsedZip(String setName) {
-    return archiveHandler.deleteUsedZip(setName);
+  public boolean deleteUsedZip(String filePath) {
+    return archiveHandler.deleteUsedZip(filePath);
   }
 
   @Override

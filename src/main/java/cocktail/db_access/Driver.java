@@ -1408,14 +1408,12 @@ public enum Driver {
     double lengthSec = 0.0;
     int fileID = 0;
     double fileLenSec = 0.0;
-    double snippetInfoEndTime;
     try {
-      String sql = "SELECT startTime, lenSec, fileID FROM snippetInfo WHERE snippetID=?";
+      String sql = "SELECT lenSec, fileID FROM snippetInfo WHERE snippetID=?";
       PreparedStatement psSnippetInfo = myConnection.prepareStatement(sql);
       psSnippetInfo.setInt(1, snippetID);
       ResultSet rs = psSnippetInfo.executeQuery();
       if (rs.next()) {
-        startTime = rs.getDouble("startTime");
         lengthSec = rs.getDouble("lenSec");
         fileID = rs.getInt("fileID");
       }
@@ -1428,8 +1426,7 @@ public enum Driver {
         fileLenSec = rsFileInf.getDouble("fileLenSec");
       }
 
-      snippetInfoEndTime = startTime + lengthSec;
-      if (fileLenSec > snippetInfoEndTime) {
+      if (fileLenSec > lengthSec) {
         returnBool = true;
         return returnBool;
       } else {

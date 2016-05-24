@@ -265,9 +265,16 @@ public class DbAdapterImplTest {
 
   @Test
   public void isSnippetPartOfLongerFile() throws Exception {
+    boolean testBool = adapter.isSnippetPartOfLongerFile(384);
+    Assert.assertEquals(testBool, true);
+  }
+
+  @Test
+  public void isSnippetPartOfLongerFile2() throws Exception {
     boolean testBool = adapter.isSnippetPartOfLongerFile(snippetID);
     Assert.assertEquals(testBool, false);
   }
+
 
   @Test
   public void updateTagName() throws Exception {
