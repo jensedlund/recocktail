@@ -21,6 +21,9 @@ package cocktail.snippet;
 
 import java.util.SortedSet;
 
+/**
+ * Generic set operation interface operating on sorted sets.
+ */
 public interface SetOperationInterface {
   public <T> SortedSet<T> calculate(SortedSet<T> setA, SortedSet<T> setB);
 }

@@ -17,7 +17,8 @@
  * @since 2016-05-18
  */
 
-// 
+// This class wraps data and methods necessary to play a soundscape consisting of a number
+// of snippets. A soundset is populated from a zip with sound files in wav format.
 function SoundSet(context) {
     this.name = "";
     this.soundArray = [];
@@ -32,87 +33,57 @@ function SoundSet(context) {
     this.context = context;
 }
 
+// Get a zip bytestream and extract sound files to populate soundArray field.
 SoundSet.prototype.populateFromZip = function (zipBlob) {
 
     // Local references that to this due to this-scope being lost in function calls.
     var that = this;
     
-    return new Promise(function(resolve, reject) {
-        JSZip.loadAsync(zipBlob)
-            .then(function (zip) {
-                zip.forEach(function (relativePath, zipEntry) {
-                    var reWav = new RegExp("wav$");
-                    if (zipEntry.name == "SnippetSet.xml") {
-                        zipEntry.async("String")
-                            .then(function success(content) {
-                                var parser = new DOMParser();
-                                var xmlFileTest = parser.parseFromString(content, "text/xml");
-                                that.name = xmlFileTest
-                                    .getElementsByTagName("setName")[0]
-                                    .childNodes[0]
-                                    .nodeValue;
-                                updateSoundSetList();
-                            });
-                    } else if (reWav.test(zipEntry.name)) {
-                        zipEntry.async("arraybuffer")
-                            .then(function (content) {
-                                that.context.decodeAudioData(content).then(function (decodedData) {
-                                    that.soundArray.push(decodedData);
-                                })
-                            });
-                    }
-                });
-                console.log("Funka!");
-                resolve(that);
-            }, function (e) {
-                $fileContent = $("<div>", {
-                    "class": "alert alert-danger",
-                    text: "Error reading " + f.name + " : " + e.message
-                });
-                reject(e);
+    // Extract zip with JSZip
+    JSZip.loadAsync(zipBlob)
+        .then(function (zip) {
+            zip.forEach(function (relativePath, zipEntry) {
+
+                // Create a regexp pattern to catch files with wav ending.
+                var reWav = new RegExp("wav$");
+
+                // If xml file, get the set name from xml.
+                if (zipEntry.name == "SnippetSet.xml") {
+                    zipEntry.async("String")
+                        .then(function success(content) {
+                            var parser = new DOMParser();
+                            var xmlFileTest = parser.parseFromString(content, "text/xml");
+                            that.name = xmlFileTest
+                                .getElementsByTagName("setName")[0]
+                                .childNodes[0]
+                                .nodeValue;
+                            updateSoundSetList();
+                        });
+                } else if (reWav.test(zipEntry.name)) {
+
+                    // For each wav file do an asynch load and decode it as a audio object.
+                    // Push audio objects to soundArray.
+                    zipEntry.async("arraybuffer")
+                        .then(function (content) {
+                            that.context.decodeAudioData(content).then(function (decodedData) {
+                                that.soundArray.push(decodedData);
+                            })
+                        });
+                }
             });
-    });
+        }, function (e) {
+            $fileContent = $("<div>", {
+                "class": "alert alert-danger",
+                text: "Error reading " + f.name + " : " + e.message
+            });
+        });
 };
 
-SoundSet.prototype.shootSound = function (soundParamFunc) {
-    if (this.playing) {
-
-        var localContext = this.context;
-        var bufferList = this.processedSoundArray;
-
-        var source = localContext.createBufferSource();
-        var source = localContext.createBufferSource();
-        var gainBox = localContext.createGain();
-        var balanceBox = localContext.createStereoPanner();
-
-        source.connect(gainBox);
-        gainBox.connect(balanceBox);
-        balanceBox.connect(localContext.destination);
-
-        soundParamFunc(this);
-
-        var soundIndex = Math.floor((Math.random() * bufferList.length));
-        source.buffer = bufferList[soundIndex];
-
-        var gainSum = this.gain + (Math.random() * this.gainVar);
-        console.log("Gainsum " + this.gainSum + " Gain " + this.gain);
-        gainBox.gain.value = gainSum;
-
-        // var panVal = (Math.round(Math.random() * 2)) - 1.0;
-        balanceBox.pan.value = this.balance;
-        gainBox.connect(balanceBox);
-
-        source.start(0);
-
-        // var gaussGen = new PolarDistribution();
-        // console.log("Pan value " + panVal + " Gain " + gainSum);
-        // console.log("Gaussian " + gaussGen.getGaussian(1, 0.25).toFixed(2));
-        var delaySum = this.delay;
-        setTimeout(this.shootSound.bind(this,soundParamFunc), delaySum);
-        // setTimeout(this.shootSound, delay);
-    }
-};
-
+// Before starting playback of a soundscape, create a new processedSoundArray
+// then make the first call to soundshooter method.
+// weightedTime is a booleandesciding if shorter sounds should be played more often to equalize
+// playtime between sounds.
+// soundParamFunc is passed to shootSound. A callback that sets sound parameters.
 SoundSet.prototype.startPlaback = function (weightedTime, soundParamFunc) {
     if (!this.playing) {
         // Create processedSoundArray for playback, by either duplicate for
@@ -140,6 +111,62 @@ SoundSet.prototype.startPlaback = function (weightedTime, soundParamFunc) {
     }
 };
 
+// The heart of the sound generation.
+// From the processed sound array, randomly selects an sound that is played in a fire and forget
+// style. This method is looped as long as playing field on the object is true.
+SoundSet.prototype.shootSound = function (soundParamFunc) {
+
+    // Create a new context on this object if it does not exist.
+    // Ideally there is one global object reference of AudioContext passed around because of
+    // limited hardware resources allocated in browser.
+    if(!this.context) {
+        this.zip = new AudioContext();
+    }
+
+    // While palying true do stuff and call this method again with a delay
+    if (this.playing) {
+        // Some shortened vars...
+        var localContext = this.context;
+        var bufferList = this.processedSoundArray;
+
+        // Create a sound source, gain and balance processor.
+        var source = localContext.createBufferSource();
+        var gainBox = localContext.createGain();
+        var balanceBox = localContext.createStereoPanner();
+
+        // Create a sound route by connecting the processors
+        source.connect(gainBox);
+        gainBox.connect(balanceBox);
+        balanceBox.connect(localContext.destination);
+
+        // Callback to set sound parameters
+        if (soundParamFunc) {
+            soundParamFunc(this);
+        }
+
+        // Randomly select a sound from array
+        var soundIndex = Math.floor((Math.random() * bufferList.length));
+        source.buffer = bufferList[soundIndex];
+
+        // Set gain
+        var gainSum = this.gain + (Math.random() * this.gainVar);
+        console.log("Gainsum " + this.gainSum + " Gain " + this.gain);
+        gainBox.gain.value = gainSum;
+
+        // Set left/rgiht balance
+        balanceBox.pan.value = this.balance;
+        gainBox.connect(balanceBox);
+
+        // Start sound
+        source.start(0);
+
+        // Next iteration of this method after a delay.
+        var delaySum = this.delay;
+        setTimeout(this.shootSound.bind(this,soundParamFunc), delaySum);
+    }
+};
+
+// Set playing to false. Next iteration of shootSound will stop.
 SoundSet.prototype.stopPlayback = function () {
     this.playing = false;
 };

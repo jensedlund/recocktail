@@ -2,3 +2,6 @@ avi
 mp4
 mpg
 flv
+wmv
+mkv
+mpeg
