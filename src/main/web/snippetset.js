@@ -17,6 +17,8 @@
  * @since 2016-05-09
  */
 
+// A class mirroring the date format provided by backend
+
 function DateStrings() {
     var actualDate = new Date();
     this.day = actualDate.getDate();
@@ -24,6 +26,9 @@ function DateStrings() {
     this.year = actualDate.getFullYear();
 }
 
+// This class is equivalent in data to the backend class SnippetInfo but with an additional
+// fileBlob field for storing binary data for a file,
+// Used to populate an array in SnippetSet.
 function SnippetInfo() {
     this.snippetID = 0;
     this.fileID = 0;
@@ -40,6 +45,14 @@ function SnippetInfo() {
     this.fileBlob = null;
 }
 
+// This class has the same fields as the backend class SnippetSet, but with different methods.
+// There is an additional fields, zip, which is used as refrence to a JSZip object.
+//
+// When a SnippetSet is delivered from backend (in the form of a JSON object), use the method
+// populateFromJson. This use case is for searching and uploading snippet sets from database.
+//
+// A snippet set can be populated from SnippetInfo object at a time with addSnippet
+// Usually when creating new snippet to upload to database.
 function SnippetSet() {
     this.snippetCollection = [];
     this.operationLog = [];
@@ -56,6 +69,7 @@ function SnippetSet() {
     this.zip = null;
 }
 
+// Set all fields from the proved JSON.
 SnippetSet.prototype.populateFromJson = function(jsonSet) {
     this.snippetCollection = jsonSet.snippetCollection;
     this.operationLog = jsonSet.operationLog;
@@ -76,21 +90,26 @@ SnippetSet.prototype.addSnippet = function(snippetInfo) {
     this.numSnippets++;
 };
 
+// Get a snippet by snippetID.
 SnippetSet.prototype.getSnippet = function(id) {
     return this.snippetCollection.find(function(snippetInfo){return snippetInfo.snippetId});
 };
 
+// Add soundfiles(blobs) to zip, add xml file generated from SnippetSet, then post file to backend.
 SnippetSet.prototype.uploadNewSnippets = function() {
     if(!this.zip) {
         this.zip = new JSZip();
     }
+    // This will be lost in the "then" call of the promise.
     var that = this;
     this.addBlobsToZip();
+    // When xml is ready compress zip and post it to backend.
     this.addXmlToZip().then(function() {
         that.zipAndPost();
     });
 };
 
+// Adds sound files to Zip.
 SnippetSet.prototype.addBlobsToZip = function() {
     if(!this.zip) {
         this.zip = new JSZip();
@@ -102,27 +121,28 @@ SnippetSet.prototype.addBlobsToZip = function() {
     });
 };
 
+// Send this SnippetSet to backend and get a xml back
 SnippetSet.prototype.addXmlToZip = function() {
     if(!this.zip) {
         this.zip = new JSZip();
     }
-
-    var localThis = this;
+    // This will be lost in the "then" call of the promise.
+    var that = this;
 
     return new Promise(function(resolve, reject) {
         $.ajax({
                    url: serverUrl + "/getSnippetSetXml",
                    contentType: 'application/json; charset=utf-8',
                    type: 'POST',
-                   data: JSON.stringify(localThis),
+                   data: JSON.stringify(that),
                    dataType: 'json',
                    async: true,
                    success: function (filename) {
                        var fileUrl = serverUrl + "/tmp/" + filename;
                        $.get( fileUrl )
                            .done(function( data ) {
-                               localThis.zip.file(filename,data);
-                               resolve(localThis.zip);
+                               that.zip.file(filename,data);
+                               resolve(that.zip);
                            });
                    },
                    error: function (xhr, status) {
@@ -132,6 +152,7 @@ SnippetSet.prototype.addXmlToZip = function() {
     });
 };
 
+// Compress zip and post it to backend.
 SnippetSet.prototype.zipAndPost = function() {
     this.zip.generateAsync({type: "blob", compression: "DEFLATE"})
         .then(function (content) {
