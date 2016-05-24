@@ -265,9 +265,16 @@ public class DbAdapterImplTest {
 
   @Test
   public void isSnippetPartOfLongerFile() throws Exception {
+    boolean testBool = adapter.isSnippetPartOfLongerFile(384);
+    Assert.assertEquals(testBool, true);
+  }
+
+  @Test
+  public void isSnippetPartOfLongerFile2() throws Exception {
     boolean testBool = adapter.isSnippetPartOfLongerFile(snippetID);
     Assert.assertEquals(testBool, false);
   }
+
 
   @Test
   public void updateTagName() throws Exception {
@@ -298,8 +305,7 @@ public class DbAdapterImplTest {
   public void createSnippetSetFromIds() throws Exception {
     boolean testBool = false;
     List<Integer> snippetIDs = new ArrayList<>();
-
-    for (int i = 1; i < 10; i++) {
+    for (int i = 100; i < 110; i++) {
       snippetIDs.add(i);
     }
     SnippetSet snippetSet1 = adapter.createSnippetSetFromIds(snippetIDs);
@@ -321,9 +327,9 @@ public class DbAdapterImplTest {
     LocalDate ld1 = LocalDate.now();
     LocalDate ld2 = LocalDate.now();
     SnippetInfo snippetInfo = new SnippetInfo("sourceFileName", tagNames, 0.2, 2.0, 2, ld1, ld2, "userName");
-    int snippetID = adapter.writeSnippet(snippetInfo, 5);
+    int snippetID = adapter.writeSnippet(snippetInfo, 518);
     listToDelete.add(snippetID);
-    if (snippetID > -1) {
+    if (snippetID > 0) {
       testBool = true;
     }
     Assert.assertEquals(testBool, true);

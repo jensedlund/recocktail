@@ -16,6 +16,10 @@
         * @since 2016-04-18
 **/
 
+/*
+The database is crated whit this script.
+ */
+
 CREATE TABLE tagInfo (
  tagID int(10) unsigned NOT NULL AUTO_INCREMENT,
  tagName varchar(50) NOT NULL,

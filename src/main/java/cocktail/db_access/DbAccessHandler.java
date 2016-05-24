@@ -24,6 +24,11 @@ import java.util.Map;
  * @version 1.0
  * @since 2016-04-18
  */
+
+/**
+ * DbAccessHandler is used to read information from a textfile where password, username, ip-adress and the name of the database is stored.
+ * The textfile is not added to git repository.
+ */
 public class DbAccessHandler {
     private static Map<String, String> accessMap;
 

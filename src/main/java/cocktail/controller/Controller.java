@@ -29,6 +29,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * ControllerInterface is a layer that delegates and pass on information to other parts of the program.
+ * This interface functions as a spider in the web.
+ */
 public class Controller implements ControllerInterface {
 
 //  private SnippetStorage snippetStorage;
@@ -143,8 +147,8 @@ public class Controller implements ControllerInterface {
   }
 
   @Override
-  public boolean deleteUsedZip(String setName) {
-    return archiveHandler.deleteUsedZip(setName);
+  public boolean deleteUsedZip(String filePath) {
+    return archiveHandler.deleteUsedZip(filePath);
   }
 
   @Override
