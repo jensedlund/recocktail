@@ -7,10 +7,12 @@ public interface SoundExtractor {
   /*
   These methods depend on having sox and ffmpeg installed on the server *
   * (if on windows/osx, update paths)!
-  MAKE SURE THEY ARE INSTALLED BEFORE USING THIS.
+  *
+  *
+  MAKE SURE THEY ARE INSTALLED AND HAVE CORRECT PATHS BEFORE USING THIS.
    */
-  public boolean vidToWav(File inputFile, File outputFile);
+  boolean vidToWav(File inputFile, File outputFile);
 
-  public boolean soundToWav(File inputFile, File outputFile);
+  boolean soundToWav(File inputFile, File outputFile);
 
 }

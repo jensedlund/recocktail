@@ -23,17 +23,21 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
+/**
+ * This class handles archives to and from the frontend. Populating zip's and database with
+ * information inside SnippetSets
+ */
 public class ArchiveHandler {
 
   private static final SoundExtractor convert = new SoundExtractorImpl();
   private static final DbAdapter dbAdapter = new DbAdapterImpl();
   private static final SoundProcess process = new SoundProcessImpl();
 
-
-  /*
-  Creates a zip file, mounts it as a zip filesystem and starts to populate it with snippets from
-  the database. snippets are trimmed from longer files if needed.
-
+  /**
+   * creates a zip and populate it with snippets from the database.
+   * Files are trimmed if needed before added to the archive.
+   * @param set SnippetSet to prepare
+   * @return path to zip-archive
    */
   public String zip(SnippetSet set) {
     File zipWorkspace = new File("./src/main/resources/zip/");
@@ -130,6 +134,13 @@ public class ArchiveHandler {
     return outputFile;
   }
 
+  /**
+   * Unpacking and processing of zip archive from the frontend.
+   * populate the database with content.
+   *
+   * @param inputFile path to zip archive to process
+   * @return snippetSet of files added to database
+   */
   public SnippetSet unzip(String inputFile) {
     FileSystem fs = null;
     String tempZipDir = null;
@@ -295,7 +306,10 @@ public class ArchiveHandler {
     return snippetSet;
   }
 
-
+  /**
+   * remove files and delete directory
+   * @param dir directory to delete.
+   */
   private static void removeDirectory(File dir) {
     if (dir.isDirectory()) {
       File[] files = dir.listFiles();
@@ -310,6 +324,11 @@ public class ArchiveHandler {
     }
   }
 
+  /**
+   * get length of snippet (in secs)
+   * @param snippet snippet to check
+   * @return length of snippet
+   */
   private static double getSnippetLength(byte[] snippet) {
     AudioFormat format;
     BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(snippet));
@@ -334,7 +353,13 @@ public class ArchiveHandler {
     return output;
   }
 
-
+  /**
+   * compare extension of file to determine if its a video file using the file vidcodecs.txt
+   * inside /resources
+   * @param extension file extension
+   * @return bool
+   * @throws IOException
+   */
   private static boolean vidCodec(String extension) throws IOException {
     BufferedReader in = new BufferedReader(new FileReader("./src/main/resources/vidcodecs.txt"));
     String str;
@@ -350,6 +375,14 @@ public class ArchiveHandler {
     return false;
   }
 
+  /**
+   * compare extension of file to determine if its a sound file using the file soundCodecs.txt
+   * inside /resources
+   *
+   * @param extension file extension
+   * @return bool
+   * @throws IOException
+   */
   private static boolean soundCodec(String extension) throws IOException {
     BufferedReader in = new BufferedReader(new FileReader("./src/main/resources/soundcodecs.txt"));
     String str;
@@ -365,6 +398,11 @@ public class ArchiveHandler {
     return false;
   }
 
+  /**
+   * Collect/Fetch a snippetSet from an xmlFile
+   * @param xmlFile compatible xml file
+   * @return SnippetSet
+   */
   private static SnippetSet getSnippetSet(File xmlFile) {
     XmlStreamer<SnippetSet> xmlStreamer = new XmlStreamer<>();
     SnippetSet snippetSet = null;
@@ -376,6 +414,12 @@ public class ArchiveHandler {
     return snippetSet;
   }
 
+  /**
+   * Returns a File from a ByteArray (from database)
+   * @param byteIn
+   * @param path
+   * @return
+   */
   private static File byteArrayToFile(byte[] byteIn, String path) {
     File output = new File(path);
     FileOutputStream fos = null;
@@ -402,6 +446,12 @@ public class ArchiveHandler {
     return output;
   }
 
+  /**
+   * Sorts a SnippetSet according to FileID.
+   * Used by zip to ensure files aren't loaded multiple times from database.
+   * @param set SnippetSet to sort
+   * @return An ArrayList of SnippetInfo's.
+   */
   private static ArrayList<SnippetInfo> sortSetByFileID(SnippetSet set) {
     ArrayList<SnippetInfo> output = new ArrayList<>();
     output.addAll(set.getSnippetCollection());
@@ -410,7 +460,12 @@ public class ArchiveHandler {
     return output;
   }
 
-
+  /**
+   * Sorts a SnippetSet according to FileNames.
+   *
+   * @param set SnippetSet to sort
+   * @return An ArrayList of SnippetInfo's.
+   */
   private static ArrayList<SnippetInfo> sortSetBySourceFile(SnippetSet set) {
     ArrayList<SnippetInfo> output = new ArrayList<>();
     output.addAll(set.getSnippetCollection());
@@ -419,6 +474,11 @@ public class ArchiveHandler {
     return output;
   }
 
+  /**
+   * Delete a File (zip) when delivery to frontend is complete.
+   * @param setName path to zipFile.
+   * @return bool
+   */
   public boolean deleteUsedZip(String setName) {
     File deadFile = new File(setName);
     if (!deadFile.isFile()) {
@@ -426,15 +486,25 @@ public class ArchiveHandler {
       return false;
     }
     System.out.println(deadFile + " deleting....");
-    removeDirectory(deadFile.toPath().getParent().toFile());
     deadFile.delete();
+    removeDirectory(deadFile.toPath().getParent().toFile());
     return true;
   }
 
-  public SnippetSet getSingelFile(int fileID) {
+  /**
+   * Collect/fetch all snippets related to a single file.
+   * @param fileID ID of file to fetch
+   * @return SnippetSet of all related snippets attached to file.
+   */
+  public SnippetSet getSingleFile(int fileID) {
     return dbAdapter.getAllSnippetFromFile(fileID);
   }
 
+  /**
+   * Get file extension from filename
+   * @param fileName Filename to trim
+   * @return Extension as String
+   */
   private static String getFileExtension(String fileName) {
     String output = null;
     int lastIndex = fileName.lastIndexOf('.');
@@ -444,6 +514,11 @@ public class ArchiveHandler {
     return output;
   }
 
+  /**
+   * Trims the Filename of any extensions, used by unzip to deliver clean names to DB.
+   * @param fileName Filename to trim
+   * @return Filename as String
+   */
   private static String trimFileName(String fileName) {
     String output = null;
     int dotIndex = fileName.lastIndexOf('.');
