@@ -222,7 +222,6 @@ public class ControllerTest {
   public void deleteUsedZip() throws Exception {
     String filePath = archiveHandler.zip(snippetSet);
     System.out.println(filePath);
-
     boolean testBool = Controller.getInstance().deleteUsedZip(filePath);
    Assert.assertEquals(testBool,true);
   }
