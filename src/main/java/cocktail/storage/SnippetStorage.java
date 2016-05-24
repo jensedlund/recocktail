@@ -25,10 +25,18 @@ import java.util.Set;
 import cocktail.snippet.SnippetSet;
 
 /**
+ * A SnippetStorage object handles generated snippet sets by name so that there is a history of
+ * created sets that all can be retrieved.
+ *
  * @version 1.0
  * @since 05/04/16
  */
 public interface SnippetStorage {
+
+  /**
+   * Get the latest added set.
+   * @return The last added snippet set.
+   */
   SnippetSet getLatestSet();
 
   boolean addSet(SnippetSet snippetSet);
@@ -49,5 +57,3 @@ public interface SnippetStorage {
 
   void deleteSavedSets(List<String> savedSetNames );
 }
-
-

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
+/*
  Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,10 +41,14 @@ import java.util.stream.Collectors;
  *
  * @version 1.0
  * @since 2016-04-18
- **/
+ */
 
 
-
+/**
+ * Snippet info describes a snippet, a short sound that can either be a part of a longer sound file
+ * or a complete soundfile. A snippet is supposed to be unique. Snippets are cathegorized
+ * by 0 or more tags.
+ */
 public class SnippetInfo implements Comparable<SnippetInfo> {
 
 
@@ -89,6 +93,7 @@ public class SnippetInfo implements Comparable<SnippetInfo> {
 
     this.multiples = 1;
   }
+
 
   public SnippetInfo(String fileName, List<String> tagNames,
                      double startTime, double lengthSec, int kbSize, LocalDate creationDate,
@@ -244,8 +249,6 @@ public class SnippetInfo implements Comparable<SnippetInfo> {
     return Objects.hash(snippetID, fileID, fileName, tagNames, kbSize, startTime, lengthSec,
                         creationDate, lastModified, userID, userName, multiples);
   }
-
-
 
   @Override
   public String toString() {

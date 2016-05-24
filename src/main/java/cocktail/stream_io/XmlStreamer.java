@@ -32,6 +32,10 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 
+/**
+ * Implementation of StreamingService using javax JAXB.
+ * @param <T> Class to strem to/from xml.
+ */
 public class XmlStreamer<T> implements StreamingService<T> {
 
   @Override

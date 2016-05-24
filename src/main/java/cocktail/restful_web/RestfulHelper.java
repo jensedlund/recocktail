@@ -1,7 +1,7 @@
 package cocktail.restful_web;
 
 
-/**
+/*
  Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,14 +21,18 @@ package cocktail.restful_web;
  */
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import spark.Request;
-
+/**
+ Some convenicence methods for use in RestfulService.
+ */
 public abstract class RestfulHelper {
 
+  /**
+   * Private constructor to block inheritance
+   */
   private RestfulHelper() {}
 
   public static String[] extractStrings(String string) {
@@ -36,16 +40,12 @@ public abstract class RestfulHelper {
     return returnList;
   }
 
-  public static Map<String, String> createMapFromRequest(String[] listOfPairs) {
-    Map<String, String> returnMap = new HashMap<>();
-    String[] tempArray = null;
-    for (String s : listOfPairs) {
-      tempArray = s.split("=");
-      returnMap.put(tempArray[0], tempArray[1]);
-    }
-    return returnMap;
-  }
-
+  /**
+   * This method takes the request body from a POST in Sprak and converts it to
+   * a map between field name and field param.
+   * @param request Request from
+   * @return The request body as a map.
+   */
   public static Map<String, String> mapFromRequestBody(Request request) {
     Map<String, String> reqBodyMap =
         Arrays.asList(request.body().split("&"))
