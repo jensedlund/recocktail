@@ -175,15 +175,13 @@ public class ArchiveHandler {
             Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
             System.out.println(file.getFileName() + " unpacked.");
 
-            //converting... tying...
+            //converting files to 16 bit 44khz mono wav's:
             String fileExtension = getFileExtension(currentFile.toString());
             File workFile = destFile.toFile();
             File
                 tmpWorkFile =
                 new File(
                     destFile + "_tmp.wav");
-            System.out.println(workFile + " is the source file!");
-            System.out.println(tmpWorkFile + " is the temp file.");
             try {
               if (vidCodec(fileExtension)) {
                 convert.vidToWav(workFile, tmpWorkFile);
@@ -220,10 +218,8 @@ public class ArchiveHandler {
       //set getting sorted by filename and processed one by one.
       ArrayList<Integer> snippetIDs = new ArrayList<>();
       String fileName;
-      String fileExtension;
       String lastFileName = null;
       int lastFileID = 0;
-      String lastTag = null;
       String snippetSetPath = tempDir.toString() + File.separator + "SnippetSet.xml";
       SnippetSet
           currentSnippetSet =
@@ -275,7 +271,6 @@ public class ArchiveHandler {
               lastFileID = dbAdapter.getFileIdFromSnippetId(tempSnippetID);
               lastFileName = fileName;
               //lastTag = snippet.getTagNames().get(0);
-              System.out.println("exiting write mode for NEW FILE.");
             }
           }
           bis.close();
