@@ -121,10 +121,9 @@ public class ControllerTest {
   @Test
   public void updateTagName() throws Exception {
     boolean testBool = false;
-    String oldTagName = "TagName";
-    String newTagName = "testTagName";
+    String oldTagName = "skog";
+    String newTagName = "sskkoogg";
     Controller.getInstance().updateTagName(newTagName, oldTagName);
-
    if(impl.getAllTags().contains(newTagName)){
       testBool = true;
     }
@@ -139,10 +138,11 @@ public class ControllerTest {
     String oldUserName = "userName";
     String newUserName = "newUserName";
     Controller.getInstance().updateUserName(newUserName, oldUserName);
-
     if(impl.getAllUsers().contains(newUserName)){
       testBool = true;
     }
+    Controller.getInstance().updateUserName(oldUserName,newUserName);
+
     Assert.assertEquals(testBool, true);
 
   }
