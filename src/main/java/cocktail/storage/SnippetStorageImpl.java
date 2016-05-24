@@ -30,6 +30,10 @@ import java.util.stream.Collectors;
 
 import cocktail.snippet.SnippetSet;
 
+/**
+ * A SnippetStorage object handles generated snippet sets by name so that there is a history of
+ * created sets that all can be retrieved.
+ */
 public class SnippetStorageImpl implements SnippetStorage {
   private LinkedList<SnippetSet> workingSets;
   private Map<String, File> savedSets;
