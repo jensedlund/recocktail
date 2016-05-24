@@ -307,29 +307,29 @@ public class SnippetInfo implements Comparable<SnippetInfo> {
       return 1;
     }
 
-//    if (this.fileName.compareTo(that.fileName) < 0) {
-//      return -1;
-//    } else if (this.fileName.compareTo(that.fileName) > 0) {
-//      return 1;
-//    }
-//
-//    if (this.kbSize < that.kbSize) {
-//      return -1;
-//    } else if (this.kbSize > that.kbSize) {
-//      return 1;
-//    }
-//
-//    if (this.startTime < that.startTime) {
-//      return -1;
-//    } else if (this.startTime > that.startTime) {
-//      return 1;
-//    }
-//
-//    if (this.creationDate.compareTo(that.creationDate) < 0) {
-//      return -1;
-//    } else if (this.creationDate.compareTo(that.creationDate) > 0) {
-//      return 1;
-//    }
+    if (this.fileName.compareTo(that.fileName) < 0) {
+      return -1;
+    } else if (this.fileName.compareTo(that.fileName) > 0) {
+      return 1;
+    }
+
+    if (this.kbSize < that.kbSize) {
+      return -1;
+    } else if (this.kbSize > that.kbSize) {
+      return 1;
+    }
+
+    if (this.startTime < that.startTime) {
+      return -1;
+    } else if (this.startTime > that.startTime) {
+      return 1;
+    }
+
+    if (this.creationDate.compareTo(that.creationDate) < 0) {
+      return -1;
+    } else if (this.creationDate.compareTo(that.creationDate) > 0) {
+      return 1;
+  }
     return 0;
   }
 }

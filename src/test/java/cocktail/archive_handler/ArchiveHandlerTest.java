@@ -44,8 +44,7 @@ public class ArchiveHandlerTest {
     @Test
     public void unzip() throws Exception {
         boolean testBool = false;
-        String path = ".\\src\\main\\resources\\zip\\test\\test.zip";
-
+        String path = archiveHandler.zip(snippetSet);
         SnippetSet snippetSet = archiveHandler.unzip(path);
         if (snippetSet != null) {
             testBool = true;

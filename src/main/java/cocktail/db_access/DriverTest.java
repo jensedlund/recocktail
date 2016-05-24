@@ -1,6 +1,5 @@
-package DriverTest;
+package cocktail.db_access;
 
-import cocktail.db_access.DbAdapterImpl;
 import cocktail.snippet.FileInfo;
 import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
@@ -8,6 +7,7 @@ import com.google.gson.JsonObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +31,8 @@ import java.util.List;
  * @since 25/03/16
  */
 
+
+//This class was used to test methods in Driver and dbAdapter. The class will be removed later.
 public class DriverTest {
 
   public static DbAdapterImpl impl = new DbAdapterImpl();
@@ -40,12 +42,10 @@ private static SnippetSet snippetSet;
   public static JsonObject getSnippetJsonObject(){
     return getSnippetJsonObject();
   }
-  public static void main(String[] args) {
-  //  SnippetInfo{snippetID=0, fileID=0, fileName='Ljudinspelning_2016-03-25_13-04-27', tagNames=[clappy], kbSize=294,
-    // startTime=0.0, lengthSec=2.4133333333333336, creationDate=2016-05-18, lastModified=2016-05-18,
-    // userID=0, userName='Admin', multiples=0}
+  public static void main(String[] args) throws IOException {
 
-    System.out.println("Programmet kör");
+
+
   }
 
 

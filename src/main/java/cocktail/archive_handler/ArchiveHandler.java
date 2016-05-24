@@ -29,6 +29,10 @@ public class ArchiveHandler {
   private static final DbAdapter dbAdapter = new DbAdapterImpl();
   private static final SoundProcess process = new SoundProcessImpl();
 
+  public ArchiveHandler() {
+
+  }
+
 
   /*
   Creates a zip file, mounts it as a zip filesystem and starts to populate it with snippets from
@@ -126,7 +130,9 @@ public class ArchiveHandler {
         e1.printStackTrace();
       }
     }
-    xmlFile.delete();
+
+    System.out.println("xml: " + xmlFile);
+    System.out.println(xmlFile.delete() + " delete xmlFile");
     return outputFile;
   }
 
@@ -174,6 +180,29 @@ public class ArchiveHandler {
             final Path destFile = Paths.get(currentFile.toString());
             Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
             System.out.println(file.getFileName() + " unpacked.");
+
+            //converting... tying...
+            String fileExtension = getFileExtension(currentFile.toString());
+            File workFile = destFile.toFile();
+            File
+                tmpWorkFile =
+                new File(
+                    destFile + "_tmp.wav");
+            System.out.println(workFile + " is the source file!");
+            System.out.println(tmpWorkFile + " is the temp file.");
+            try {
+              if (vidCodec(fileExtension)) {
+                convert.vidToWav(workFile, tmpWorkFile);
+                tmpWorkFile.renameTo(workFile);
+              } else if (soundCodec(fileExtension)) {
+                convert.soundToWav(workFile, tmpWorkFile);
+                tmpWorkFile.renameTo(workFile);
+              }
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
+            //end of convert
+
             return FileVisitResult.CONTINUE;
           }
 
@@ -207,32 +236,18 @@ public class ArchiveHandler {
           getSnippetSet(new File(snippetSetPath));
 
       for (SnippetInfo snippet : sortSetBySourceFile(currentSnippetSet)) {
+        System.out.println("--------processing starts--------");
+        System.out.println("---file: " + snippet.getFileName());
+        System.out.println("---strt: " + snippet.getStartTime());
+        System.out.println("---lgth: " + snippet.getLengthSec());
+        System.out.println("---------------------------------");
 
-        fileExtension = getFileExtension(snippet.getFileName());
+        //fileExtension = getFileExtension(snippet.getFileName());
         fileName = snippet.getFileName();
         Path
             workPath =
             Paths.get(tempDir.toString(),
                       "snippets/" + snippet.getTagNames().get(0) + File.separator + fileName);
-
-        File workFile = workPath.toFile();
-        File
-            tmpWorkFile =
-            new File(
-                tempDir.toString() + File.separator + "snippets/" + snippet.getTagNames().get(0)
-                + File.separator + "tmp_"
-                + fileName + ".wav");
-        try {
-          if (vidCodec(fileExtension)) {
-            convert.vidToWav(workFile, tmpWorkFile);
-            tmpWorkFile.renameTo(workPath.toFile());
-          } else if (soundCodec(fileExtension)) {
-            convert.soundToWav(workFile, tmpWorkFile);
-            tmpWorkFile.renameTo(workPath.toFile());
-          }
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
 
         try {
           byte[] bArray = Files.readAllBytes(workPath);
@@ -257,11 +272,8 @@ public class ArchiveHandler {
             if (fileName.equals(lastFileName)) {
               System.out.println(
                   "----same source file as last snippet. not uploading clip again (" + fileName + ").");
-              //snippetIDs.add(dbAdapter.writeSnippet(snippet, lastFileID));
+              snippetIDs.add(dbAdapter.writeSnippet(snippet, lastFileID));
               System.out.println("lastFileID: " + lastFileID);
-              int tempSnippetID = dbAdapter.writeSnippet(snippet, lastFileID);
-              System.out.println("write returned snippetID: " + tempSnippetID);
-              snippetIDs.add(tempSnippetID);
             } else {
               System.out.println("new file, uploading clip to database! (" + fileName + ")");
               int tempSnippetID = dbAdapter.writeSnippet(fileInfo, snippet);
@@ -420,11 +432,13 @@ public class ArchiveHandler {
 
   public boolean deleteUsedZip(String setName) {
     File deadFile = new File(setName);
+
     if (!deadFile.isFile()) {
       System.out.println(setName + " is not a file.");
       return false;
     }
     deadFile.delete();
+    System.out.println(deadFile.toPath().getParent().toFile());
     removeDirectory(deadFile.toPath().getParent().toFile());
     return true;
   }

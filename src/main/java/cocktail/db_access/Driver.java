@@ -104,6 +104,9 @@ public enum Driver {
 //This overloaded method inserts one snippet to the database and is used when the file connected to the snippet
   // is already in the database and the fileID is known.
   protected static int writeSnippet(SnippetInfo snippetInfo, int fileID) {
+   if(!isFileInUse(fileID)){
+      return -1;
+    }
     int returnInt = 0;
 
     if (isSnippetADuplicate(snippetInfo, fileID)) {
@@ -338,6 +341,9 @@ public enum Driver {
 //Method write file to database
   protected static boolean insertIntoFileInfo(SnippetInfo snippetInfo, FileInfo fileInfo) {
     boolean returnBool = false;
+    if(fileInfo.getFileName().length()<1){
+      fileInfo.setFileName("unnamed");
+    }
     if (!isFileInDb(fileInfo)) {
       try {
         PreparedStatement ps = myConnection.prepareStatement
@@ -1408,14 +1414,12 @@ public enum Driver {
     double lengthSec = 0.0;
     int fileID = 0;
     double fileLenSec = 0.0;
-    double snippetInfoEndTime;
     try {
-      String sql = "SELECT startTime, lenSec, fileID FROM snippetInfo WHERE snippetID=?";
+      String sql = "SELECT lenSec, fileID FROM snippetInfo WHERE snippetID=?";
       PreparedStatement psSnippetInfo = myConnection.prepareStatement(sql);
       psSnippetInfo.setInt(1, snippetID);
       ResultSet rs = psSnippetInfo.executeQuery();
       if (rs.next()) {
-        startTime = rs.getDouble("startTime");
         lengthSec = rs.getDouble("lenSec");
         fileID = rs.getInt("fileID");
       }
@@ -1428,8 +1432,7 @@ public enum Driver {
         fileLenSec = rsFileInf.getDouble("fileLenSec");
       }
 
-      snippetInfoEndTime = startTime + lengthSec;
-      if (fileLenSec > snippetInfoEndTime) {
+      if (fileLenSec > lengthSec) {
         returnBool = true;
         return returnBool;
       } else {
@@ -1639,7 +1642,12 @@ public enum Driver {
       }
       ps.close();
       rs.close();
-      return getUserName(userID);
+      String returnName = getUserName(userID);
+      if(returnName != null) {
+        return returnName;
+      }else {
+        return userName;
+      }
     } catch (Exception e) {
       e.printStackTrace();
     }

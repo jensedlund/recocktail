@@ -29,7 +29,7 @@ public class SoundExtractorImpl implements SoundExtractor {
     try {
       Process
           convert =
-          Runtime.getRuntime().exec("sox " + inputFile + " -c 1 -r 44000 -b 16 " + outputFile);
+          Runtime.getRuntime().exec("C:\\sox\\sox.exe " + inputFile + " -c 1 -r 44000 -b 16 " + outputFile);
       try {
         convert.waitFor();
       } catch (InterruptedException e) {
