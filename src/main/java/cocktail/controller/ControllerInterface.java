@@ -25,6 +25,11 @@ import java.util.Set;
         * @since 2016-04-18
         **/
 
+
+/**
+ * ControllerInterface is a layer that delegates and pass on information to other parts of the program.
+ * This interface functions as a spider in the web.
+ */
 public interface ControllerInterface {
   /**
    * Method stores one SnippetSet object in SnippetStorage
