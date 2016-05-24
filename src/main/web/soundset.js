@@ -139,29 +139,34 @@ SoundSet.prototype.shootSound = function (soundParamFunc) {
         gainBox.connect(balanceBox);
         balanceBox.connect(localContext.destination);
 
-        // Callback to set sound paramters
+        // Callback to set sound parameters
         if (soundParamFunc) {
             soundParamFunc(this);
         }
 
-        //
+        // Randomly select a sound from array
         var soundIndex = Math.floor((Math.random() * bufferList.length));
         source.buffer = bufferList[soundIndex];
 
+        // Set gain
         var gainSum = this.gain + (Math.random() * this.gainVar);
         console.log("Gainsum " + this.gainSum + " Gain " + this.gain);
         gainBox.gain.value = gainSum;
 
+        // Set left/rgiht balance
         balanceBox.pan.value = this.balance;
         gainBox.connect(balanceBox);
 
+        // Start sound
         source.start(0);
 
+        // Next iteration of this method after a delay.
         var delaySum = this.delay;
         setTimeout(this.shootSound.bind(this,soundParamFunc), delaySum);
     }
 };
 
+// Set playing to false. Next iteration of shootSound will stop.
 SoundSet.prototype.stopPlayback = function () {
     this.playing = false;
 };

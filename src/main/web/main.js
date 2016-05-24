@@ -16,32 +16,34 @@
  * @version 1.0
  * @since 2016-04-21
  */
+
+//
 // var serverUrl = "http://130.237.67.145:4567";
 var serverUrl = "http://localhost:4567";
 
-var globalSnippetSets = [];
-var globalActiveSnippetSet = new SnippetSet();
-var zipForUpload = new JSZip();
-var snippetZipDir = zipForUpload.folder("snippets");
-var newSnippetSetGlobal = new SnippetSet();
-var localContext = new AudioContext();
+
+// Global variables
+var context;
+var activeSnippetSet = new SnippetSet();
+var newSnippetSet = new SnippetSet();
 var loadedSoundSets = [];
 
-
 window.onload = init;
-
-var context ;
 
 function init() {
     // Fix up prefixing
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     context = new AudioContext();
 
+    // Get active sets from storge unit i backend
     getActiveSets(updateSnippetSetList);
+
+    // get all tags from database to use in autocomplete
     getAllTags(populateAllTagsList);
     rangeSlider();
 }
 
+// Collect sound parameters for playback.
 function collectSoundParams(soundSet) {
     soundSet.gain = parseFloat(document.getElementById("gain").value);
     soundSet.gainVar = parseFloat(document.getElementById("gainVar").value);
@@ -51,19 +53,20 @@ function collectSoundParams(soundSet) {
 
 }
 
+// Kick of selected soundSet
 function startSound() {
     var selected = document.getElementById("soundSets").selectedIndex;
     var weighted = document.getElementById("weighted").checked;
     loadedSoundSets[selected].startPlaback(weighted,collectSoundParams);
-
-    // finishedLoading(contextVar, loadedSoundSets[selected].files);
 }
 
+// Stop selected soundSet
 function stopSound() {
     var selected = document.getElementById("soundSets").selectedIndex;
     loadedSoundSets[selected].stopPlayback();
 }
 
+// Get all tags from database. Send respons to callback.
 function getAllTags(callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
@@ -75,6 +78,7 @@ function getAllTags(callback) {
     xhttp.send();
 }
 
+// Get all sets from StorageUnit in backend. Send response to callback.
 function getActiveSets(callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
@@ -87,6 +91,7 @@ function getActiveSets(callback) {
     xhttp.send();
 }
 
+// Get a specific set by name. Send response to callback and also set activeSnippetSet to response.
 function getSet(setName, callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
@@ -94,9 +99,7 @@ function getSet(setName, callback) {
             console.log(setName);
             var snippetSet = new SnippetSet();
             snippetSet.populateFromJson(JSON.parse(xhttp.response));
-
-            globalActiveSnippetSet = snippetSet;
-            // callback(JSON.parse(xhttp.response));
+            activeSnippetSet = snippetSet;
             callback(snippetSet);
         }
     };
@@ -104,6 +107,7 @@ function getSet(setName, callback) {
     xhttp.send();
 }
 
+// Take an expected array of tags and populate allTagsList
 function populateAllTagsList(response) {
     clearDataList("allTagsList");
     var allTags = JSON.parse(response);
@@ -116,6 +120,7 @@ function populateAllTagsList(response) {
     });
 }
 
+// Can be a bit pointless due to
 function clearDataList(parentListId) {
     var parentList = document.getElementById(parentListId);
     var optionArray = parentList.children;
@@ -126,6 +131,7 @@ function clearDataList(parentListId) {
     }
 }
 
+// Post a database search and populate som fields with the result
 function search() {
     var tags = document.getElementById("tags").value;
     var maxLen = document.getElementById("length").value;
@@ -144,15 +150,15 @@ function search() {
                dataType: 'json',
                async: true,
                success: function (data) {
-                   // console.log(data);
-                   // populateSetInfo(data);
+                   // Result is put inot active snippet set
                    var snippetSet = new SnippetSet();
                    snippetSet.populateFromJson(data);
-                   console.log(data);
-                   globalActiveSnippetSet = snippetSet;
-                   globalSnippetSets.push(snippetSet);
-                   getActiveSets(updateSnippetSetList);
+                   activeSnippetSet = snippetSet;
                    updateSnippetSetStats(snippetSet);
+
+                   // Update the list since new snippetSet are
+                   // expected to be available after search
+                   getActiveSets(updateSnippetSetList);
                },
                error: function (xhr, status) {
                    console.log(status);
@@ -161,25 +167,8 @@ function search() {
            });
 }
 
-function getXmlFromSet(snippetSet) {
-    $.ajax({
-               url: serverUrl + "/getSnippetSetXml",
-               contentType: 'application/json; charset=utf-8',
-               type: 'POST',
-               data: JSON.stringify(snippetSet),
-               dataType: 'json',
-               async: true,
-               success: function (data) {
-                   var fileUrl = serverUrl + "/" + data;
-                   addServerFileToZip(data,fileUrl);
-               },
-               error: function (xhr, status) {
-                   console.log(status);
-                   console.log(xhr.responseText);
-               }
-           });
-}
-
+// Get zip url and send to parseZip
+// todo broken return string
 function getZip() {
     var snippetSelector = document.getElementById("snippetSets");
     var setName = snippetSelector.item(snippetSelector.selectedIndex).value;
@@ -199,15 +188,17 @@ function getZip() {
            });
 }
 
+// Create a new soundset and populate it from the zip.
 function parseZip(zipFileUrl) {
-    var newSoundSet = new SoundSet(localContext);
+    var newSoundSet = new SoundSet(context);
     loadedSoundSets.push(newSoundSet);
 
+    // To get a binary file is a bit tricky. A convencience method
+    // provided by JSZip developers are used here.
     JSZipUtils.getBinaryContent(zipFileUrl, function(err, data) {
         if (err) {
             console.log(err);
         }
-        // soundSetTest.populateFromZip(data);
         newSoundSet.populateFromZip(data);
     });
 }
@@ -221,7 +212,6 @@ function updateSoundSetList() {
     for (var i = 0; i < loadedSoundSets.length; i++) {
         var option = document.createElement("option");
         var setName = loadedSoundSets[i].name;
-        console.log(setName);
         option.text = setName;
         option.value = setName;
         soundSelector.add(option);
@@ -262,7 +252,7 @@ function updateSnippetSetStats(snippetSet) {
 }
 
 function updateSnippetStats(selected) {
-    var snippetInfo = globalActiveSnippetSet.snippetCollection[selected];
+    var snippetInfo = activeSnippetSet.snippetCollection[selected];
     $("#snippetInfoId")[0].value = snippetInfo.snippetID;
     $("#snippetInfoTags")[0].value = snippetInfo.tagNames.toString();
     $("#snippetInfoFile")[0].value = snippetInfo.fileName;
@@ -270,21 +260,7 @@ function updateSnippetStats(selected) {
     $("#snippetInfoDuration")[0].value = snippetInfo.lengthSec;
 }
 
-function addServerFileToZip(name,url) {
-    $.ajax({
-               url: url,
-               type: 'get',
-               success: function (data) {
-                   console.log(data);
-                   zipForUpload.file(name, data);
-               },
-               error: function (xhr, status) {
-                   console.log(status);
-                   console.log(xhr.responseText);
-               }
-           });
-}
-
+// unused atm
 function getRelatedTags() {
     console.log(document.getElementById("searchInput").innerHTML);
     var xhttp = new XMLHttpRequest();
@@ -298,6 +274,8 @@ function getRelatedTags() {
     xhttp.send();
 }
 
+// Collect data into a new SnippetInfo object
+// Put object in new
 function newSnippet() {
     var fileButton = document.getElementById("newFile");
 
@@ -323,13 +301,15 @@ function newSnippet() {
 
         newSnippetInfo.lengthSec = parseFloat(duration.value);
         newSnippetInfo.startTime = parseFloat(startTime.value);
-        newSnippetSetGlobal.addSnippet(newSnippetInfo);
+        newSnippetSet.addSnippet(newSnippetInfo);
 
         // Update table
         addSnippetToTable(newSnippetInfo);
     };
 }
 
+// When a new file is selected, populate fields
+// to edit or leave unchanged for newSnippet call.
 function fileSelectionUpdate() {
 
     var fileButton = document.getElementById("newFile");
@@ -350,9 +330,7 @@ function fileSelectionUpdate() {
     var fileReader = new FileReader();
     fileReader.readAsArrayBuffer(files[0]);
     fileReader.onloadend = function(event) {
-        snippetZipDir.file(files[0].name, event.target.result, {base64 : true});
-
-        localContext.decodeAudioData(event.target.result).then(function(decodedData) {
+        context.decodeAudioData(event.target.result).then(function(decodedData) {
             var startTime = document.getElementById("newStart");
             var duration = document.getElementById("newDuration");
             startTime.value = 0;
