@@ -121,10 +121,9 @@ public class ControllerTest {
   @Test
   public void updateTagName() throws Exception {
     boolean testBool = false;
-    String oldTagName = "TagName";
-    String newTagName = "testTagName";
+    String oldTagName = "skog";
+    String newTagName = "sskkoogg";
     Controller.getInstance().updateTagName(newTagName, oldTagName);
-
    if(impl.getAllTags().contains(newTagName)){
       testBool = true;
     }
