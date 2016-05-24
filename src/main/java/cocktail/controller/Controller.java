@@ -88,8 +88,8 @@ public class Controller implements ControllerInterface {
   }
 
   @Override
-  public List<String> getComplementaryTags(String tagName) {
-    return dbAdapter.getComplementaryTags(tagName);
+  public List<String> getAssociatedTags(String tagName) {
+    return dbAdapter.getAssociatedTags(tagName);
   }
 
   @Override

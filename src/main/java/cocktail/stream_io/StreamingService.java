@@ -24,10 +24,32 @@ import java.io.FileNotFoundException;
 
 import javax.xml.bind.JAXBException;
 
+/**
+ * Generic interface to stream out a xml file from a class of type T.
+ *
+ * @param <T> Class to stream.
+ */
 public interface StreamingService<T> {
 
+  /**
+   * Take a class of type T and stream it out as an xml to file.
+   * @param tClass A class reference of type T.
+   * @param tObject The object to stream out.
+   * @param file File target.
+   * @throws JAXBException
+   * @throws FileNotFoundException
+   */
   void toStream(Class<T> tClass, T tObject, File file)
       throws JAXBException, FileNotFoundException;
+
+  /**
+   * Create an object of type T from xml file.
+   * @param tClass A class reference of type T.
+   * @param file The file to stream in.
+   * @return A new object of class T created from the file.
+   * @throws JAXBException
+   * @throws FileNotFoundException
+   */
 
   T fromStream(Class<T> tClass, File file) throws JAXBException, FileNotFoundException;
 }

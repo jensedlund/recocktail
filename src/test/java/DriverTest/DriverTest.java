@@ -1,7 +1,6 @@
 package DriverTest;
 
 import cocktail.db_access.DbAdapterImpl;
-import cocktail.db_access.Driver;
 import cocktail.snippet.FileInfo;
 import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
@@ -46,9 +45,7 @@ private static SnippetSet snippetSet;
     // startTime=0.0, lengthSec=2.4133333333333336, creationDate=2016-05-18, lastModified=2016-05-18,
     // userID=0, userName='Admin', multiples=0}
 
-    SnippetInfo si = impl.readSnippetInfo(226);
-    System.out.println(si.getStartTime());
-
+    System.out.println("Programmet kör");
   }
 
 
@@ -158,7 +155,7 @@ private static SnippetSet snippetSet;
   public static boolean deletSampels(int snippetID){
 
     boolean returnBool = false;
-    returnBool = Driver.deleteSnippet(snippetID);
+    //returnBool = Driver.deleteSnippet(snippetID);
     return returnBool;
   }
 

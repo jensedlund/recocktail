@@ -33,6 +33,14 @@ import java.util.TreeSet;
 import javax.xml.bind.JAXBException;
 
 import cocktail.stream_io.StreamingService;
+
+
+/**
+ * SnippetSet contains a sorted set of snippetInfo and related stats.
+ * A specific SnippetSet is defined by its setName field.
+ * The getters for derived fields also work as setters in that they also update the
+ * field based on the current state of the collection of SnippetInfo.
+ */
 public class SnippetSet {
 
   private SortedSet<SnippetInfo> snippetCollection;
@@ -46,6 +54,9 @@ public class SnippetSet {
   private Set<String> tagsInSet;
 
 
+  /**
+   * Create new empty SnippetSet object.
+   */
   public SnippetSet() {
     snippetCollection = new TreeSet<>();
     operationLog = new ArrayList<>();
@@ -54,15 +65,26 @@ public class SnippetSet {
     setName = createUniqueSetName();
   }
 
+
+  /**
+   * Create new SnippetSet object populated with provided collection of SnippetInfo.
+   * @param snippetCollection A sorted set collection of SnippetInfo objects.
+   */
   public SnippetSet(SortedSet<SnippetInfo> snippetCollection) {
     this.snippetCollection = snippetCollection;
     operationLog = new ArrayList<>();
     tagsInSet = new TreeSet<>();
     creationDate = LocalDate.now();
     setName = createUniqueSetName();
+    updateDerivedFields();
   }
 
-  public void populateDerivedFields() {
+
+  /**
+   * Updates the values of the fields derived from SnippetInfo collection
+   * by calling the getters for those fields.
+   */
+  public void updateDerivedFields() {
     // Execute getters to set the fields.
     getAvgLenSec();
     getMaxLenSec();
@@ -71,6 +93,10 @@ public class SnippetSet {
     getTagsInSet();
   }
 
+  /**
+   * Create a semi-unique name created from current date and time.
+   * @return The new name string.
+   */
   public String createUniqueSetName(){
     String str = "" + creationDate.toString() + " " + LocalTime.now();
     str = str.replace(':','-');
@@ -79,6 +105,10 @@ public class SnippetSet {
     return str;
   }
 
+  /**
+   * Removes a Snippet from the collection of SnippetInfo.
+   * @param snippetId the numeric, unique, id of the snippet to remove.
+   */
   public void removeSnippet(int snippetId) {
     SnippetInfo storedTemp = null;
     Iterator itr = snippetCollection.iterator();
@@ -89,13 +119,24 @@ public class SnippetSet {
       }
     }
     snippetCollection.remove(storedTemp);
+    updateDerivedFields();
   }
 
+  /**
+   * Add a new SnippetInfo obejct to the snippet collection.
+   * @param snippetInfo Snippet object to add.
+   */
   public void addSnippet(SnippetInfo snippetInfo) {
     snippetCollection.add(snippetInfo);
+    updateDerivedFields();
   }
 
-
+  /**
+   * Stream out this object as an xml file using the provided streaming service.
+   * @param streamingService the Service/object to use for xml generation.
+   * @param file Filehandle for the target file.
+   * @return Return true if sucessful.
+   */
   public boolean toStream(StreamingService streamingService, File file) {
     boolean returnBool = false;
     try {
@@ -109,6 +150,7 @@ public class SnippetSet {
     }
     return returnBool;
   }
+
 
   public SortedSet<SnippetInfo> getSnippetCollection() {
     return snippetCollection;
@@ -177,6 +219,7 @@ public class SnippetSet {
     return setName;
   }
 
+  // todo implement
   public SnippetSet setOperation(SnippetSet otherSet, SetOperation operation) {
     operation.calculate(snippetCollection, otherSet.getSnippetCollection());
     //todo new snippet set
