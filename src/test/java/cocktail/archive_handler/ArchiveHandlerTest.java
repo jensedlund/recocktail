@@ -44,7 +44,9 @@ public class ArchiveHandlerTest {
     @Test
     public void unzip() throws Exception {
         boolean testBool = false;
-        SnippetSet snippetSet = archiveHandler.unzip("src\\main\\resource\\zip\\2016-05-09-14-32-18-393\\2016-05-09-14-32-18-393.zip");
+        String path = ".\\src\\main\\resources\\zip\\test\\test.zip";
+
+        SnippetSet snippetSet = archiveHandler.unzip(path);
         if (snippetSet != null) {
             testBool = true;
         }
@@ -61,7 +63,7 @@ public class ArchiveHandlerTest {
     @Test
     public void getSingelFile() throws Exception {
         boolean testBool = false;
-        SnippetSet snippetSet = archiveHandler.getSingelFile(11);
+        SnippetSet snippetSet = archiveHandler.getSingelFile(190);
         if (snippetSet.getSnippetCollection().size() > 0) {
             testBool = true;
         }
