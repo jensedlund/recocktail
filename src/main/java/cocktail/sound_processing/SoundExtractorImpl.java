@@ -3,8 +3,24 @@ package cocktail.sound_processing;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Converts and extracts sound from original source files.
+ * Audio files are converted into 16bit, 44khz mono wav's.
+ * Video files have their sound extracted with the same specs as above.
+ *
+ * ffmpeg and sox are required to be installed on the server and their paths updated
+ * if needed (for windows and osx esp).
+ *
+ */
 public class SoundExtractorImpl implements SoundExtractor {
 
+  /**
+   * Extracts and converts the audio from a video file. Rely on having ffmpeg installed on the
+   * system.
+   * @param inputFile sourcefile
+   * @param outputFile outputfile
+   * @return bool.
+   */
   public boolean vidToWav(File inputFile, File outputFile) {
 
     try {

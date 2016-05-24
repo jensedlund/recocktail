@@ -1,3 +1,16 @@
 mp3
 wav
 au
+aiff
+cdr
+gsm
+hcom
+ogg
+prc
+sf
+sph
+snd
+sunau
+txw
+voc
+vox
