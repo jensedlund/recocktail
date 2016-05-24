@@ -79,48 +79,11 @@ SoundSet.prototype.populateFromZip = function (zipBlob) {
         });
 };
 
-// 
-SoundSet.prototype.shootSound = function (soundParamFunc) {
-    if(!this.context) {
-        this.zip = new AudioContext();
-    }
-
-    if (this.playing) {
-        var localContext = this.context;
-        var bufferList = this.processedSoundArray;
-
-        var source = localContext.createBufferSource();
-        var gainBox = localContext.createGain();
-        var balanceBox = localContext.createStereoPanner();
-
-        source.connect(gainBox);
-        gainBox.connect(balanceBox);
-        balanceBox.connect(localContext.destination);
-
-        soundParamFunc(this);
-
-        var soundIndex = Math.floor((Math.random() * bufferList.length));
-        source.buffer = bufferList[soundIndex];
-
-        var gainSum = this.gain + (Math.random() * this.gainVar);
-        console.log("Gainsum " + this.gainSum + " Gain " + this.gain);
-        gainBox.gain.value = gainSum;
-
-        // var panVal = (Math.round(Math.random() * 2)) - 1.0;
-        balanceBox.pan.value = this.balance;
-        gainBox.connect(balanceBox);
-
-        source.start(0);
-
-        // var gaussGen = new PolarDistribution();
-        // console.log("Pan value " + panVal + " Gain " + gainSum);
-        // console.log("Gaussian " + gaussGen.getGaussian(1, 0.25).toFixed(2));
-        var delaySum = this.delay;
-        setTimeout(this.shootSound.bind(this,soundParamFunc), delaySum);
-        // setTimeout(this.shootSound, delay);
-    }
-};
-
+// Before starting playback of a soundscape, create a new processedSoundArray
+// then make the first call to soundshooter method.
+// weightedTime is a booleandesciding if shorter sounds should be played more often to equalize
+// playtime between sounds.
+// soundParamFunc is passed to shootSound. A callback that sets sound parameters.
 SoundSet.prototype.startPlaback = function (weightedTime, soundParamFunc) {
     if (!this.playing) {
         // Create processedSoundArray for playback, by either duplicate for
@@ -145,6 +108,57 @@ SoundSet.prototype.startPlaback = function (weightedTime, soundParamFunc) {
         }
         this.playing = true;
         this.shootSound(soundParamFunc);
+    }
+};
+
+// The heart of the sound generation.
+// From the processed sound array, randomly selects an sound that is played in a fire and forget
+// style. This method is looped as long as playing field on the object is true.
+SoundSet.prototype.shootSound = function (soundParamFunc) {
+
+    // Create a new context on this object if it does not exist.
+    // Ideally there is one global object reference of AudioContext passed around because of
+    // limited hardware resources allocated in browser.
+    if(!this.context) {
+        this.zip = new AudioContext();
+    }
+
+    // While palying true do stuff and call this method again with a delay
+    if (this.playing) {
+        // Some shortened vars...
+        var localContext = this.context;
+        var bufferList = this.processedSoundArray;
+
+        // Create a sound source, gain and balance processor.
+        var source = localContext.createBufferSource();
+        var gainBox = localContext.createGain();
+        var balanceBox = localContext.createStereoPanner();
+
+        // Create a sound route by connecting the processors
+        source.connect(gainBox);
+        gainBox.connect(balanceBox);
+        balanceBox.connect(localContext.destination);
+
+        // Callback to set sound paramters
+        if (soundParamFunc) {
+            soundParamFunc(this);
+        }
+
+        //
+        var soundIndex = Math.floor((Math.random() * bufferList.length));
+        source.buffer = bufferList[soundIndex];
+
+        var gainSum = this.gain + (Math.random() * this.gainVar);
+        console.log("Gainsum " + this.gainSum + " Gain " + this.gain);
+        gainBox.gain.value = gainSum;
+
+        balanceBox.pan.value = this.balance;
+        gainBox.connect(balanceBox);
+
+        source.start(0);
+
+        var delaySum = this.delay;
+        setTimeout(this.shootSound.bind(this,soundParamFunc), delaySum);
     }
 };
 

@@ -19,14 +19,14 @@
 
 package cocktail.db_access;
 
-import cocktail.snippet.FileInfo;
-import cocktail.snippet.SnippetInfo;
-import cocktail.snippet.SnippetSet;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import cocktail.snippet.FileInfo;
+import cocktail.snippet.SnippetInfo;
+import cocktail.snippet.SnippetSet;
 
 public class DbAdapterImpl implements DbAdapter {
 

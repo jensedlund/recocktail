@@ -24,6 +24,10 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Enum implementing different set operations on sorted sets.
+ */
+
 public enum SetOperation implements SetOperationInterface {
   UNION {
     @Override

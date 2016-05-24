@@ -84,7 +84,7 @@ public class RestfulService {
       String zipFileName = "src/main/web/tmp/download.zip";
       String tmpZipName = controller.getZippedFiles(snippetSet);
       Files.move(Paths.get(tmpZipName), Paths.get(zipFileName), REPLACE_EXISTING);
-      controller.deleteUsedZip(setName);
+      controller.deleteUsedZip(tmpZipName);
       Gson gson = new Gson();
       return gson.toJson(new String("tmp/download.zip"));
     });
