@@ -17,7 +17,8 @@
  * @since 2016-05-18
  */
 
-// 
+// This class wraps data and methods necessary to play a soundscape consisting of a number
+// of snippets. A soundset is populated from a zip with sound files in wav format.
 function SoundSet(context) {
     this.name = "";
     this.soundArray = [];
@@ -32,55 +33,62 @@ function SoundSet(context) {
     this.context = context;
 }
 
+// Get a zip bytestream and extract sound files to populate soundArray field.
 SoundSet.prototype.populateFromZip = function (zipBlob) {
 
     // Local references that to this due to this-scope being lost in function calls.
     var that = this;
     
-    return new Promise(function(resolve, reject) {
-        JSZip.loadAsync(zipBlob)
-            .then(function (zip) {
-                zip.forEach(function (relativePath, zipEntry) {
-                    var reWav = new RegExp("wav$");
-                    if (zipEntry.name == "SnippetSet.xml") {
-                        zipEntry.async("String")
-                            .then(function success(content) {
-                                var parser = new DOMParser();
-                                var xmlFileTest = parser.parseFromString(content, "text/xml");
-                                that.name = xmlFileTest
-                                    .getElementsByTagName("setName")[0]
-                                    .childNodes[0]
-                                    .nodeValue;
-                                updateSoundSetList();
-                            });
-                    } else if (reWav.test(zipEntry.name)) {
-                        zipEntry.async("arraybuffer")
-                            .then(function (content) {
-                                that.context.decodeAudioData(content).then(function (decodedData) {
-                                    that.soundArray.push(decodedData);
-                                })
-                            });
-                    }
-                });
-                console.log("Funka!");
-                resolve(that);
-            }, function (e) {
-                $fileContent = $("<div>", {
-                    "class": "alert alert-danger",
-                    text: "Error reading " + f.name + " : " + e.message
-                });
-                reject(e);
+    // Extract zip with JSZip
+    JSZip.loadAsync(zipBlob)
+        .then(function (zip) {
+            zip.forEach(function (relativePath, zipEntry) {
+
+                // Create a regexp pattern to catch files with wav ending.
+                var reWav = new RegExp("wav$");
+
+                // If xml file, get the set name from xml.
+                if (zipEntry.name == "SnippetSet.xml") {
+                    zipEntry.async("String")
+                        .then(function success(content) {
+                            var parser = new DOMParser();
+                            var xmlFileTest = parser.parseFromString(content, "text/xml");
+                            that.name = xmlFileTest
+                                .getElementsByTagName("setName")[0]
+                                .childNodes[0]
+                                .nodeValue;
+                            updateSoundSetList();
+                        });
+                } else if (reWav.test(zipEntry.name)) {
+
+                    // For each wav file do an asynch load and decode it as a audio object.
+                    // Push audio objects to soundArray.
+                    zipEntry.async("arraybuffer")
+                        .then(function (content) {
+                            that.context.decodeAudioData(content).then(function (decodedData) {
+                                that.soundArray.push(decodedData);
+                            })
+                        });
+                }
             });
-    });
+        }, function (e) {
+            $fileContent = $("<div>", {
+                "class": "alert alert-danger",
+                text: "Error reading " + f.name + " : " + e.message
+            });
+        });
 };
 
+// 
 SoundSet.prototype.shootSound = function (soundParamFunc) {
-    if (this.playing) {
+    if(!this.context) {
+        this.zip = new AudioContext();
+    }
 
+    if (this.playing) {
         var localContext = this.context;
         var bufferList = this.processedSoundArray;
 
-        var source = localContext.createBufferSource();
         var source = localContext.createBufferSource();
         var gainBox = localContext.createGain();
         var balanceBox = localContext.createStereoPanner();

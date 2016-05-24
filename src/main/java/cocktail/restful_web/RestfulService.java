@@ -101,7 +101,6 @@ public class RestfulService {
       return true;
     });
 
-
     // Search in database and return a snippetset from the result.
     post("/search", (request, response) -> {
       Map<String, String> reqBodyMap = RestfulHelper.mapFromRequestBody(request);

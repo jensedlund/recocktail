@@ -200,11 +200,8 @@ function getZip() {
 }
 
 function parseZip(zipFileUrl) {
-    // var localContext = new AudioContext();
     var newSoundSet = new SoundSet(localContext);
     loadedSoundSets.push(newSoundSet);
-
-    // newSoundSet.files = [];
 
     JSZipUtils.getBinaryContent(zipFileUrl, function(err, data) {
         if (err) {
