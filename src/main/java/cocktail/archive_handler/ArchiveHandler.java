@@ -299,6 +299,7 @@ public class ArchiveHandler {
       snippetSet = dbAdapter.createSnippetSetFromIds(snippetIDs);
     }
     try {
+      assert fs != null;
       fs.close();
     } catch (IOException e) {
       e.printStackTrace();
@@ -419,7 +420,7 @@ public class ArchiveHandler {
    * Returns a File from a ByteArray (from database)
    * @param byteIn audio data as byteArray
    * @param path location of output file.
-   * @return
+   * @return clip as File
    */
   private static File byteArrayToFile(byte[] byteIn, String path) {
     File output = new File(path);
