@@ -49,14 +49,15 @@ public class ArchiveHandler {
     String outputFile = tempDir + File.separator + set.getSetName() + ".zip";
     final Path path = Paths.get(outputFile);
     final URI uri = URI.create("jar:file:" + path.toUri().getPath());
+    Map<String, String> env = new HashMap<>();
+    env.put("create", "true");
+    env.put("encoding", "UTF-8");
+
     Path zipFilePath;
     File addNewFile;
     byte[] sourceFile = null;
     int currentFileID = -1; //set to -1 to ensure a file is getting loaded when working thru set.
     FileSystem fs = null;
-    Map<String, String> env = new HashMap<>();
-    env.put("create", "true");
-    env.put("encoding", "UTF-8");
 
     if (!tempDir.exists()) {
       tempDir.mkdir();
@@ -416,8 +417,8 @@ public class ArchiveHandler {
 
   /**
    * Returns a File from a ByteArray (from database)
-   * @param byteIn
-   * @param path
+   * @param byteIn audio data as byteArray
+   * @param path location of output file.
    * @return
    */
   private static File byteArrayToFile(byte[] byteIn, String path) {
