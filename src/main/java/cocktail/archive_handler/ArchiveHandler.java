@@ -485,6 +485,7 @@ public class ArchiveHandler {
     File deadFile = new File(setName);
     if (!deadFile.isFile()) {
       System.out.println(setName + " is not a file.");
+      removeDirectory(deadFile.toPath().getParent().toFile());
       return false;
     }
     System.out.println(deadFile + " deleting....");
