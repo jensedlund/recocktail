@@ -25,6 +25,11 @@ import java.util.Set;
         * @since 2016-04-18
         **/
 
+
+/**
+ * ControllerInterface is a layer that delegates and pass on information to other parts of the program.
+ * This interface functions as a spider in the web.
+ */
 public interface ControllerInterface {
   /**
    * Method stores one SnippetSet object in SnippetStorage
@@ -150,10 +155,10 @@ public interface ControllerInterface {
   /**
    * Method deletes one zip file that is no longer in use.
    *
-   * @param setName String
+   * @param filePath String
    * @return boolean
    */
-  boolean deleteUsedZip(String setName);
+  boolean deleteUsedZip(String filePath);
 
   /**
    * Method returns one file and all the snippets that is associated whit that file as an object of class

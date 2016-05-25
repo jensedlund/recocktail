@@ -19,63 +19,66 @@
 
 package cocktail.snippet;
 
-
 import java.io.ByteArrayInputStream;
 
+/**
+ * FileInfo describes the necessary data for a file to be added to database. Not the same as a
+ * snippet set.
+ */
 public class FileInfo {
-    private ByteArrayInputStream inputStream;
-    private String fileName;
-    private double fileLenSec;
-    private int fileSizeKb;
-    private int fileID;
+  private ByteArrayInputStream inputStream;
+  private String fileName;
+  private double fileLenSec;
+  private int fileSizeKb;
+  private int fileID;
 
 
-    public FileInfo(ByteArrayInputStream inputStream, String fileName,int fileSizeKb, double fileLenSec){
-        this.inputStream = inputStream;
-        this.fileName = fileName;
-        this.fileLenSec = fileLenSec;
-        this.fileSizeKb = fileSizeKb;
-    }
+  public FileInfo(ByteArrayInputStream inputStream, String fileName,int fileSizeKb, double fileLenSec){
+    this.inputStream = inputStream;
+    this.fileName = fileName;
+    this.fileLenSec = fileLenSec;
+    this.fileSizeKb = fileSizeKb;
+  }
 
-    public FileInfo(){}
+  public FileInfo(){}
 
-    public int getFileSizeKb() {
+  public int getFileSizeKb() {
         return fileSizeKb;
     }
 
-    public void setFileSizeKb(int fileSizeKb) {
+  public void setFileSizeKb(int fileSizeKb) {
         this.fileSizeKb = fileSizeKb;
     }
 
-    public ByteArrayInputStream getInputStream() {
+  public ByteArrayInputStream getInputStream() {
         return inputStream;
     }
 
-    public void setInputStream(ByteArrayInputStream inputStream) {
+  public void setInputStream(ByteArrayInputStream inputStream) {
         this.inputStream = inputStream;
     }
 
-    public String getFileName() {
+  public String getFileName() {
         return fileName;
     }
 
-    public void setFileName(String fileName) {
+  public void setFileName(String fileName) {
         this.fileName = fileName;
     }
 
-    public double getFileLenSec() {
+  public double getFileLenSec() {
         return fileLenSec;
     }
 
-    public void setFileLenSec(double fileLenSec) {
+  public void setFileLenSec(double fileLenSec) {
         this.fileLenSec = fileLenSec;
     }
 
-    public int getFileID() {
+  public int getFileID() {
         return fileID;
     }
 
-    public void setFileID(int fileID) {
+  public void setFileID(int fileID) {
         this.fileID = fileID;
     }
 }

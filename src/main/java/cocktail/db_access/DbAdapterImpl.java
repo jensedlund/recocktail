@@ -28,6 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Class that provide the program with information from database and uploads information to the database.
+ */
 public class DbAdapterImpl implements DbAdapter {
 
   public DbAdapterImpl() {

@@ -55,7 +55,11 @@ public class ControllerTest {
   @Test
   public void writeEditSnippet() throws Exception {
     boolean returnBool = false;
-    String path = "./src/test/resources/test.zip";
+    List<String> tagNames = new ArrayList<>();
+    tagNames.add("skog");
+    //SnippetSet snippetSet = snippetSet = impl.search(tagNames, 1.0, false);;
+  //  String path = archiveHandler.zip(snippetSet);
+   String path = "./src/test/resources/test.zip";
     SnippetSet returnSnippetSet = Controller.getInstance().writeEditSnippet(path);
     if (returnSnippetSet.getSnippetCollection().size() > 0) {
       returnBool = true;
@@ -82,7 +86,7 @@ public class ControllerTest {
   @Test
   public void searchSnippetSet() throws Exception {
     List<String> tagNames = new ArrayList<>();
-    tagNames.add("test1");
+    tagNames.add("skog");
     SnippetSet snippetSet = Controller.getInstance().searchSnippetSet(tagNames, 0.0, false);
     SortedSet<SnippetInfo> testCollection = snippetSet.getSnippetCollection();
     boolean testBool = false;
@@ -96,7 +100,7 @@ public class ControllerTest {
   @Test
   public void getComplementaryTags() throws Exception {
     List<String> testComplementary;
-    testComplementary = Controller.getInstance().getAssociatedTags("test1");
+    testComplementary = Controller.getInstance().getAssociatedTags("skog");
     boolean testBool = false;
     if (testComplementary.size() != 0) {
       testBool = true;
@@ -220,8 +224,9 @@ public class ControllerTest {
   @Test
   public void deleteUsedZip() throws Exception {
     String filePath = archiveHandler.zip(snippetSet);
+    System.out.println(filePath);
     boolean testBool = Controller.getInstance().deleteUsedZip(filePath);
-    Assert.assertEquals(testBool,true);
+   Assert.assertEquals(testBool,true);
   }
 
 
@@ -242,13 +247,11 @@ public class ControllerTest {
     archiveHandler = new ArchiveHandler();
     impl = new DbAdapterImpl();
     List<String> tagNames = new ArrayList<>();
-    tagNames.add("test1");
+    tagNames.add("skog");
     snippetSet = impl.search(tagNames, 1.0, false);
 
 
   }
-
-
 
   @After
   public void tearDown() throws Exception {

@@ -220,7 +220,7 @@ public class DbAdapterImplTest {
   @Test
   public void getOccuranceOfTag() throws Exception {
     boolean testBool = false;
-    int testInt = adapter.getOccurrenceOfTag("test1");
+    int testInt = adapter.getOccurrenceOfTag("skog");
     if (testInt > 0) {
       testBool = true;
     }
@@ -230,7 +230,7 @@ public class DbAdapterImplTest {
   @Test
   public void getComplementaryTags() throws Exception {
     boolean testBool = false;
-    List<String> compTags = adapter.getAssociatedTags("test1");
+    List<String> compTags = adapter.getAssociatedTags("skog");
     if (compTags.size() > 0) {
       testBool = true;
     }
@@ -241,9 +241,9 @@ public class DbAdapterImplTest {
   public void search() throws Exception {
     boolean testBool = false;
     List<String> tagList = new ArrayList<>();
-    tagList.add("test1");
+    tagList.add("skog");
     SnippetSet snippetSet = adapter.search(tagList, 0.0, false);
-    if (snippetSet.getSnippetCollection().last().getTagNames().contains("test1")) {
+    if (snippetSet.getSnippetCollection().last().getTagNames().contains("skog")) {
       testBool = true;
     }
     Assert.assertEquals(testBool, true);
@@ -253,9 +253,8 @@ public class DbAdapterImplTest {
   public void search1() throws Exception {
     boolean testBool = false;
     List<String> tagList = new ArrayList<>();
-    tagList.add("test1");
+    tagList.add("skog");
     SnippetSet snippetSet = adapter.search(tagList, 0.0, true);
-    System.out.println(snippetSet.getSnippetCollection());
     if (snippetSet.getSnippetCollection().size() > 0) {
       testBool = true;
     }
@@ -265,9 +264,17 @@ public class DbAdapterImplTest {
 
   @Test
   public void isSnippetPartOfLongerFile() throws Exception {
+    boolean testBool = adapter.isSnippetPartOfLongerFile(384);
+    //TODO ange en annan snippet som är en del av en längre fil när en sådan finns i databasen. ändra till true i Assert
+    Assert.assertEquals(testBool, false);
+  }
+
+  @Test
+  public void isSnippetPartOfLongerFile2() throws Exception {
     boolean testBool = adapter.isSnippetPartOfLongerFile(snippetID);
     Assert.assertEquals(testBool, false);
   }
+
 
   @Test
   public void updateTagName() throws Exception {
@@ -298,8 +305,7 @@ public class DbAdapterImplTest {
   public void createSnippetSetFromIds() throws Exception {
     boolean testBool = false;
     List<Integer> snippetIDs = new ArrayList<>();
-
-    for (int i = 1; i < 10; i++) {
+    for (int i = 100; i < 110; i++) {
       snippetIDs.add(i);
     }
     SnippetSet snippetSet1 = adapter.createSnippetSetFromIds(snippetIDs);
@@ -315,15 +321,15 @@ public class DbAdapterImplTest {
     FileInputStream input = new FileInputStream("src/test/resources/clap1.wav");
     byte[] b = spark.utils.IOUtils.toByteArray(input);
     ByteArrayInputStream bInput = new ByteArrayInputStream(b);
-    FileInfo fileInfo = new FileInfo(bInput, "Filnamn", 39, 3.0);
+    FileInfo fileInfo = new FileInfo(bInput, "test-tr%C3%A4dpipl%C3%A4ra-5", 39, 3.0);
     List<String> tagNames = new ArrayList<>();
     tagNames.add("TagName");
     LocalDate ld1 = LocalDate.now();
     LocalDate ld2 = LocalDate.now();
     SnippetInfo snippetInfo = new SnippetInfo("sourceFileName", tagNames, 0.2, 2.0, 2, ld1, ld2, "userName");
-    int snippetID = adapter.writeSnippet(snippetInfo, 5);
+    int snippetID = adapter.writeSnippet(fileInfo, snippetInfo);
     listToDelete.add(snippetID);
-    if (snippetID > -1) {
+    if (snippetID > 0) {
       testBool = true;
     }
     Assert.assertEquals(testBool, true);
