@@ -1262,12 +1262,14 @@ public enum Driver {
     List<Integer> snippetIDs = new ArrayList<>();
     tagName = tagName.toLowerCase();
     int tagID = getTagID(tagName);
-    int snippetID = getSnippetIDForTagID(tagID);
-    SnippetInfo snippetInfo = readSnippetInf(snippetID);
-    if (lengthMaxFilter <= 0) {
-      snippetIDs.add(snippetID);
-    } else if (snippetInfo.getLengthSec() <= lengthMaxFilter) {
-      snippetIDs.add(snippetID);
+    if(tagID!= 0) {
+      int snippetID = getSnippetIDForTagID(tagID);
+      SnippetInfo snippetInfo = readSnippetInf(snippetID);
+      if (lengthMaxFilter <= 0) {
+        snippetIDs.add(snippetID);
+      } else if (snippetInfo.getLengthSec() <= lengthMaxFilter) {
+        snippetIDs.add(snippetID);
+      }
     }
     return snippetIDs;
   }

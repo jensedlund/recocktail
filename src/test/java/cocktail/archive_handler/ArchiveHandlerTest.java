@@ -62,7 +62,7 @@ public class ArchiveHandlerTest {
     @Test
     public void getSingelFile() throws Exception {
         boolean testBool = false;
-        SnippetSet snippetSet = archiveHandler.getSingelFile(190);
+        SnippetSet snippetSet = archiveHandler.getSingelFile(161);
         if (snippetSet.getSnippetCollection().size() > 0) {
             testBool = true;
         }

@@ -86,7 +86,7 @@ public class ControllerTest {
   @Test
   public void searchSnippetSet() throws Exception {
     List<String> tagNames = new ArrayList<>();
-    tagNames.add("test1");
+    tagNames.add("skog");
     SnippetSet snippetSet = Controller.getInstance().searchSnippetSet(tagNames, 0.0, false);
     SortedSet<SnippetInfo> testCollection = snippetSet.getSnippetCollection();
     boolean testBool = false;
@@ -100,7 +100,7 @@ public class ControllerTest {
   @Test
   public void getComplementaryTags() throws Exception {
     List<String> testComplementary;
-    testComplementary = Controller.getInstance().getAssociatedTags("test1");
+    testComplementary = Controller.getInstance().getAssociatedTags("skog");
     boolean testBool = false;
     if (testComplementary.size() != 0) {
       testBool = true;
@@ -247,7 +247,7 @@ public class ControllerTest {
     archiveHandler = new ArchiveHandler();
     impl = new DbAdapterImpl();
     List<String> tagNames = new ArrayList<>();
-    tagNames.add("test1");
+    tagNames.add("skog");
     snippetSet = impl.search(tagNames, 1.0, false);
 
 
