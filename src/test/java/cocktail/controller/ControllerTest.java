@@ -55,7 +55,7 @@ public class ControllerTest {
   @Test
   public void writeEditSnippet() throws Exception {
     boolean returnBool = false;
-    String path = "./src/test/resources/unziptest.zip";
+    String path = "./src/test/resources/test.zip";
     SnippetSet returnSnippetSet = Controller.getInstance().writeEditSnippet(path);
     if (returnSnippetSet.getSnippetCollection().size() > 0) {
       returnBool = true;
