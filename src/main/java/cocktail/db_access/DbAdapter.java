@@ -24,6 +24,7 @@ import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class that provide the program with information from database and uploads information to the database.
@@ -299,6 +300,15 @@ public interface DbAdapter {
    * @param oldTagName String
    */
  boolean updateTagNameAsAdmin(String newTagName, String oldTagName, String userName);
+
+  Map<Integer, byte[]> readFileFromFileIDList(List<Integer> fileIDs);
+
+  List<SnippetInfo> readSnippetInfos(List<Integer> snippetIDs);
+
+  Map<Integer, byte[]> readFileFromSnippetIDList(List<Integer> snippetIDs);
+
+
+
 }
 
 
