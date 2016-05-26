@@ -18,5 +18,9 @@
         <processorPath useClasspath="true" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="recocktail_main" target="1.8" />
+      <module name="recocktail_test" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>
