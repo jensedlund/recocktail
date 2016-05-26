@@ -1113,7 +1113,7 @@ public enum Driver {
   }
 
 
-  //Method returns one SnippetInfo object whit information from severel tables
+  //Method returns one SnippetInfo object whit information from several tables
   protected static SnippetInfo readSnippetInf(int snippetID) {
     SnippetInfo snippetInfo = new SnippetInfo();
     snippetInfo.setSnippetID(snippetID);
@@ -1147,6 +1147,80 @@ public enum Driver {
       e.printStackTrace();
     }
     return snippetInfo;
+  }
+
+
+  protected static List<SnippetInfo> readSnippetInfos(List<Integer> snippetIDs) {
+    List<SnippetInfo> infoList = new ArrayList<>();
+    for(int i : snippetIDs){
+      SnippetInfo si = new SnippetInfo();
+      si.setSnippetID(i);
+      infoList.add(si);
+    }
+    for(SnippetInfo si : infoList){
+      si.setFileID(getFileIDFromSnippetID(si.getSnippetID()));
+      List<Integer> tagIDs = getTagIDsForSnippetID(si.getSnippetID());
+      List<String> tagNames = getTagNamesFromTagIDs(tagIDs);
+      si.setTagNames(tagNames);
+    }
+
+    StringBuilder builderFile = new StringBuilder();
+    StringBuilder builderSnippet = new StringBuilder();
+
+    try {
+      String sqlStart = "SELECT fileName FROM fileInfo WHERE";
+      for(SnippetInfo si : infoList){
+        builderFile.append(" fileID=?");
+        if(!si.equals(infoList.get(infoList.size()-1))){
+          builderFile.append(" OR");
+        }
+      }
+      String sql = sqlStart + builderFile.toString();
+      System.out.println(sql);
+      PreparedStatement ps = myConnection.prepareStatement(sql);
+      int i = 1;
+      for(SnippetInfo si : infoList){
+        ps.setInt(i, si.getFileID());
+        i++;
+      }
+      ResultSet rs = ps.executeQuery();
+      int j = 0;
+      while (rs.next()) {
+        infoList.get(j).setFileName(rs.getString("fileName"));
+      }
+
+      String sqlIntro = "SELECT sizeKb,startTime,lenSec,creationDate,lastModifiedDate,userID FROM snippetInfo WHERE";
+    for(SnippetInfo si : infoList){
+      builderSnippet.append(" snippetID=?");
+      if(!si.equals(infoList.get(infoList.size()-1))){
+        builderSnippet.append(" OR");
+      }
+    }
+      sql = sqlIntro + builderSnippet.toString();
+      System.out.println(sql);
+      ps = myConnection.prepareStatement(sql);
+      int k = 1;
+      for(SnippetInfo si : infoList) {
+        ps.setInt(k, si.getSnippetID());
+        k++;
+      }
+      rs = ps.executeQuery();
+      int m = 0;
+      while (rs.next()) {
+        infoList.get(m).setKbSize(rs.getInt("sizeKb"));
+        infoList.get(m).setLengthSec(rs.getDouble("lenSec"));
+        infoList.get(m).setCreationDate(rs.getDate("creationDate").toLocalDate());
+        infoList.get(m).setLastModified(rs.getDate("lastModifiedDate").toLocalDate());
+        infoList.get(m).setUserID(rs.getInt("userID"));
+        infoList.get(m).setStartTime(rs.getDouble("startTime"));
+        infoList.get(m).setUserName(getUserName(infoList.get(m).getUserID()));
+        m++;
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return infoList;
   }
 
 
