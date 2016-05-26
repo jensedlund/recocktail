@@ -19,6 +19,9 @@
 
 package cocktail.restful_web;
 
+import cocktail.controller.Controller;
+import cocktail.snippet.SnippetSet;
+import cocktail.stream_io.XmlStreamer;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -31,14 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cocktail.controller.Controller;
-import cocktail.snippet.SnippetSet;
-import cocktail.stream_io.XmlStreamer;
-
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static spark.Spark.get;
-import static spark.Spark.post;
-import static spark.Spark.staticFiles;
+import static spark.Spark.*;
 
 /**
  * REST service to handle frontend to backend calls.

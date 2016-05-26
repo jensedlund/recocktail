@@ -989,7 +989,7 @@ public enum Driver {
 
 
   //Method read the file from fileInfo table and return it as a bite array
-  protected static byte[] readSnippet(int snippetID) {
+  protected static byte[] readFileFromSnippetID(int snippetID) {
     int sourceID = getFileIDFromSnippetID(snippetID);
     byte[] buffer = null;
     try {
@@ -1009,6 +1009,89 @@ public enum Driver {
     }
     return buffer;
   }
+
+
+  protected static Map<Integer, byte[]> readFileFromSnippetIDList(List<Integer> snippetIDs) {
+    Map<Integer,byte[]> fileMap = new HashMap<>();
+    List<Integer> fileIDs = new ArrayList<>();
+    StringBuilder builder = new StringBuilder();
+    String sqlStart = "SELECT file FROM fileInfo WHERE";
+    for(int i : snippetIDs) {
+      fileIDs.add(getFileIDFromSnippetID(i));
+    }
+
+    for(int i : fileIDs){
+      builder.append(" fileID=?");
+      if(i != fileIDs.get(fileIDs.size()-1)){
+        builder.append(" OR");
+      }
+    }
+      byte[] buffer = null;
+     try {
+       String sql = sqlStart + builder.toString();
+        PreparedStatement ps = myConnection.prepareStatement(sql);
+        int i = 1;
+        for(int fileID : fileIDs) {
+          ps.setInt(i, fileID);
+          i++;
+        }
+        ResultSet rs = ps.executeQuery();
+       int j = 0;
+        while (rs.next()) {
+          InputStream input;
+          input = rs.getBinaryStream("file");
+          buffer = new byte[input.available()];
+          input.read(buffer);
+          fileMap.put(snippetIDs.get(j), buffer);
+          j++;
+        }
+
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
+    return fileMap;
+  }
+
+
+  protected static Map<Integer, byte[]> readFileFromFileIDList(List<Integer> fileIDs) {
+    Map<Integer,byte[]> fileMap = new HashMap<>();
+    StringBuilder builder = new StringBuilder();
+    String sqlStart = "SELECT file FROM fileInfo WHERE";
+
+    for(int i : fileIDs){
+      builder.append(" fileID=?");
+      if(i != fileIDs.get(fileIDs.size()-1)){
+        builder.append(" OR");
+      }
+    }
+    byte[] buffer = null;
+    try {
+      String sql = sqlStart + builder.toString();
+      PreparedStatement ps = myConnection.prepareStatement(sql);
+      int i = 1;
+      for(int fileID : fileIDs) {
+        ps.setInt(i, fileID);
+        i++;
+      }
+      ResultSet rs = ps.executeQuery();
+      int j = 0;
+      while (rs.next()) {
+        InputStream input;
+        input = rs.getBinaryStream("file");
+        buffer = new byte[input.available()];
+        input.read(buffer);
+        fileMap.put(fileIDs.get(j), buffer);
+        j++;
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return fileMap;
+  }
+
 
 
   //Returns the userName and takes a userID as an argument

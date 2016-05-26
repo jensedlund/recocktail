@@ -231,9 +231,9 @@ public class ControllerTest {
 
 
   @Test
-  public void getSingelSourceFileAndItsSnippets() throws Exception {
+  public void getSingleSourceFileAndItsSnippets() throws Exception {
     boolean testBool = false;
-    String path = Controller.getInstance().getSingelSourceFileAndItsSnippets(5).toString();
+    String path = Controller.getInstance().getSingleSourceFileAndItsSnippets(5).toString();
     if (path.length() > 1) {
       testBool = true;
     }

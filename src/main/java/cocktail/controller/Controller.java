@@ -152,8 +152,8 @@ public class Controller implements ControllerInterface {
   }
 
   @Override
-  public SnippetSet getSingelSourceFileAndItsSnippets(int fileID) {
-    return archiveHandler.getSingelFile(fileID);
+  public SnippetSet getSingleSourceFileAndItsSnippets(int fileID) {
+    return archiveHandler.getSingleFile(fileID);
   }
 
   @Override

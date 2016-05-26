@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
@@ -45,6 +46,12 @@ private static SnippetSet snippetSet;
   public static void main(String[] args) throws IOException {
 
 
+    List<Integer> testList =new ArrayList<>();
+    testList.add(121);
+    testList.add(133);
+    testList.add(150);
+    Map<Integer, byte[]> testMap = Driver.readFileFromSnippetIDList(testList);
+    System.out.println(testMap);
 
   }
 

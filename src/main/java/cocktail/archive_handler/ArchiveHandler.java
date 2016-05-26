@@ -443,7 +443,7 @@ public class ArchiveHandler {
     return true;
   }
 
-  public SnippetSet getSingelFile(int fileID) {
+  public SnippetSet getSingleFile(int fileID) {
     return dbAdapter.getAllSnippetFromFile(fileID);
   }
 

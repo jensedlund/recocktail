@@ -58,7 +58,7 @@ public class DbAdapterImpl implements DbAdapter {
 
   @Override
   public byte[] readSnippet(int snippetID) {
-    return Driver.readSnippet(snippetID);
+    return Driver.readFileFromSnippetID(snippetID);
   }
 
   @Override
