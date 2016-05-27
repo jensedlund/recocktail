@@ -263,6 +263,8 @@ public class ArchiveHandler {
                            getSnippetLength(bArray));
 
           //check for which approach needed for current snippet
+
+          //if snippet is already in database and only needs to be updated:
           if (snippet.getSnippetID() > 0) {
             fileInfo.setFileName(dbAdapter.getFileNameFromSnippetId(snippet.getSnippetID()));
             snippet.setFileName(dbAdapter.getFileNameFromSnippetId(snippet.getSnippetID()));
@@ -271,18 +273,21 @@ public class ArchiveHandler {
             dbAdapter.editSnippet(snippet, fileInfo, snippet.getSnippetID());
             snippetIDs.add(snippet.getSnippetID());
           } else {
+
+            // if (snippet's) source audio clip is the same as the last one, only snippetdata uploaded.
             if (fileName.equals(lastFileName)) {
               System.out.println(
                   "----same source file as last snippet. not uploading clip again (" + fileName + ").");
               snippetIDs.add(dbAdapter.writeSnippet(snippet, lastFileID));
               System.out.println("lastFileID: " + lastFileID);
+
+              //if (snippet's) is considered NEW and attempts to upload to the DB along with snippet data.
             } else {
               System.out.println("new file, uploading clip to database! (" + fileName + ")");
               int tempSnippetID = dbAdapter.writeSnippet(fileInfo, snippet);
               snippetIDs.add(tempSnippetID);
               lastFileID = dbAdapter.getFileIdFromSnippetId(tempSnippetID);
               lastFileName = fileName;
-              //lastTag = snippet.getTagNames().get(0);
             }
           }
           bis.close();
@@ -484,7 +489,7 @@ public class ArchiveHandler {
   public boolean deleteUsedZip(String setName) {
     File deadFile = new File(setName);
     if (!deadFile.isFile()) {
-      System.out.println(setName + " is not a file.");
+      System.out.println(setName + " is not found OR is not a file.");
       System.out.println("deleting directory: " + deadFile.toPath().getParent().toFile());
       removeDirectory(deadFile.toPath().getParent().toFile());
       return false;
