@@ -53,13 +53,14 @@
         <input type="checkbox" id="exclusiveSearch">Exclusive search?</input> <br>
 
         <button id="sendButton" onclick="search()">Search</button>
-        <button id="downloadButton" onclick="getZip()">Download Set</button>
+
     </div>
     <div id="setInfoDiv">
         <h2>Snippet set Information</h2>
         <select id="snippetSets" onchange="getSet(this.value,updateSnippetSetStats)">
             <!--<option value="empty">Emptyness is form.</option>-->
-        </select> <br>
+        </select>
+        <button id="downloadButton" onclick="getZip()">Download Set</button> <br>
         SetName:
         <input id="setInfoName" type="text"> <br>
         Number of snippets:
@@ -69,7 +70,8 @@
         Snippets in set:
         <select id="snippetsInSet" onchange="updateSnippetStats(this.selectedIndex)">
             <!--<option value="empty">Emptyness is form.</option>-->
-        </select> <br>
+        </select>
+        <button id="deleteSnippet" onclick="deleteSnippet()">Delete snippet</button><br>
         Snippet Id:
         <input id="snippetInfoId" type="text" disabled="true"> <br>
         Tags in set:
@@ -86,8 +88,6 @@
         <h2>Area for editing</h2>
     </div>
     <input type="button" onclick="newSnippetSet.uploadNewSnippets()" value="Upload new snippets">
-    <!--<input type="button" onclick="getZipUrl()" value="Read Zip">-->
-    <!--<input type="button" onclick="loadSnippetSet()" value="Load Snippet">-->
     <br>
     <input type="file" id="newFile" onchange="fileSelectionUpdate()" name="file" value="Add file">
     <br>

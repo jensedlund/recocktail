@@ -53,7 +53,7 @@ function collectSoundParams(soundSet) {
 
 }
 
-// Kick of selected soundSet
+// Kick off selected soundSet
 function startSound() {
     var selected = document.getElementById("soundSets").selectedIndex;
     var weighted = document.getElementById("weighted").checked;
@@ -150,7 +150,41 @@ function search() {
                dataType: 'json',
                async: true,
                success: function (data) {
-                   // Result is put inot active snippet set
+                   // Result is put into active snippet set
+                   var snippetSet = new SnippetSet();
+                   snippetSet.populateFromJson(data);
+                   activeSnippetSet = snippetSet;
+                   updateSnippetSetStats(snippetSet);
+
+                   // Update the list since new snippetSet are
+                   // expected to be available after search
+                   getActiveSets(updateSnippetSetList);
+               },
+               error: function (xhr, status) {
+                   console.log(status);
+                   console.log(xhr.responseText);
+               }
+           });
+}
+
+// Delete snippet
+function deleteSnippet() {
+    var setName = document.getElementById("setInfoName").value;
+    var snippetId = document.getElementById("snippetInfoId").value;
+    var postBody = {
+        snippetSetName: setName,
+        snippetId: snippetId,
+    };
+
+    $.ajax({
+               url: serverUrl + "/deleteSnippet",
+               contentType: 'application/json; charset=utf-8',
+               type: 'POST',
+               data: postBody,
+               dataType: 'json',
+               async: true,
+               success: function (data) {
+                   // Result is put into active snippet set
                    var snippetSet = new SnippetSet();
                    snippetSet.populateFromJson(data);
                    activeSnippetSet = snippetSet;
@@ -266,7 +300,6 @@ function getRelatedTags() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
         if(xhttp.readyState == 4 && xhttp.status == 200){
-            console.log("I ifsatsen comp " + xhttp.responseText);
             document.getElementById("complTags").value = xhttp.responseText;
         }
     };
@@ -293,7 +326,9 @@ function newSnippet() {
     var fileReader = new FileReader();
     fileReader.readAsArrayBuffer(files[0]);
     fileReader.onloadend = function(event) {
+
         newSnippetInfo.fileBlob =  event.target.result;
+
         newSnippetInfo.kbSize = parseInt(files[0].size/1024);
 
         var startTime = document.getElementById("newStart");

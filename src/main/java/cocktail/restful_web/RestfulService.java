@@ -132,6 +132,28 @@ public class RestfulService {
       }
     });
 
+
+    // Remove snippet from a set.
+//    todo
+    post("/removeSnippet", (request, response) -> {
+      Map<String, String> reqBodyMap = RestfulHelper.mapFromRequestBody(request);
+      Set<String> existingKeys = reqBodyMap.keySet();
+
+      int snippetId;
+      String snippetSetName;
+
+      if (existingKeys.contains("snippetId") && existingKeys.contains("snippetSetName")) {
+        snippetId = Integer.parseInt(reqBodyMap.get("snippetId"));
+        snippetSetName = reqBodyMap.get("snippetSetName");
+        SnippetSet snippetSet = controller.getStoredSet(snippetSetName);
+        snippetSet.removeSnippet(snippetId);
+        Gson gson = new Gson();
+        return gson.toJson(snippetSet);
+      } else {
+        return true;
+      }
+    });
+
     // Pass a snippetset from frontend and return a xml file URL
     post("/getSnippetSetXml", ((request, response) -> {
       new File("src/main/web/tmp").mkdirs();
@@ -157,10 +179,10 @@ public class RestfulService {
     get("/getSet/:name", (request, response) -> {
       String setName = request.params(":name");
       SnippetSet snippetSet = controller.getStoredSet(setName);
-      System.out.println("Get set with info " + snippetSet.toString());
       Gson gson = new Gson();
       return gson.toJson(snippetSet);
     });
+
   }
 }
 

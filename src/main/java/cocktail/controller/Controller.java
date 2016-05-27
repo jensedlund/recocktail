@@ -1,33 +1,34 @@
 package cocktail.controller;
 
 /** Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
-        *
-        * Licensed under the Apache License, Version 2.0 (the "License");
-        * you may not use this file except in compliance with the License.
-        * You may obtain a copy of the License at
-        *
-        * http://www.apache.org/licenses/LICENSE-2.0
-        *
-        * Unless required by applicable law or agreed to in writing, software
-        * distributed under the License is distributed on an "AS IS" BASIS,
-        * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        * See the License for the specific language governing permissions and
-        * limitations under the License.
-        *
-        * @version 1.0
-        * @since 2016-04-18
-**/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @version 1.0
+ * @since 2016-04-18
+ **/
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import cocktail.archive_handler.ArchiveHandler;
 import cocktail.db_access.DbAdapter;
 import cocktail.db_access.DbAdapterImpl;
 import cocktail.snippet.SetOperation;
 import cocktail.snippet.SnippetSet;
 import cocktail.storage.SnippetStorageImpl;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * ControllerInterface is a layer that delegates and pass on information to other parts of the program.
@@ -67,13 +68,8 @@ public class Controller implements ControllerInterface {
   }
 
   @Override
-  public SnippetSet executeSetOperation(SnippetSet snippetSet, SetOperation setOperation) {
-    //TODO jag tänker att det inte ¨är ett SnippetSet utan ett JsonObject som tas emot här som argument för att inte
-    //TODO blanda in för mycket backend i Rest, det samma tycker jag gäller för snippetInfo objekten som skickas omkring.
-    //Försetäller mig att setIperation borde ta en snippetSet som argument och sen returnerar ett snippetSet
-    //som i någon mening är modifierat. Samt att det snippetSet som returneras har fått en loggad förändring
-    return snippetSet;
-
+  public SnippetSet executeSetOperation(SnippetSet setA, SnippetSet setB, SetOperation setOperation) {
+    return setA.setOperation(setB, setOperation);
   }
 
   @Override
@@ -82,7 +78,6 @@ public class Controller implements ControllerInterface {
        storeSet(set);
     return set;
   }
-
 
   @Override
   public SnippetSet searchSnippetSet(List<String> tagNames, double lengthMaxFilter, boolean exclusive) {
@@ -153,7 +148,7 @@ public class Controller implements ControllerInterface {
 
   @Override
   public SnippetSet getSingelSourceFileAndItsSnippets(int fileID) {
-    return archiveHandler.getSingelFile(fileID);
+    return archiveHandler.getSingleFile(fileID);
   }
 
   @Override
