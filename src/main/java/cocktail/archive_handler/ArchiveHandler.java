@@ -242,7 +242,7 @@ public class ArchiveHandler {
         e.printStackTrace();
       }
 
-
+      //processing part:
       //here the procedure of going thru the snippetset inside the archive begins
       //set getting sorted by filename and processed one by one.
       ArrayList<Integer> snippetIDs = new ArrayList<>();
@@ -282,7 +282,7 @@ public class ArchiveHandler {
           //uploaded snippetsID's are then stored inside an array used to build a snippetSet
           //that is sent as return as validation of added files.
 
-          //if snippet is already in database and only needs to be updated:
+          //if snippet is already in database (it already has a snippetID) and only needs to be updated:
           if (snippet.getSnippetID() > 0) {
             fileInfo.setFileName(dbAdapter.getFileNameFromSnippetId(snippet.getSnippetID()));
             snippet.setFileName(dbAdapter.getFileNameFromSnippetId(snippet.getSnippetID()));
@@ -292,8 +292,8 @@ public class ArchiveHandler {
             snippetIDs.add(snippet.getSnippetID());
           } else {
 
-            // if (snippet's) source audio clip is the same as the last one, only snippetdata uploaded.
             //compares current file with last file to check if its a new file or not.
+            // if (snippet's) source audio clip is the same as the last one, only snippetdata uploaded.
             if (fileName.equals(lastFileName)) {
               System.out.println(
                   "----same source file as last snippet. not uploading clip again (" + fileName + ").");
