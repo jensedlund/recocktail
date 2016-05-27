@@ -73,17 +73,24 @@ public class ArchiveHandler {
     //trying to optimize it trying to avoid loading source files multiple times.
     for (SnippetInfo snippet : sortSetByFileID(set)) {
 
+
       if (fs != null) {
+        //check if method needs to load a new clip from DB or not.
         if (currentFileID == -1 || currentFileID != snippet.getFileID()) {
           currentFileID = snippet.getFileID();
           sourceFile = dbAdapter.readSnippet(snippet.getSnippetID());
           System.out.println("----------loaded a new file from DB: " + snippet.getFileName());
         }
 
+        //checks if the snippet is the same size as the source file.
+        //addnewFile refers to the file that will be copied into the zip.
         if (!dbAdapter.isSnippetPartOfLongerFile(snippet.getSnippetID())) {
           addNewFile =
               byteArrayToFile(sourceFile, tempDir + File.separator + snippet.getFileName());
           System.out.println("-----this is a single file snippet! ------");
+
+          //else it needs to be cut, using trimAudioClip.
+          //addnewFile refers to the file that will be copied into the zip.
         } else {
           addNewFile =
               byteArrayToFile(process.trimAudioClip(sourceFile,
@@ -92,6 +99,7 @@ public class ArchiveHandler {
           System.out.println("----this snippet is a cutout from a larger file----");
         }
 
+        //parentDir is used to create destination subdirectories named from the first tagName.
         Path parentDir = fs.getPath("/snippets/" + snippet.getTagNames().get(0));
         zipFilePath =
             fs.getPath(
@@ -114,6 +122,8 @@ public class ArchiveHandler {
         addNewFile.delete();
       }
     }
+
+    //creates and add the updated snippetset xml to the archive.
     File
         xmlFile =
         new File(tempDir + File.separator + "SnippetSet.xml");
@@ -139,6 +149,9 @@ public class ArchiveHandler {
    * Unpacking and processing of zip archive from the frontend.
    * populate the database with content.
    *
+   * the method is basically split into two parts where the first part unpacks the files
+   * and the second part process these files and upload/update the db with its content.
+   *
    * @param inputFile path to zip archive to process
    * @return snippetSet of files added to database
    */
@@ -152,6 +165,7 @@ public class ArchiveHandler {
       unzipWorkspace.mkdir();
     }
 
+    //trims the inputFile name to be used to name the temporary unzip workspace.
     int lastIndex = inputFile.lastIndexOf('/');
     if (lastIndex >= 0) {
       System.out.println(lastIndex + " last index " + inputFile);
@@ -164,6 +178,7 @@ public class ArchiveHandler {
       tempDir.mkdir();
     }
 
+    //prepare and mount the zip archive as a zipFilesystem
     Map<String, String> env = new HashMap<>();
     env.put("create", "false");
     final Path path = Paths.get(inputFile);
@@ -173,6 +188,8 @@ public class ArchiveHandler {
     } catch (IOException e) {
       e.printStackTrace();
     }
+
+    //filewalk thru the zip to unpack and convert its content
     if (fs != null) {
       final Path zipRoot = fs.getPath("/");
 
@@ -247,22 +264,23 @@ public class ArchiveHandler {
         //fileExtension = getFileExtension(snippet.getFileName());
         fileName = snippet.getFileName();
         Path
-            workPath =
+            sourceFilePath =
             Paths.get(tempDir.toString(),
                       "snippets/" + snippet.getTagNames().get(0) + File.separator + fileName);
 
         try {
-          byte[] bArray = Files.readAllBytes(workPath);
+          byte[] bArray = Files.readAllBytes(sourceFilePath);
           ByteArrayInputStream bis = new ByteArrayInputStream(bArray);
           snippet.setFileName(trimFileName(fileName));
 
-          System.out.println("file size: " + (bArray.length / 1024) + "kb.");
           FileInfo
               fileInfo =
               new FileInfo(bis, trimFileName(fileName), bArray.length / 1024,
                            getSnippetLength(bArray));
 
           //check for which approach needed for current snippet
+          //uploaded snippetsID's are then stored inside an array used to build a snippetSet
+          //that is sent as return as validation of added files.
 
           //if snippet is already in database and only needs to be updated:
           if (snippet.getSnippetID() > 0) {
@@ -275,6 +293,7 @@ public class ArchiveHandler {
           } else {
 
             // if (snippet's) source audio clip is the same as the last one, only snippetdata uploaded.
+            //compares current file with last file to check if its a new file or not.
             if (fileName.equals(lastFileName)) {
               System.out.println(
                   "----same source file as last snippet. not uploading clip again (" + fileName + ").");
@@ -282,6 +301,7 @@ public class ArchiveHandler {
               System.out.println("lastFileID: " + lastFileID);
 
               //if (snippet's) is considered NEW and attempts to upload to the DB along with snippet data.
+              //lastFileId is set to identify the sourceFile with the corresponding file inside the DB.
             } else {
               System.out.println("new file, uploading clip to database! (" + fileName + ")");
               int tempSnippetID = dbAdapter.writeSnippet(fileInfo, snippet);
