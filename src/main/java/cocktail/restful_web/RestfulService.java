@@ -75,7 +75,7 @@ public class RestfulService {
           return gson.toJson(src);
         });
 
-    // Move generated zip to stic file location and return the URL.
+    // Move generated zip to static file location and return the URL.
     get("/getZipUrl/:name", (request, response) -> {
       String setName = request.params(":name");
       SnippetSet snippetSet = controller.getStoredSet(setName);
@@ -132,6 +132,67 @@ public class RestfulService {
       }
     });
 
+
+    // Remove snippet from a set.
+    // todo fix a controller instruction, operating on SnippetSet directly is wrong!
+    post("/removeSnippet", (request, response) -> {
+      Map<String, String> reqBodyMap = RestfulHelper.mapFromRequestBody(request);
+      Set<String> existingKeys = reqBodyMap.keySet();
+
+      int snippetId;
+      String snippetSetName;
+
+      if (existingKeys.contains("snippetId") && existingKeys.contains("snippetSetName")) {
+        snippetId = Integer.parseInt(reqBodyMap.get("snippetId"));
+        snippetSetName = reqBodyMap.get("snippetSetName");
+        SnippetSet snippetSet = controller.getStoredSet(snippetSetName);
+        snippetSet.removeSnippet(snippetId);
+        Gson gson = new Gson();
+        return gson.toJson(snippetSet);
+      } else {
+        return "Could not find snippet to delete.";
+      }
+    });
+
+    // Execute a set operation on two sets
+    post("/setOperation", (request, response) -> {
+      Map<String, String> reqBodyMap = RestfulHelper.mapFromRequestBody(request);
+      Set<String> existingKeys = reqBodyMap.keySet();
+
+      if (existingKeys.contains("setA") && existingKeys.contains("setB")
+          && existingKeys.contains("operation")) {
+        String setAName = reqBodyMap.get("setA");
+        String setBName = reqBodyMap.get("setB");
+        String op = reqBodyMap.get("operation");
+
+        SnippetSet snippetSetRes = controller.executeSetOperation(setAName, setBName, op);
+        Gson gson = new Gson();
+        return gson.toJson(snippetSetRes);
+      } else {
+        return "Could not find sets or matching operation.";
+      }
+    });
+
+    // todo fix a controller instruction, operating on SnippetSet directly is wrong!
+    // todo rename should be done in storage, otherwise set will be lost!
+    post("/renameSet", (request, response) -> {
+      Map<String, String> reqBodyMap = RestfulHelper.mapFromRequestBody(request);
+      Set<String> existingKeys = reqBodyMap.keySet();
+
+      String snippetSetName;
+      String newSetName;
+
+      if (existingKeys.contains("setName") && existingKeys.contains("newSetName")) {
+        snippetSetName = reqBodyMap.get("setName");
+        SnippetSet snippetSet = controller.getStoredSet(snippetSetName);
+
+        Gson gson = new Gson();
+        return gson.toJson(snippetSet);
+      } else {
+        return "Could not find snippet to delete.";
+      }
+    });
+
     // Pass a snippetset from frontend and return a xml file URL
     post("/getSnippetSetXml", ((request, response) -> {
       new File("src/main/web/tmp").mkdirs();
@@ -157,10 +218,10 @@ public class RestfulService {
     get("/getSet/:name", (request, response) -> {
       String setName = request.params(":name");
       SnippetSet snippetSet = controller.getStoredSet(setName);
-      System.out.println("Get set with info " + snippetSet.toString());
       Gson gson = new Gson();
       return gson.toJson(snippetSet);
     });
+
   }
 }
 

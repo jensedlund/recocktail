@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 
 /**
  * Enum implementing different set operations on sorted sets.
+ * Returns a new collection of TreeSet.
  */
 
 public enum SetOperation implements SetOperationInterface {

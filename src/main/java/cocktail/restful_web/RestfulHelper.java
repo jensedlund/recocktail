@@ -35,16 +35,11 @@ public abstract class RestfulHelper {
    */
   private RestfulHelper() {}
 
-  public static String[] extractStrings(String string) {
-    String[] returnList = string.split("&");
-    return returnList;
-  }
-
   /**
-   * This method takes the request body from a POST in Sprak and converts it to
+   * This method takes the request body from a POST and converts it to
    * a map between field name and field param.
    * @param request Request from
-   * @return The request body as a map.
+   * @return The request body as a map with the post fields as keys.
    */
   public static Map<String, String> mapFromRequestBody(Request request) {
     Map<String, String> reqBodyMap =

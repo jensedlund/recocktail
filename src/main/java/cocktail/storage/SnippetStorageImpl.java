@@ -37,7 +37,7 @@ import cocktail.snippet.SnippetSet;
 public class SnippetStorageImpl implements SnippetStorage {
   private LinkedList<SnippetSet> workingSets;
   private Map<String, File> savedSets;
-  private  static SnippetSet latestSet;
+  private static SnippetSet latestSet;
   private static SnippetStorageImpl instance;
   private static Set<String> setNames;
 
@@ -81,7 +81,6 @@ public class SnippetStorageImpl implements SnippetStorage {
   @Override
   public Set<String> getAllSetNames() {
     return setNames;
-
   }
 
   @Override
@@ -113,12 +112,23 @@ public class SnippetStorageImpl implements SnippetStorage {
 
   @Override
   public void restoreContext(String setName) {
-    //TODO impalementera att spara kontext
+    // TODO implementera att spara kontext
     System.out.println("Will load your working set " + setName + " from file...");
   }
 
   @Override
   public void storeContext(String id) {
+//    String dirName = "./src/main/resources/sets/";
+//    File storageArea = new File(dirName);
+//    if (!storageArea.exists()) {
+//      storageArea.mkdir();
+//    }
+//
+//    File outPutFile = new File(dirName + "/" + id + ".xml");
+
+//    XmlStreamer<LinkedList<SnippetSet>> xmlStreamer = new XmlStreamer<>();
+//    xmlStreamer.toStream(workingSets.getClass(), workingSets, outPutFile);
+
     System.out.println("Saving your working set.");
   }
 

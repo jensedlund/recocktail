@@ -1,10 +1,10 @@
 package cocktail.controller;
 
-import cocktail.snippet.SetOperation;
-import cocktail.snippet.SnippetSet;
-
 import java.util.List;
 import java.util.Set;
+
+import cocktail.snippet.SetOperation;
+import cocktail.snippet.SnippetSet;
 
 /**
   Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
@@ -49,13 +49,24 @@ public interface ControllerInterface {
   SnippetSet writeEditSnippet(String filePath);
 
   /**
-   * Method executes operation ont the SnippetSet that is passed as argument.
+   * Method executes operation ont the SnippetSets that is passed as argument.
    *
-   * @param snippetSet object of class SnippetSet
-   * @param setOperation Union, intersect or complemet
-   * @return snippetSet object of class SnippetSet
+   * @param setA Set A of type SnippetSet
+   * @param setB Set B of type SnippetSet
+   * @param setOperation Enum constant for the specific op.
+   * @return snippetSet object of class SnippetSet.
    */
-  SnippetSet executeSetOperation(SnippetSet snippetSet, SetOperation setOperation);
+  SnippetSet executeSetOperation(SnippetSet setA, SnippetSet setB, SetOperation setOperation);
+
+ /**
+   * Method executes operation ont the SnippetSets that is passed as argument.
+   *
+   * @param setA Name of Set A.
+   * @param setB Name of Set B.
+   * @param setOperation String name for the specific op.
+   * @return snippetSet object of class SnippetSet.
+   */
+  SnippetSet executeSetOperation(String setA, String setB, String setOperation);
 
   /**
    * Overloaded method that search for snippet based on the array of tagNames that is passed as argument.
