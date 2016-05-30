@@ -36,13 +36,20 @@ function init() {
     context = new AudioContext();
 
     // Get active sets from storge unit in backend
-    getActiveSets(updateSnippetSetList, "setA");
-    getActiveSets(updateSnippetSetList, "setB");
-    getActiveSets(updateSnippetSetList, "snippetSets");
+    // getActiveSets(updateSnippetSetList, "setA");
+    // getActiveSets(updateSnippetSetList, "setB");
+    // getActiveSets(updateSnippetSetList, "snippetSets");
+    populateSetLists();
     populateSetOpList(["Union","Intersect","Complement","illegal"]);
     // Get all tags from database to use in autocomplete
     getAllTags(populateAllTagsList);
     rangeSlider();
+}
+
+function populateSetLists() {
+    getActiveSets(updateSnippetSetList, "setA");
+    getActiveSets(updateSnippetSetList, "setB");
+    getActiveSets(updateSnippetSetList, "snippetSets");
 }
 
 // Collect sound parameters for playback.
@@ -205,16 +212,17 @@ function deleteSnippet() {
 
 // Execute a set operation
 function setOperation() {
-    var setNameA = document.getElementById("setInfoName").value;
-    var setNameB = document.getElementById("snippetInfoId").value;
-    var setOpName = document.getElementById("snippetInfoId").value;
+    var setNameA = document.getElementById("setA").value;
+    var setNameB = document.getElementById("setB").value;
+    var setOpName = document.getElementById("setOp").value;
     var postBody = {
-        snippetSetName: setName,
-        snippetId: snippetId,
+        setA: setNameA,
+        setB: setNameB,
+        operation: setOpName,
     };
 
     $.ajax({
-               url: serverUrl + "/deleteSnippet",
+               url: serverUrl + "/setOperation",
                contentType: 'application/json; charset=utf-8',
                type: 'POST',
                data: postBody,
@@ -226,10 +234,11 @@ function setOperation() {
                    snippetSet.populateFromJson(data);
                    activeSnippetSet = snippetSet;
                    updateSnippetSetStats(snippetSet);
-
+                   
                    // Update the list since new snippetSet are
-                   // expected to be available after search
-                   getActiveSets(updateSnippetSetList);
+                   // expected to be available
+                   // getActiveSets(updateSnippetSetList);
+                   populateSetLists();
                },
                error: function (xhr, status) {
                    console.log(status);

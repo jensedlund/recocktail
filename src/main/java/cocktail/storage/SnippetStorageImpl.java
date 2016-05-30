@@ -78,6 +78,44 @@ public class SnippetStorageImpl implements SnippetStorage {
     }
   }
 
+  /**
+   *
+   * @param snippetSetName Name of set to remove.
+   * @return True if a set was removed. Otherwise false.
+   */
+  @Override
+  public boolean removeSet(String snippetSetName) {
+    if(setNames.contains(snippetSetName)) {
+      setNames.remove(snippetSetName);
+      SnippetSet snippetSet = getSet(snippetSetName);
+      workingSets.remove(snippetSet);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Rename a set without changing it.
+   *
+   * @param oldSetName
+   * @param newSetName
+   * @return
+   */
+  @Override
+  public SnippetSet renameSet(String oldSetName, String newSetName) {
+
+    if(setNames.contains(oldSetName) && !setNames.contains(newSetName)) {
+      SnippetSet snippetSet = getSet(oldSetName);
+      snippetSet.setSetName(newSetName);
+      setNames.remove(oldSetName);
+      setNames.add(newSetName);
+      return snippetSet;
+    } else {
+      return null;
+    }
+  }
+
   @Override
   public Set<String> getAllSetNames() {
     return setNames;

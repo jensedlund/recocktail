@@ -163,18 +163,22 @@ public class RestfulService {
           && existingKeys.contains("operation")) {
         String setAName = reqBodyMap.get("setA");
         String setBName = reqBodyMap.get("setB");
+
+        if (setAName.equals(setBName)) {
+          response.status(400);
+          return "Set operation between the same sets not allowed.";
+        }
         String op = reqBodyMap.get("operation");
 
         SnippetSet snippetSetRes = controller.executeSetOperation(setAName, setBName, op);
         Gson gson = new Gson();
         return gson.toJson(snippetSetRes);
       } else {
+        response.status(400);
         return "Could not find sets or matching operation.";
       }
     });
 
-    // todo fix a controller instruction, operating on SnippetSet directly is wrong!
-    // todo rename should be done in storage, otherwise set will be lost!
     post("/renameSet", (request, response) -> {
       Map<String, String> reqBodyMap = RestfulHelper.mapFromRequestBody(request);
       Set<String> existingKeys = reqBodyMap.keySet();
@@ -184,12 +188,12 @@ public class RestfulService {
 
       if (existingKeys.contains("setName") && existingKeys.contains("newSetName")) {
         snippetSetName = reqBodyMap.get("setName");
-        SnippetSet snippetSet = controller.getStoredSet(snippetSetName);
-
+        newSetName = reqBodyMap.get("newSetName");
+        SnippetSet snippetSet = controller.renameStoredSet(snippetSetName,newSetName);
         Gson gson = new Gson();
         return gson.toJson(snippetSet);
       } else {
-        return "Could not find snippet to delete.";
+        return "Could not find snippet to rename, or the new name was not unique.";
       }
     });
 

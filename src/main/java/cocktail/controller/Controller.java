@@ -122,7 +122,6 @@ public class Controller implements ControllerInterface {
   @Override
   public void updateUserName(String newUserName, String oldUserName) {
     dbAdapter.updateUserName(newUserName, oldUserName);
-
   }
 
   @Override
@@ -147,8 +146,12 @@ public class Controller implements ControllerInterface {
   }
 
   @Override
+  public SnippetSet renameStoredSet(String oldSetName, String newSetName) {
+    return SnippetStorageImpl.getInstance().renameSet(oldSetName, newSetName);
+  }
+
+  @Override
   public SnippetSet getCurrentSet() {
-//    return snippetStorage.getLatestSet();
     return SnippetStorageImpl.getInstance().getLatestSet();
   }
 
