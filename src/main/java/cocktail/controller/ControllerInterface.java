@@ -52,11 +52,21 @@ public interface ControllerInterface {
    * Method executes operation ont the SnippetSets that is passed as argument.
    *
    * @param setA Set A of type SnippetSet
-   * @param setB Set B
-   * @param setOperation
+   * @param setB Set B of type SnippetSet
+   * @param setOperation Enum constant for the specific op.
    * @return snippetSet object of class SnippetSet.
    */
   SnippetSet executeSetOperation(SnippetSet setA, SnippetSet setB, SetOperation setOperation);
+
+ /**
+   * Method executes operation ont the SnippetSets that is passed as argument.
+   *
+   * @param setA Name of Set A.
+   * @param setB Name of Set B.
+   * @param setOperation String name for the specific op.
+   * @return snippetSet object of class SnippetSet.
+   */
+  SnippetSet executeSetOperation(String setA, String setB, String setOperation);
 
   /**
    * Overloaded method that search for snippet based on the array of tagNames that is passed as argument.

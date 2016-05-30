@@ -59,7 +59,6 @@ public class Controller implements ControllerInterface {
   @Override
   public void storeSet(SnippetSet snippetSet) {
     SnippetStorageImpl.getInstance().addSet(snippetSet);
-
   }
 
   @Override
@@ -70,6 +69,25 @@ public class Controller implements ControllerInterface {
   @Override
   public SnippetSet executeSetOperation(SnippetSet setA, SnippetSet setB, SetOperation setOperation) {
     return setA.setOperation(setB, setOperation);
+  }
+
+  @Override
+  public SnippetSet executeSetOperation(String setAName, String setBName, String setOperation) {
+    SnippetSet setA = SnippetStorageImpl.getInstance().getSet(setAName);
+    SnippetSet setB = SnippetStorageImpl.getInstance().getSet(setBName);
+    SnippetSet result;
+    try {
+      // Protect aginst setOperation string not matching a operation.
+      SetOperation operation = SetOperation.valueOf(setOperation.toUpperCase());
+
+      // Get new set, add to Storage.
+      result = setA.setOperation(setB, operation);
+      SnippetStorageImpl.getInstance().addSet(result);
+    } catch (IllegalArgumentException e) {
+      // If set operation dones not exist, just return setA.
+      result = setA;
+    }
+    return result;
   }
 
   @Override
