@@ -35,10 +35,12 @@ function init() {
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     context = new AudioContext();
 
-    // Get active sets from storge unit i backend
-    getActiveSets(updateSnippetSetList);
-
-    // get all tags from database to use in autocomplete
+    // Get active sets from storge unit in backend
+    getActiveSets(updateSnippetSetList, "setA");
+    getActiveSets(updateSnippetSetList, "setB");
+    getActiveSets(updateSnippetSetList, "snippetSets");
+    populateSetOpList(["Union","Intersect","Complement","illegal"]);
+    // Get all tags from database to use in autocomplete
     getAllTags(populateAllTagsList);
     rangeSlider();
 }
@@ -79,11 +81,11 @@ function getAllTags(callback) {
 }
 
 // Get all sets from StorageUnit in backend. Send response to callback.
-function getActiveSets(callback) {
+function getActiveSets(callback,cbArg) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
         if(xhttp.readyState == 4 && xhttp.status == 200) {
-            callback(JSON.parse(xhttp.response));
+            callback(JSON.parse(xhttp.response),cbArg);
             console.log(xhttp.response)
         }
     };
@@ -201,6 +203,41 @@ function deleteSnippet() {
            });
 }
 
+// Execute a set operation
+function setOperation() {
+    var setNameA = document.getElementById("setInfoName").value;
+    var setNameB = document.getElementById("snippetInfoId").value;
+    var setOpName = document.getElementById("snippetInfoId").value;
+    var postBody = {
+        snippetSetName: setName,
+        snippetId: snippetId,
+    };
+
+    $.ajax({
+               url: serverUrl + "/deleteSnippet",
+               contentType: 'application/json; charset=utf-8',
+               type: 'POST',
+               data: postBody,
+               dataType: 'json',
+               async: true,
+               success: function (data) {
+                   // Result is put into active snippet set
+                   var snippetSet = new SnippetSet();
+                   snippetSet.populateFromJson(data);
+                   activeSnippetSet = snippetSet;
+                   updateSnippetSetStats(snippetSet);
+
+                   // Update the list since new snippetSet are
+                   // expected to be available after search
+                   getActiveSets(updateSnippetSetList);
+               },
+               error: function (xhr, status) {
+                   console.log(status);
+                   console.log(xhr.responseText);
+               }
+           });
+}
+
 // Get zip url and send to parseZip
 // todo broken return string
 function getZip() {
@@ -254,10 +291,14 @@ function updateSoundSetList() {
     }
 }
 
-function updateSnippetSetList(setNames) {
-    $("#snippetSets").empty();
+function updateSnippetSetList(setNames, listId) {
+    if (listId === undefined) {
+        listId = "snippetSets";
+    }
 
-    var snippetSelector = document.getElementById("snippetSets");
+    $("#" + listId).empty();
+
+    var snippetSelector = document.getElementById(listId);
     for (var i = 0; i < setNames.length; i++) {
         var option = document.createElement("option");
         var setName = setNames[i];
@@ -266,7 +307,20 @@ function updateSnippetSetList(setNames) {
         option.value = setName;
         snippetSelector.add(option);
     }
+}
 
+function populateSetOpList(legalOps) {
+    $("#setOp").empty();
+
+    var opSelector = document.getElementById("setOp");
+    for (var i = 0; i < legalOps.length; i++) {
+        var option = document.createElement("option");
+        var opName = legalOps[i];
+        console.log(opName);
+        option.text = opName;
+        option.value = opName;
+        opSelector.add(option);
+    }
 }
 
 function updateSnippetSetStats(snippetSet) {
