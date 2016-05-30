@@ -269,7 +269,7 @@ public enum Driver {
 
 
 
-  protected static List<Integer> writeSnippets(Map<SnippetInfo, FileInfo> snippetFileMap) {
+  public static List<Integer> writeSnippets(Map<SnippetInfo, FileInfo> snippetFileMap) {
     List<Integer> listOfSnippetIDs = new ArrayList<>();
 
     for(Map.Entry<SnippetInfo,FileInfo> entry : snippetFileMap.entrySet()) {
@@ -296,13 +296,107 @@ public enum Driver {
 
     insertSnippetsIntoSnippetinfo(snippetFileMap);
 
-    // insertIntoTagInfo(snippetInfo);
+    insertTagsIntoTagInfo(snippetFileMap);
 
-    // insertIntoBrigeTable(snippetInfo);
+    insertRowsIntoBridgeTable(snippetFileMap);
 
-    //  returnInt = snippetInfo.getSnippetID();
-    return null;
+    for(Map.Entry<SnippetInfo,FileInfo> entry : snippetFileMap.entrySet()){
+      listOfSnippetIDs.add(entry.getKey().getSnippetID());
+    }
+    return listOfSnippetIDs;
 
+  }
+
+  private static void insertRowsIntoBridgeTable(Map<SnippetInfo, FileInfo> snippetFileMap) {
+    StringBuilder builder = new StringBuilder();
+    builder.append("INSERT INTO bridgeSnippetTagTable(snippetID,tagID) VALUES");
+    int test = 0;
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+      for (int i = 0; i < entry.getKey().getTagIDs().size(); i++) {
+        builder.append("(?,?),");
+        System.out.println("Hur många gåner körs detta " + test );
+        test++;
+      }
+    }
+
+    builder.deleteCharAt(builder.length() - 1);
+    System.out.println("Längden " + snippetFileMap.size());
+    System.out.println(builder.toString());
+    try {
+      PreparedStatement ps = myConnection.prepareStatement(builder.toString());
+      int j = 1;
+      for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+        for (int i = 0; i < entry.getKey().getTagIDs().size(); i++) {
+          ps.setInt(j, entry.getKey().getSnippetID());
+          ps.setInt(j + 1, entry.getKey().getTagIDs().get(i));
+          System.out.println("snippetID "+entry.getKey().getSnippetID());
+          //TODO börja här i morgon. ett entry har inte fått sitt snippetID 
+          System.out.println(j + " j " + (j +1) );
+          j+= 2;
+        }
+      }
+      ps.executeUpdate();
+      ps.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+
+  private static void insertTagsIntoTagInfo(Map<SnippetInfo, FileInfo> snippetFileMap) {
+    List<Integer> tagIDs = new ArrayList<>();
+    List<SnippetInfo> infoList = new ArrayList<>();
+    Set<String> tagList = new TreeSet<>();
+    StringBuilder builder = new StringBuilder();
+    builder.append("INSERT INTO tagInfo (tagName) VALUES");
+
+    for(Map.Entry<SnippetInfo,FileInfo> entry : snippetFileMap.entrySet()) {
+      infoList.add(entry.getKey());
+    }
+
+    boolean check = false;
+    for (int i = 0; i < infoList.size(); i++) {
+      for (String tag : infoList.get(i).getTagNames()) {
+
+        if (!getAllTagNames().contains(tag)) {
+          tagList.add(tag);
+          builder.append("(?),");
+          check = true;
+        } else {
+          tagIDs.add(getTagID(tag));
+        }
+      }
+    }
+        builder.replace(builder.length()-2, builder.length()-1,"");
+    System.out.println("SQL strängen i tagInfo "+builder.toString());
+       if(check) {
+         try {
+           PreparedStatement ps = myConnection.prepareStatement(builder.toString(), Statement.RETURN_GENERATED_KEYS);
+           int i = 1;
+           for (String tag : tagList) {
+             ps.setString(i, tag);
+             i++;
+           }
+           ps.executeUpdate();
+           ResultSet tableKeys = ps.getGeneratedKeys();
+           int j = 1;
+           while (tableKeys.next()) {
+             tagIDs.add(tableKeys.getInt(j));
+           }
+           ps.close();
+           tableKeys.close();
+         } catch (Exception e) {
+           e.printStackTrace();
+         }
+       }
+
+   for(Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+     List<Integer> tempID = new ArrayList<>();
+     for (String tag : entry.getKey().getTagNames()) {
+       tempID.add(getTagID(tag));
+     }
+     entry.getKey().setTagIDs(tagIDs);
+   }
   }
 
   private static List<Integer> insertSnippetsIntoSnippetinfo(Map<SnippetInfo, FileInfo> snippetFileMap) {
@@ -318,6 +412,7 @@ public enum Driver {
       }
       i++;
     }
+    System.out.println(" SQL utskrift storlek " + snippetFileMap.size()+ "" + builder.toString() );
     try {
       PreparedStatement ps = myConnection.prepareStatement
               (builder.toString(), Statement.RETURN_GENERATED_KEYS);
@@ -332,16 +427,17 @@ public enum Driver {
         ps.setDouble(j+3, entry.getKey().getLengthSec());
         ps.setDate(j+4, date);
         ps.setDate(j+5, date2);
+        System.out.println(entry.getKey().getUserID() + " userid");
         ps.setInt(j+6, entry.getKey().getUserID());
         j+=7;
       }
       ps.executeUpdate();
       ResultSet tableKeys = ps.getGeneratedKeys();
-      int k = 0;
+      int k = 1;
       int mapCount = 0;
-      while (tableKeys.next()) {
+      if (tableKeys.next()) {
         for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
-          if (mapCount == k) {
+          if (mapCount == k-1) {
             snippetIDsList.add(tableKeys.getInt(k));
             entry.getKey().setSnippetID(tableKeys.getInt(k));
             mapCount++;
@@ -366,51 +462,78 @@ public enum Driver {
     firstBuilder.append("INSERT INTO userInfo (userName) VALUES");
     StringBuilder secondBuilder = new StringBuilder();
     secondBuilder.append("SELECT userID FROM userInfo WHERE ");
+    Map<String, Integer> userNameIDMap = new HashMap<>();
+    List<String> trimmedUserNames = new ArrayList<>();
+
+    for(Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+      if(!trimmedUserNames.contains(entry.getKey().getUserName())) {
+        trimmedUserNames.add(entry.getKey().getUserName());
+      }
+    }
+    boolean testBool = false;
+
+    for(Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+     usersInDb.add(entry.getKey().getUserName());
+    }
     for(Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
       if (!userList.contains(entry.getKey().getUserName())) {
         firstBuilder.append("(?)");
+        usersInDb.remove(entry.getKey().getUserName());
+        testBool = true;
       } else {
-        tempSnippetList.add(entry.getKey());
-        if(usersInDb.size()==0) {
-          secondBuilder.append("userName=? ");
-        } else {
-          secondBuilder.append("OR userName=?");
-        }
+       // tempSnippetList.add(entry.getKey());
       }
-    }
-    try {
-      PreparedStatement ps = myConnection.prepareStatement(firstBuilder.toString(), Statement.RETURN_GENERATED_KEYS);
-      int i = 1;
-      for(SnippetInfo si : tempSnippetList) {
-        ps.setString(i, si.getUserName());
-        i++;
-      }
-      ps.executeUpdate();
-      ResultSet tableKeys = ps.getGeneratedKeys();
-      int j = 0;
-      while (tableKeys.next());
-      tempSnippetList.get(j).setUserID(tableKeys.getInt(j));
-      ps.close();
-      tableKeys.close();
-    } catch (Exception e) {
-      e.printStackTrace();
     }
 
-    for(SnippetInfo si : tempSnippetList){
-      snippetFileMap.remove(si);
+    for(String name : trimmedUserNames){
+      secondBuilder.append("userName=? OR ");
     }
+    secondBuilder.replace(secondBuilder.length()-4, secondBuilder.length()-1,"");
+    System.out.println("AQL Utskrift " + testBool + " "  + firstBuilder.toString());
+    if(testBool) {
+      try {
+        PreparedStatement ps = myConnection.prepareStatement(firstBuilder.toString(), Statement.RETURN_GENERATED_KEYS);
+        int i = 1;
+        for (SnippetInfo si : tempSnippetList) {
+          ps.setString(i, si.getUserName());
+          i++;
+        }
+        ps.executeUpdate();
+        ResultSet tableKeys = ps.getGeneratedKeys();
+        int j = 0;
+        while (tableKeys.next()) ;
+        tempSnippetList.get(j).setUserID(tableKeys.getInt(j));
+        ps.close();
+        tableKeys.close();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+
+    System.out.println("SQL sträng "+secondBuilder.toString());
+
     try {
       PreparedStatement ps = myConnection.prepareStatement(secondBuilder.toString());
       int k = 1;
-      for(Map.Entry<SnippetInfo,FileInfo> entry : snippetFileMap.entrySet()) {
-        ps.setString(k, entry.getKey().getUserName());
+      for(String name : trimmedUserNames) {
+        System.out.println("HUr många gåner hämtas userID " + k + " " + name);
+        ps.setString(k, name);
+        k++;
       }
       ResultSet rs = ps.executeQuery();
       int m = 0;
       while (rs.next()) {
-        tempSnippetList.get(m).setUserID(rs.getInt("userID"));
-        m++;
+          userNameIDMap.put(trimmedUserNames.get(m),rs.getInt("userID"));
+          m++;
+        }
+
+      for(Map.Entry<SnippetInfo,FileInfo> entry : snippetFileMap.entrySet()){
+        if(entry.getKey().getUserID()== 0) {
+          entry.getKey().setUserID(userNameIDMap.get(entry.getKey().getUserName()));
+        }
       }
+      System.out.println("userNameIDMa p "+userNameIDMap);
 
       ps.close();
       rs.close();
@@ -528,6 +651,7 @@ public enum Driver {
   protected static void insertFilesIntoFileInfo(Map<SnippetInfo, FileInfo> snippetFileMap) {
     StringBuilder builder = new StringBuilder();
     Map<SnippetInfo, FileInfo> mapToRemove = new HashMap<>();
+    Map<SnippetInfo,FileInfo> tempMap = new HashMap<>();
     builder.append("INSERT INTO fileInfo (file, fileName, fileSizeKb, fileLenSec) VALUES");
     int count = 0;
     for (Map.Entry<SnippetInfo, FileInfo> firstEntry : snippetFileMap.entrySet()) {
@@ -535,25 +659,34 @@ public enum Driver {
         firstEntry.getValue().setFileName("unnamed");
       }
       if (!isFileInDb(firstEntry.getValue())) {
+        System.out.println("HUr många gåner körs detta ");
         builder.append("(?,?,?,?)");
         if (count != snippetFileMap.size() - 1) {
           builder.append(",");
         }
       } else {
+        System.out.println("Hur många gångere körs else ");
         firstEntry.getValue().setFileID(getFileIDFromFileNameSizeLen(firstEntry.getKey().getFileName(),
                 firstEntry.getValue().getFileLenSec(), firstEntry.getValue().getFileSizeKb()));
         mapToRemove.put(firstEntry.getKey(), firstEntry.getValue());
       }
       count++;
     }
-    for (Map.Entry<SnippetInfo, FileInfo> secondEntry : mapToRemove.entrySet()) {
-      snippetFileMap.remove(secondEntry.getKey(), secondEntry.getValue());
-    }
 
-    int i = 1;
+    builder.deleteCharAt(builder.length()-1);
+
+for(Map.Entry<SnippetInfo,FileInfo> entry : snippetFileMap.entrySet()){
+  if(!mapToRemove.containsKey(entry.getKey())){
+    tempMap.put(entry.getKey(),entry.getValue());
+  }
+}
+
+    System.out.println("SQL stat " + builder.toString());
     try {
       PreparedStatement ps = myConnection.prepareStatement(builder.toString(), Statement.RETURN_GENERATED_KEYS);
-      for (Map.Entry<SnippetInfo, FileInfo> thirdEntry : snippetFileMap.entrySet()) {
+      int i = 1;
+      for (Map.Entry<SnippetInfo, FileInfo> thirdEntry : tempMap.entrySet()) {
+        System.out.println("Längde på lista " + tempMap.size());
         ps.setBinaryStream(i, thirdEntry.getValue().getInputStream());
         ps.setString(i + 1, thirdEntry.getValue().getFileName());
         ps.setInt(i + 2, thirdEntry.getValue().getFileSizeKb());
@@ -564,11 +697,15 @@ public enum Driver {
       }
       ps.executeUpdate();
       ResultSet tableKeys = ps.getGeneratedKeys();
-      int j = 0;
-      while (tableKeys.next()) {
-        snippetFileMap.get(j).setFileID(tableKeys.getInt(j));
-        System.out.println(snippetFileMap.get(j).getFileID() + " Det genererade fileID i insertFIlesIntoFileInfo");
-        j++;
+      int j = 1;
+      if (tableKeys.next()) {
+        System.out.println(tempMap.size() + " testar vad som finns ");
+        for(Map.Entry<SnippetInfo,FileInfo> entry : tempMap.entrySet()) {
+          System.out.println(tableKeys.getInt(j));
+          entry.getValue().setFileID(tableKeys.getInt(j));
+          //  System.out.println(tempMap.get(j).getFileID() + " Det genererade fileID i insertFIlesIntoFileInfo");
+       j++;
+        }
       }
       ps.close();
       tableKeys.close();
