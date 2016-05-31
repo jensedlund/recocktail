@@ -69,15 +69,16 @@ public class RestfulService {
     Controller controller = Controller.getInstance();
 
     // Return all tags that exist in database
-    get("/getAllTags", (request, response) -> controller.getCompleteSetOfTagNames(),
-        (src) -> {
-          Gson gson = new Gson();
-          return gson.toJson(src);
-        });
+    get("/getAllTags", (request, response) -> {
+      Set<String> tags = controller.getCompleteSetOfTagNames();
+      System.out.println(tags.toString());
+      Gson gson = new Gson();
+      return gson.toJson(tags);
+    });
 
     // Move generated zip to static file location and return the URL.
     get("/getZipUrl/:name", (request, response) -> {
-      String setName = request.params(":name");
+      String setName = URLDecoder.decode(request.params(":name"), "UTF-8");
       SnippetSet snippetSet = controller.getStoredSet(setName);
 
       new File("src/main/web/tmp").mkdirs();
@@ -179,6 +180,7 @@ public class RestfulService {
       }
     });
 
+
     post("/renameSet", (request, response) -> {
       Map<String, String> reqBodyMap = RestfulHelper.mapFromRequestBody(request);
       Set<String> existingKeys = reqBodyMap.keySet();
@@ -193,6 +195,7 @@ public class RestfulService {
         Gson gson = new Gson();
         return gson.toJson(snippetSet);
       } else {
+        response.status(400);
         return "Could not find snippet to rename, or the new name was not unique.";
       }
     });
@@ -202,8 +205,8 @@ public class RestfulService {
       new File("src/main/web/tmp").mkdirs();
       Gson gson = new Gson();
       XmlStreamer<SnippetSet> xmlStreamer = new XmlStreamer<>();
-
-      SnippetSet snippetSet = gson.fromJson(request.body(), SnippetSet.class);
+      String decodedBody = URLDecoder.decode(request.body(), "UTF-8");
+      SnippetSet snippetSet = gson.fromJson(decodedBody, SnippetSet.class);
       String fileName = "SnippetSet.xml";
       String filePath = "src/main/web/tmp/" + fileName;
       File file = new File(filePath);
@@ -211,23 +214,20 @@ public class RestfulService {
       return gson.toJson(fileName);
     }));
 
-    // Return a list of all sets in StorgaeUnit.
+    // Return a list of all sets in StorageUnit.
     get("/getActiveSets", (request, response) -> {
       List<String> setList = controller.getAllSavedSetsName();
+      System.out.println(setList.toString());
       Gson gson = new Gson();
       return gson.toJson(setList);
     });
 
     // Get a specific set from StorageUnit and return as JSON.
     get("/getSet/:name", (request, response) -> {
-      String setName = request.params(":name");
+      String setName = URLDecoder.decode(request.params(":name"), "UTF-8");
       SnippetSet snippetSet = controller.getStoredSet(setName);
       Gson gson = new Gson();
       return gson.toJson(snippetSet);
     });
-
   }
 }
-
-
-

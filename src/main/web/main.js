@@ -167,7 +167,8 @@ function search() {
 
                    // Update the list since new snippetSet are
                    // expected to be available after search
-                   getActiveSets(updateSnippetSetList);
+                   // getActiveSets(updateSnippetSetList);
+                   populateSetLists();
                },
                error: function (xhr, status) {
                    console.log(status);
@@ -235,6 +236,40 @@ function setOperation() {
                    activeSnippetSet = snippetSet;
                    updateSnippetSetStats(snippetSet);
                    
+                   // Update the list since new snippetSet are
+                   // expected to be available
+                   // getActiveSets(updateSnippetSetList);
+                   populateSetLists();
+               },
+               error: function (xhr, status) {
+                   console.log(status);
+                   console.log(xhr.responseText);
+               }
+           });
+}
+
+// Rename the set in BE and FE...
+function renameSet() {
+    var setNameInput = document.getElementById("setInfoName").value;
+    var postBody = {
+        setName: activeSnippetSet.setName,
+        newSetName: setNameInput,
+    };
+
+    $.ajax({
+               url: serverUrl + "/renameSet",
+               contentType: 'application/json; charset=utf-8',
+               type: 'POST',
+               data: postBody,
+               dataType: 'json',
+               async: true,
+               success: function (data) {
+                   // Result is put into active snippet set
+                   var snippetSet = new SnippetSet();
+                   snippetSet.populateFromJson(data);
+                   activeSnippetSet = snippetSet;
+                   updateSnippetSetStats(snippetSet);
+
                    // Update the list since new snippetSet are
                    // expected to be available
                    // getActiveSets(updateSnippetSetList);
