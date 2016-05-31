@@ -168,14 +168,14 @@ crateSeveralSamples();
       FileInputStream input = new FileInputStream("src/test/resources/clap1.wav");
       byte[] b = spark.utils.IOUtils.toByteArray(input);
       ByteArrayInputStream bInput = new ByteArrayInputStream(b);
-      FileInfo fileInfo = new FileInfo(bInput, "clap1", 498, 0.5);
+      FileInfo fileInfo = new FileInfo(bInput, "test1", 498, 0.5);
       List<String> tagNames = new ArrayList<>();
-      tagNames.add("clap+");
+      tagNames.add(".test-clap+");
       tagNames.add("test1%");
       LocalDate ld1 = LocalDate.now();
       LocalDate ld2 = LocalDate.now();
 
-     SnippetInfo snippetInfo = new SnippetInfo("clap1", tagNames, 0.0, 5.0, 498, ld1, ld2, "Devel1");
+     SnippetInfo snippetInfo = new SnippetInfo("test2", tagNames, 0.0, 5.0, 498, ld1, ld2, "Admin");
       testMap.put(snippetInfo,fileInfo);
     } catch (Exception e){
       e.printStackTrace();

@@ -269,7 +269,7 @@ public enum Driver {
 
   public static List<Integer> writeSnippets(Map<SnippetInfo, FileInfo> snippetFileMap) {
     List<Integer> listOfSnippetIDs = new ArrayList<>();
-
+    Map<SnippetInfo, FileInfo> listToRemove = new HashMap<>();
     for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
 
       String tempFileName = entry.getValue().getFileName();
@@ -277,9 +277,11 @@ public enum Driver {
 
       if (isSnippetADuplicate(entry.getKey(), entry.getValue())) {
         listOfSnippetIDs.add(joinTwoSnippets(entry.getKey(), entry.getValue()));
-        System.out.println(" vad har nu detta för snippetID " + entry.getKey().getSnippetID());
+        listToRemove.put(entry.getKey(), entry.getValue());
+        // System.out.println(" vad har nu detta för snippetID " + entry.getKey().getSnippetID());
       } else if (isCallProtectedAdmin(entry.getKey())) {
         listOfSnippetIDs.add(writeSnippetAsAdmin(entry.getKey(), entry.getValue()));
+        listToRemove.put(entry.getKey(), entry.getValue());
       } else {
         removeProtectedTags(entry.getKey());
         tagsToLowerCase(entry.getKey());
@@ -289,6 +291,17 @@ public enum Driver {
       }
     }
 
+
+    for(Map.Entry<SnippetInfo, FileInfo> entry : listToRemove.entrySet()){
+      for(Map.Entry<SnippetInfo, FileInfo> entry2 : snippetFileMap.entrySet()) {
+       if(entry.getKey().getSnippetID() == entry2.getKey().getSnippetID()){
+         entry2.getKey().setSnippetID(-1);
+         entry2.getValue().setFileID(-1);
+       }
+      }
+    }
+
+    System.out.println(snippetFileMap.size());
     insertFilesIntoFileInfo(snippetFileMap);
 
     insertUsersIntoUserInfo(snippetFileMap);
@@ -305,6 +318,8 @@ public enum Driver {
     return listOfSnippetIDs;
 
   }
+
+
 
   private static void insertRowsIntoBridgeTable(Map<SnippetInfo, FileInfo> snippetFileMap) {
     StringBuilder builder = new StringBuilder();
@@ -636,6 +651,9 @@ public enum Driver {
     builder.append("INSERT INTO fileInfo (file, fileName, fileSizeKb, fileLenSec) VALUES");
     int count = 0;
     for (Map.Entry<SnippetInfo, FileInfo> firstEntry : snippetFileMap.entrySet()) {
+      if(firstEntry.getValue().getFileID()== -1){
+        break;
+      }
       if (firstEntry.getValue().getFileName().length() < 1) {
         firstEntry.getValue().setFileName("unnamed");
       }
@@ -658,9 +676,12 @@ public enum Driver {
 
 for(Map.Entry<SnippetInfo,FileInfo> entry : snippetFileMap.entrySet()){
   if(!mapToRemove.containsKey(entry.getKey())){
+    System.out.println("Vad är detta ");
     tempMap.put(entry.getKey(),entry.getValue());
   }
 }
+    //TODO börja här, de snippets som inet ska vidare i anropen har id -1
+    System.out.println(tempMap.size() + "Storleken på tempMap");
 
     System.out.println("SQL stat " + builder.toString());
     try {
