@@ -22,7 +22,6 @@ public enum Driver {
   private static String _adminUserName;
 
 
-
   static {
     _adminUserName = "Admin";
   }
@@ -104,7 +103,7 @@ public enum Driver {
   //This overloaded method inserts one snippet to the database and is used when the file connected to the snippet
   // is already in the database and the fileID is known.
   protected static int writeSnippet(SnippetInfo snippetInfo, int fileID) {
-    if(!isFileInUse(fileID)){
+    if (!isFileInUse(fileID)) {
       return -1;
     }
     int returnInt = 0;
@@ -268,17 +267,17 @@ public enum Driver {
   }
 
 
-
   public static List<Integer> writeSnippets(Map<SnippetInfo, FileInfo> snippetFileMap) {
     List<Integer> listOfSnippetIDs = new ArrayList<>();
 
-    for(Map.Entry<SnippetInfo,FileInfo> entry : snippetFileMap.entrySet()) {
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
 
       String tempFileName = entry.getValue().getFileName();
       entry.getValue().setFileName(utf8Decode(tempFileName));
 
       if (isSnippetADuplicate(entry.getKey(), entry.getValue())) {
         listOfSnippetIDs.add(joinTwoSnippets(entry.getKey(), entry.getValue()));
+        System.out.println(" vad har nu detta för snippetID " + entry.getKey().getSnippetID());
       } else if (isCallProtectedAdmin(entry.getKey())) {
         listOfSnippetIDs.add(writeSnippetAsAdmin(entry.getKey(), entry.getValue()));
       } else {
@@ -300,7 +299,7 @@ public enum Driver {
 
     insertRowsIntoBridgeTable(snippetFileMap);
 
-    for(Map.Entry<SnippetInfo,FileInfo> entry : snippetFileMap.entrySet()){
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
       listOfSnippetIDs.add(entry.getKey().getSnippetID());
     }
     return listOfSnippetIDs;
@@ -314,14 +313,12 @@ public enum Driver {
     for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
       for (int i = 0; i < entry.getKey().getTagIDs().size(); i++) {
         builder.append("(?,?),");
-        System.out.println("Hur många gåner körs detta " + test );
         test++;
       }
     }
-
-    builder.deleteCharAt(builder.length() - 1);
-    System.out.println("Längden " + snippetFileMap.size());
-    System.out.println(builder.toString());
+    if (builder.charAt(builder.length() - 1) == ',') {
+      builder.deleteCharAt(builder.length() - 1);
+    }
     try {
       PreparedStatement ps = myConnection.prepareStatement(builder.toString());
       int j = 1;
@@ -329,10 +326,8 @@ public enum Driver {
         for (int i = 0; i < entry.getKey().getTagIDs().size(); i++) {
           ps.setInt(j, entry.getKey().getSnippetID());
           ps.setInt(j + 1, entry.getKey().getTagIDs().get(i));
-          System.out.println("snippetID "+entry.getKey().getSnippetID());
-          //TODO börja här i morgon. ett entry har inte fått sitt snippetID 
-          System.out.println(j + " j " + (j +1) );
-          j+= 2;
+          System.out.println(j + " j " + (j + 1));
+          j += 2;
         }
       }
       ps.executeUpdate();
@@ -350,7 +345,7 @@ public enum Driver {
     StringBuilder builder = new StringBuilder();
     builder.append("INSERT INTO tagInfo (tagName) VALUES");
 
-    for(Map.Entry<SnippetInfo,FileInfo> entry : snippetFileMap.entrySet()) {
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
       infoList.add(entry.getKey());
     }
 
@@ -367,36 +362,37 @@ public enum Driver {
         }
       }
     }
-        builder.replace(builder.length()-2, builder.length()-1,"");
-    System.out.println("SQL strängen i tagInfo "+builder.toString());
-       if(check) {
-         try {
-           PreparedStatement ps = myConnection.prepareStatement(builder.toString(), Statement.RETURN_GENERATED_KEYS);
-           int i = 1;
-           for (String tag : tagList) {
-             ps.setString(i, tag);
-             i++;
-           }
-           ps.executeUpdate();
-           ResultSet tableKeys = ps.getGeneratedKeys();
-           int j = 1;
-           while (tableKeys.next()) {
-             tagIDs.add(tableKeys.getInt(j));
-           }
-           ps.close();
-           tableKeys.close();
-         } catch (Exception e) {
-           e.printStackTrace();
-         }
-       }
+    while (builder.charAt(builder.length() - 1) != ')') {
+      builder.deleteCharAt(builder.length() - 1);
+    }
+    if (check) {
+      try {
+        PreparedStatement ps = myConnection.prepareStatement(builder.toString(), Statement.RETURN_GENERATED_KEYS);
+        int i = 1;
+        for (String tag : tagList) {
+          ps.setString(i, tag);
+          i++;
+        }
+        ps.executeUpdate();
+        ResultSet tableKeys = ps.getGeneratedKeys();
+        int j = 1;
+        while (tableKeys.next()) {
+          tagIDs.add(tableKeys.getInt(j));
+        }
+        ps.close();
+        tableKeys.close();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
 
-   for(Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
-     List<Integer> tempID = new ArrayList<>();
-     for (String tag : entry.getKey().getTagNames()) {
-       tempID.add(getTagID(tag));
-     }
-     entry.getKey().setTagIDs(tagIDs);
-   }
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+      List<Integer> tempID = new ArrayList<>();
+      for (String tag : entry.getKey().getTagNames()) {
+        tempID.add(getTagID(tag));
+      }
+      entry.getKey().setTagIDs(tagIDs);
+    }
   }
 
   private static List<Integer> insertSnippetsIntoSnippetinfo(Map<SnippetInfo, FileInfo> snippetFileMap) {
@@ -404,47 +400,42 @@ public enum Driver {
     StringBuilder builder = new StringBuilder();
     builder.append("INSERT INTO snippetInfo (fileID,sizeKb,startTime,lenSec,creationDate,lastModifiedDate,userID) VALUES");
     int i = 0;
-    for(Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
       removeProtectedTags(entry.getKey());
       builder.append("(?,?,?,?,?,?,?)");
-      if(i!= snippetFileMap.size()-1){
+      if (i != snippetFileMap.size() - 1) {
         builder.append(",");
       }
       i++;
     }
-    System.out.println(" SQL utskrift storlek " + snippetFileMap.size()+ "" + builder.toString() );
     try {
       PreparedStatement ps = myConnection.prepareStatement
               (builder.toString(), Statement.RETURN_GENERATED_KEYS);
       int j = 1;
-      for(Map.Entry<SnippetInfo,FileInfo> entry : snippetFileMap.entrySet()) {
+      for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
         java.sql.Date date = java.sql.Date.valueOf(entry.getKey().getCreationDate());
         java.sql.Date date2 = java.sql.Date.valueOf(entry.getKey().getLastModified());
 
         ps.setInt(j, entry.getValue().getFileID());
         ps.setInt(j + 1, entry.getKey().getKbSize());
-        ps.setDouble(j+2, entry.getKey().getStartTime());
-        ps.setDouble(j+3, entry.getKey().getLengthSec());
-        ps.setDate(j+4, date);
-        ps.setDate(j+5, date2);
-        System.out.println(entry.getKey().getUserID() + " userid");
-        ps.setInt(j+6, entry.getKey().getUserID());
-        j+=7;
+        ps.setDouble(j + 2, entry.getKey().getStartTime());
+        ps.setDouble(j + 3, entry.getKey().getLengthSec());
+        ps.setDate(j + 4, date);
+        ps.setDate(j + 5, date2);
+        ps.setInt(j + 6, entry.getKey().getUserID());
+        j += 7;
       }
       ps.executeUpdate();
       ResultSet tableKeys = ps.getGeneratedKeys();
-      int k = 1;
-      int mapCount = 0;
-      if (tableKeys.next()) {
-        for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
-          if (mapCount == k-1) {
-            snippetIDsList.add(tableKeys.getInt(k));
-            entry.getKey().setSnippetID(tableKeys.getInt(k));
-            mapCount++;
-          }
-        }
+      while (tableKeys.next()) {
+        snippetIDsList.add(tableKeys.getInt(1));
+      }
+      int k = 0;
+      for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+        entry.getKey().setSnippetID(snippetIDsList.get(k));
         k++;
       }
+
       ps.close();
       tableKeys.close();
     } catch (Exception ex) {
@@ -465,32 +456,29 @@ public enum Driver {
     Map<String, Integer> userNameIDMap = new HashMap<>();
     List<String> trimmedUserNames = new ArrayList<>();
 
-    for(Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
-      if(!trimmedUserNames.contains(entry.getKey().getUserName())) {
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+      if (!trimmedUserNames.contains(entry.getKey().getUserName())) {
         trimmedUserNames.add(entry.getKey().getUserName());
       }
     }
     boolean testBool = false;
 
-    for(Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
-     usersInDb.add(entry.getKey().getUserName());
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+      usersInDb.add(entry.getKey().getUserName());
     }
-    for(Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
       if (!userList.contains(entry.getKey().getUserName())) {
         firstBuilder.append("(?)");
         usersInDb.remove(entry.getKey().getUserName());
         testBool = true;
-      } else {
-       // tempSnippetList.add(entry.getKey());
       }
     }
 
-    for(String name : trimmedUserNames){
+    for (String name : trimmedUserNames) {
       secondBuilder.append("userName=? OR ");
     }
-    secondBuilder.replace(secondBuilder.length()-4, secondBuilder.length()-1,"");
-    System.out.println("AQL Utskrift " + testBool + " "  + firstBuilder.toString());
-    if(testBool) {
+    secondBuilder.replace(secondBuilder.length() - 4, secondBuilder.length() - 1, "");
+    if (testBool) {
       try {
         PreparedStatement ps = myConnection.prepareStatement(firstBuilder.toString(), Statement.RETURN_GENERATED_KEYS);
         int i = 1;
@@ -510,30 +498,25 @@ public enum Driver {
       }
     }
 
-
-    System.out.println("SQL sträng "+secondBuilder.toString());
-
     try {
       PreparedStatement ps = myConnection.prepareStatement(secondBuilder.toString());
       int k = 1;
-      for(String name : trimmedUserNames) {
-        System.out.println("HUr många gåner hämtas userID " + k + " " + name);
+      for (String name : trimmedUserNames) {
         ps.setString(k, name);
         k++;
       }
       ResultSet rs = ps.executeQuery();
       int m = 0;
       while (rs.next()) {
-          userNameIDMap.put(trimmedUserNames.get(m),rs.getInt("userID"));
-          m++;
-        }
+        userNameIDMap.put(trimmedUserNames.get(m), rs.getInt("userID"));
+        m++;
+      }
 
-      for(Map.Entry<SnippetInfo,FileInfo> entry : snippetFileMap.entrySet()){
-        if(entry.getKey().getUserID()== 0) {
+      for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+        if (entry.getKey().getUserID() == 0) {
           entry.getKey().setUserID(userNameIDMap.get(entry.getKey().getUserName()));
         }
       }
-      System.out.println("userNameIDMa p "+userNameIDMap);
 
       ps.close();
       rs.close();
@@ -541,9 +524,7 @@ public enum Driver {
       e.printStackTrace();
     }
   }
-
-
-
+  
 
   //Overloaded method is called when a snippet is a duplicate. This method is joining the two lists of tags and
   //is calling writeSnippet with single, indirect recursion
@@ -659,13 +640,11 @@ public enum Driver {
         firstEntry.getValue().setFileName("unnamed");
       }
       if (!isFileInDb(firstEntry.getValue())) {
-        System.out.println("HUr många gåner körs detta ");
         builder.append("(?,?,?,?)");
         if (count != snippetFileMap.size() - 1) {
           builder.append(",");
         }
       } else {
-        System.out.println("Hur många gångere körs else ");
         firstEntry.getValue().setFileID(getFileIDFromFileNameSizeLen(firstEntry.getKey().getFileName(),
                 firstEntry.getValue().getFileLenSec(), firstEntry.getValue().getFileSizeKb()));
         mapToRemove.put(firstEntry.getKey(), firstEntry.getValue());
@@ -673,7 +652,9 @@ public enum Driver {
       count++;
     }
 
-    builder.deleteCharAt(builder.length()-1);
+    if(builder.charAt(builder.length()-1)== ',') {
+      builder.deleteCharAt(builder.length() - 1);
+    }
 
 for(Map.Entry<SnippetInfo,FileInfo> entry : snippetFileMap.entrySet()){
   if(!mapToRemove.containsKey(entry.getKey())){
@@ -686,25 +667,20 @@ for(Map.Entry<SnippetInfo,FileInfo> entry : snippetFileMap.entrySet()){
       PreparedStatement ps = myConnection.prepareStatement(builder.toString(), Statement.RETURN_GENERATED_KEYS);
       int i = 1;
       for (Map.Entry<SnippetInfo, FileInfo> thirdEntry : tempMap.entrySet()) {
-        System.out.println("Längde på lista " + tempMap.size());
         ps.setBinaryStream(i, thirdEntry.getValue().getInputStream());
         ps.setString(i + 1, thirdEntry.getValue().getFileName());
         ps.setInt(i + 2, thirdEntry.getValue().getFileSizeKb());
         ps.setDouble(i + 3, thirdEntry.getValue().getFileLenSec());
         i += 4;
-        System.out.println("i i insertFIles " + i);
         thirdEntry.getValue().getInputStream().close();
       }
       ps.executeUpdate();
       ResultSet tableKeys = ps.getGeneratedKeys();
-      int j = 1;
+
       if (tableKeys.next()) {
-        System.out.println(tempMap.size() + " testar vad som finns ");
         for(Map.Entry<SnippetInfo,FileInfo> entry : tempMap.entrySet()) {
-          System.out.println(tableKeys.getInt(j));
-          entry.getValue().setFileID(tableKeys.getInt(j));
+          entry.getValue().setFileID(tableKeys.getInt(1));
           //  System.out.println(tempMap.get(j).getFileID() + " Det genererade fileID i insertFIlesIntoFileInfo");
-       j++;
         }
       }
       ps.close();
