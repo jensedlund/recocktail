@@ -54,6 +54,7 @@ public class ArchiveHandler {
   /**
    * creates a zip and populate it with snippets from the database.
    * Files are trimmed if needed before added to the archive.
+   *
    * @param set SnippetSet to prepare
    * @return path to zip-archive
    */
@@ -90,7 +91,6 @@ public class ArchiveHandler {
     //here the process of working thru the snippetset to collect clips and populating the archive.
     //trying to optimize it trying to avoid loading source files multiple times.
     for (SnippetInfo snippet : sortSetByFileID(set)) {
-
 
       if (fs != null) {
         //check if method needs to load a new clip from DB or not.
@@ -288,47 +288,55 @@ public class ArchiveHandler {
 
         try {
           byte[] bArray = Files.readAllBytes(sourceFilePath);
-          ByteArrayInputStream bis = new ByteArrayInputStream(bArray);
-          snippet.setFileName(trimFileName(fileName));
 
-          FileInfo
-              fileInfo =
-              new FileInfo(bis, trimFileName(fileName), bArray.length / 1024,
-                           getSnippetLength(bArray));
-
-          //check for which approach needed for current snippet
-          //uploaded snippetsID's are then stored inside an array used to build a snippetSet
-          //that is sent as return as validation of added files.
-
-          //if snippet is already in database (it already has a snippetID) and only needs to be updated:
-          if (snippet.getSnippetID() > 0) {
-            fileInfo.setFileName(dbAdapter.getFileNameFromSnippetId(snippet.getSnippetID()));
-            snippet.setFileName(dbAdapter.getFileNameFromSnippetId(snippet.getSnippetID()));
-            System.out.println("edited file being updated in the database (" + dbAdapter
-                .getFileNameFromSnippetId(snippet.getSnippetID()) + ")");
-            dbAdapter.editSnippet(snippet, fileInfo, snippet.getSnippetID());
-            snippetIDs.add(snippet.getSnippetID());
+          if (getSnippetLength(bArray) <= 0) {
+            System.out.println("invalid file....");
+            System.out.println("skipping this to avoid fubar.");
           } else {
 
-            //compares current file with last file to check if its a new file or not.
-            // if (snippet's) source audio clip is the same as the last one, only snippetdata uploaded.
-            if (fileName.equals(lastFileName)) {
-              System.out.println(
-                  "----same source file as last snippet. not uploading clip again (" + fileName + ").");
-              snippetIDs.add(dbAdapter.writeSnippet(snippet, lastFileID));
-              System.out.println("lastFileID: " + lastFileID);
+            ByteArrayInputStream bis = new ByteArrayInputStream(bArray);
+            snippet.setFileName(trimFileName(fileName));
 
-              //if (snippet's) is considered NEW and attempts to upload to the DB along with snippet data.
-              //lastFileId is set to identify the sourceFile with the corresponding file inside the DB.
+            FileInfo
+                fileInfo =
+                new FileInfo(bis, trimFileName(fileName), bArray.length / 1024,
+                             getSnippetLength(bArray));
+
+            //check for which approach needed for current snippet
+            //uploaded snippetsID's are then stored inside an array used to build a snippetSet
+            //that is sent as return as validation of added files.
+
+            //if snippet is already in database (it already has a snippetID) and only needs to be updated:
+            if (snippet.getSnippetID() > 0) {
+              fileInfo.setFileName(dbAdapter.getFileNameFromSnippetId(snippet.getSnippetID()));
+              snippet.setFileName(dbAdapter.getFileNameFromSnippetId(snippet.getSnippetID()));
+              System.out.println("edited file being updated in the database (" + dbAdapter
+                  .getFileNameFromSnippetId(snippet.getSnippetID()) + ")");
+              dbAdapter.editSnippet(snippet, fileInfo, snippet.getSnippetID());
+              snippetIDs.add(snippet.getSnippetID());
             } else {
-              System.out.println("new file, uploading clip to database! (" + fileName + ")");
-              int tempSnippetID = dbAdapter.writeSnippet(fileInfo, snippet);
-              snippetIDs.add(tempSnippetID);
-              lastFileID = dbAdapter.getFileIdFromSnippetId(tempSnippetID);
-              lastFileName = fileName;
+
+              //compares current file with last file to check if its a new file or not.
+              // if (snippet's) source audio clip is the same as the last one, only snippetdata uploaded.
+              if (fileName.equals(lastFileName)) {
+                System.out.println(
+                    "----same source file as last snippet. not uploading clip again (" + fileName
+                    + ").");
+                snippetIDs.add(dbAdapter.writeSnippet(snippet, lastFileID));
+                System.out.println("lastFileID: " + lastFileID);
+
+                //if (snippet's) is considered NEW and attempts to upload to the DB along with snippet data.
+                //lastFileId is set to identify the sourceFile with the corresponding file inside the DB.
+              } else {
+                System.out.println("new file, uploading clip to database! (" + fileName + ")");
+                int tempSnippetID = dbAdapter.writeSnippet(fileInfo, snippet);
+                snippetIDs.add(tempSnippetID);
+                lastFileID = dbAdapter.getFileIdFromSnippetId(tempSnippetID);
+                lastFileName = fileName;
+              }
             }
+            bis.close();
           }
-          bis.close();
         } catch (IOException e) {
           e.printStackTrace();
           try {
@@ -348,11 +356,13 @@ public class ArchiveHandler {
       e.printStackTrace();
     }
     removeDirectory(tempDir);
+    System.out.println("snippetset: " + snippetSet);
     return snippetSet;
   }
 
   /**
    * remove files and delete directory
+   *
    * @param dir directory to delete.
    */
   private static void removeDirectory(File dir) {
@@ -371,6 +381,7 @@ public class ArchiveHandler {
 
   /**
    * get length of snippet (in secs)
+   *
    * @param snippet snippet to check
    * @return length of snippet
    */
@@ -386,13 +397,14 @@ public class ArchiveHandler {
       output = (audioFileLength + 0.0) / format.getFrameRate();
     } catch (UnsupportedAudioFileException | IOException e) {
       e.printStackTrace();
+      return -1;
     }
     try {
       bis.close();
-      assert ais != null;
       ais.close();
     } catch (IOException e) {
       e.printStackTrace();
+      return -1;
     }
     output = Math.round(output * 10000.0) / 10000.0; //4 decimals
     return output;
@@ -401,9 +413,9 @@ public class ArchiveHandler {
   /**
    * compare extension of file to determine if its a video file using the file vidcodecs.txt
    * inside /resources
+   *
    * @param extension file extension
    * @return bool
-   * @throws IOException
    */
   private static boolean vidCodec(String extension) throws IOException {
     BufferedReader in = new BufferedReader(new FileReader("./src/main/resources/vidcodecs.txt"));
@@ -426,7 +438,6 @@ public class ArchiveHandler {
    *
    * @param extension file extension
    * @return bool
-   * @throws IOException
    */
   private static boolean soundCodec(String extension) throws IOException {
     BufferedReader in = new BufferedReader(new FileReader("./src/main/resources/soundcodecs.txt"));
@@ -445,6 +456,7 @@ public class ArchiveHandler {
 
   /**
    * Collect/Fetch a snippetSet from an xmlFile
+   *
    * @param xmlFile compatible xml file
    * @return SnippetSet
    */
@@ -461,8 +473,9 @@ public class ArchiveHandler {
 
   /**
    * Returns a File from a ByteArray (from database)
+   *
    * @param byteIn audio data as byteArray
-   * @param path location of output file.
+   * @param path   location of output file.
    * @return clip as File
    */
   private static File byteArrayToFile(byte[] byteIn, String path) {
@@ -494,6 +507,7 @@ public class ArchiveHandler {
   /**
    * Sorts a SnippetSet according to FileID.
    * Used by zip to ensure files aren't loaded multiple times from database.
+   *
    * @param set SnippetSet to sort
    * @return An ArrayList of SnippetInfo's.
    */
@@ -521,6 +535,7 @@ public class ArchiveHandler {
 
   /**
    * Delete a File (zip) when delivery to frontend is complete.
+   *
    * @param setName path to zipFile.
    * @return bool
    */
@@ -541,6 +556,7 @@ public class ArchiveHandler {
 
   /**
    * Collect/fetch all snippets related to a single file.
+   *
    * @param fileID ID of file to fetch
    * @return SnippetSet of all related snippets attached to file.
    */
@@ -550,6 +566,7 @@ public class ArchiveHandler {
 
   /**
    * Get file extension from filename
+   *
    * @param fileName Filename to trim
    * @return Extension as String
    */
@@ -564,6 +581,7 @@ public class ArchiveHandler {
 
   /**
    * Trims the Filename of any extensions, used by unzip to deliver clean names to DB.
+   *
    * @param fileName Filename to trim
    * @return Filename as String
    */
