@@ -40,11 +40,12 @@ public class Controller implements ControllerInterface {
   private DbAdapter dbAdapter;
   private ArchiveHandler archiveHandler;
   private static Controller controller;
-
+  private static String storageCacheName = "SnippetStorage";
 
   private Controller() {
     dbAdapter = new DbAdapterImpl();
     archiveHandler = new ArchiveHandler();
+//    retrieveCachedSnippetStorage(storageCacheName);
   }
 
   public static Controller getInstance() {
@@ -57,8 +58,19 @@ public class Controller implements ControllerInterface {
   }
 
   @Override
+  public void cacheSnippetStorage(String cacheId) {
+    SnippetStorageImpl.getInstance().storeContext(cacheId);
+  }
+
+  @Override
+  public void retrieveCachedSnippetStorage(String cacheId) {
+    SnippetStorageImpl.getInstance().restoreContext(cacheId);
+  }
+
+  @Override
   public void storeSet(SnippetSet snippetSet) {
     SnippetStorageImpl.getInstance().addSet(snippetSet);
+//    cacheSnippetStorage(storageCacheName);
   }
 
   @Override
@@ -165,6 +177,11 @@ public class Controller implements ControllerInterface {
     Set<String> tagSet = new HashSet<>();
     tagSet.addAll(dbAdapter.getAllTags());
     return tagSet;
+  }
+
+  @Override
+  public List<String> getAllUserNames() {
+    return dbAdapter.getAllUsers();
   }
 
   @Override

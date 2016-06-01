@@ -71,7 +71,13 @@ public class RestfulService {
     // Return all tags that exist in database
     get("/getAllTags", (request, response) -> {
       Set<String> tags = controller.getCompleteSetOfTagNames();
-      System.out.println(tags.toString());
+      Gson gson = new Gson();
+      return gson.toJson(tags);
+    });
+
+    // Return all users that exist in database
+    get("/getAllUsers", (request, response) -> {
+      List<String> tags = controller.getAllUserNames();
       Gson gson = new Gson();
       return gson.toJson(tags);
     });
@@ -216,7 +222,6 @@ public class RestfulService {
     // Return a list of all sets in StorageUnit.
     get("/getActiveSets", (request, response) -> {
       List<String> setList = controller.getAllSavedSetsName();
-      System.out.println(setList.toString());
       Gson gson = new Gson();
       return gson.toJson(setList);
     });

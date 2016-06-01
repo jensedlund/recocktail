@@ -31,6 +31,21 @@ import cocktail.snippet.SnippetSet;
  * This interface functions as a spider in the web.
  */
 public interface ControllerInterface {
+
+  /**
+   * Method caches the content of the snippet storage
+   *
+   * @param cacheId file name.
+   */
+  void cacheSnippetStorage(String cacheId);
+
+  /**
+   * Method retrieves cached snippet storage.
+   *
+   * @param cacheId file name.
+   */
+  void retrieveCachedSnippetStorage(String cacheId);
+
   /**
    * Method stores one SnippetSet object in SnippetStorage
    *
@@ -203,6 +218,13 @@ public interface ControllerInterface {
    * @return list of Strings
    */
   List<String> getAllSavedSetsName();
+
+  /**
+   * Returns a list of all user names in database.
+   *
+   * @return list of Strings
+   */
+  List<String> getAllUserNames();
 
   /**
    * Method deletes saved sets, the sets are specified by the list of names that is passed as argument.

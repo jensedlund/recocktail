@@ -19,11 +19,11 @@
 
 package cocktail.db_access;
 
+import java.util.List;
+
 import cocktail.snippet.FileInfo;
 import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
-
-import java.util.List;
 
 /**
  * Class that provide the program with information from database and uploads information to the database.
@@ -134,6 +134,12 @@ public interface DbAdapter {
    * @return List<String> list of tags
    */
   List<String> getAllTags();
+
+  /**
+   * Returns a list of all users in the database
+   * @return List<String> list of users
+   */
+  List<String> getAllUsers();
 
   /**
    * Returns the number of times one specific tag is occurring in the database.

@@ -96,6 +96,18 @@ function getAllTags(callback) {
     xhttp.open("GET", serverUrl + "/getAllTags", true);
     xhttp.send();
 }
+// Get all tags from database. Send respons to callback.
+function getAllUsers(callback) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function(){
+        if(xhttp.readyState == 4 && xhttp.status == 200) {
+            // callback(xhttp.response);
+            console.log(xhttp.response)
+        }
+    };
+    xhttp.open("GET", serverUrl + "/getAllUsers", true);
+    xhttp.send();
+}
 
 // Get all sets from StorageUnit in backend. Send response to callback.
 function getActiveSets(callback,cbArg) {
