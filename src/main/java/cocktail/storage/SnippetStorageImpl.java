@@ -20,6 +20,11 @@
 package cocktail.storage;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -35,9 +40,10 @@ import cocktail.snippet.SnippetSet;
  * created sets that all can be retrieved.
  */
 public class SnippetStorageImpl implements SnippetStorage {
+
   private LinkedList<SnippetSet> workingSets;
   private Map<String, File> savedSets;
-  private  static SnippetSet latestSet;
+  private static SnippetSet latestSet;
   private static SnippetStorageImpl instance;
   private static Set<String> setNames;
 
@@ -50,8 +56,8 @@ public class SnippetStorageImpl implements SnippetStorage {
     savedSets = new HashMap<>();
   }
 
-  public static SnippetStorageImpl getInstance(){
-    if(instance == null){
+  public static SnippetStorageImpl getInstance() {
+    if (instance == null) {
       instance = new SnippetStorageImpl();
       return instance;
     } else {
@@ -69,7 +75,7 @@ public class SnippetStorageImpl implements SnippetStorage {
     boolean returnBool = false;
     latestSet = snippetSet;
     workingSets.addFirst(snippetSet);
-    if(setNames.contains(snippetSet.getSetName())) {
+    if (setNames.contains(snippetSet.getSetName())) {
       return returnBool;
     } else {
       setNames.add(snippetSet.getSetName());
@@ -78,10 +84,47 @@ public class SnippetStorageImpl implements SnippetStorage {
     }
   }
 
+  /**
+   *
+   * @param snippetSetName Name of set to remove.
+   * @return True if a set was removed. Otherwise false.
+   */
+  @Override
+  public boolean removeSet(String snippetSetName) {
+    if(setNames.contains(snippetSetName)) {
+      setNames.remove(snippetSetName);
+      SnippetSet snippetSet = getSet(snippetSetName);
+      workingSets.remove(snippetSet);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Rename a set without changing it.
+   *
+   * @param oldSetName
+   * @param newSetName
+   * @return
+   */
+  @Override
+  public SnippetSet renameSet(String oldSetName, String newSetName) {
+
+    if(setNames.contains(oldSetName) && !setNames.contains(newSetName)) {
+      SnippetSet snippetSet = getSet(oldSetName);
+      snippetSet.setSetName(newSetName);
+      setNames.remove(oldSetName);
+      setNames.add(newSetName);
+      return snippetSet;
+    } else {
+      return null;
+    }
+  }
+
   @Override
   public Set<String> getAllSetNames() {
     return setNames;
-
   }
 
   @Override
@@ -102,31 +145,70 @@ public class SnippetStorageImpl implements SnippetStorage {
   @Override
   public SnippetSet getSet(String setName) {
 
-    for(SnippetSet snippetSet : workingSets){
-     if(snippetSet.getSetName().equals(setName)){
+    for (SnippetSet snippetSet : workingSets) {
+      if (snippetSet.getSetName().equals(setName)) {
         return snippetSet;
       }
     }
     return null;
-   // return (SnippetSet) workingSets.stream().filter(a -> a.getSetName().equals(setName));
+    // return (SnippetSet) workingSets.stream().filter(a -> a.getSetName().equals(setName));
   }
 
   @Override
-  public void restoreContext(String setName) {
-    //TODO impalementera att spara kontext
-    System.out.println("Will load your working set " + setName + " from file...");
+  public boolean restoreContext(String id) {
+    String dirName = "./src/main/resources/sets/";
+    File storageArea = new File(dirName);
+    if (!storageArea.exists()) {
+      storageArea.mkdir();
+    }
+    try {
+      System.out.println("Will load your working set " + id + " from file...");
+      ObjectInputStream
+          oi =
+          new ObjectInputStream(new FileInputStream(dirName + "/" + id + ".sav"));
+      Object snippetSetsIn = oi.readObject();
+      workingSets = (LinkedList<SnippetSet>) snippetSetsIn;
+      oi.close();
+    } catch (Exception exc) {
+      exc.printStackTrace();
+      return false;
+    }
+    return true;
   }
 
   @Override
-  public void storeContext(String id) {
-    System.out.println("Saving your working set.");
-  }
+  public boolean storeContext(String id) {
+    String dirName = "./src/main/resources/sets/";
+    File storageArea = new File(dirName);
+    if (!storageArea.exists()) {
+      storageArea.mkdir();
+    }
 
+    try {
+      ObjectOutputStream
+          oos =
+          new ObjectOutputStream(new FileOutputStream(dirName + "/" + id + ".sav"));
+      try {
+        oos.writeObject(workingSets);
+        System.out.println("Saving your working set.");
+      } catch (IOException e) {
+        e.printStackTrace();
+        return false;
+      }
+      oos.close();
+    } catch (IOException ioe) {
+      ioe.printStackTrace();
+      return false;
+    }
+    //    File outPutFile = new File(dirName + "/" + id + ".sav");
+
+//    XmlStreamer<LinkedList<SnippetSet>> xmlStreamer = new XmlStreamer<>();
+//    xmlStreamer.toStream(workingSets.getClass(), workingSets, outPutFile);
+    return true;
+  }
 
   @Override
   public void setLogNote(String log, SnippetSet snippetSet) {
     snippetSet.getOperationLog().add(log);
   }
-
-
 }

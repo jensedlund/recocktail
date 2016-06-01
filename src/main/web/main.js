@@ -27,6 +27,7 @@ var context;
 var activeSnippetSet = new SnippetSet();
 var newSnippetSet = new SnippetSet();
 var loadedSoundSets = [];
+var runningSoundSets = [];
 
 window.onload = init;
 
@@ -35,35 +36,53 @@ function init() {
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     context = new AudioContext();
 
-    // Get active sets from storge unit i backend
-    getActiveSets(updateSnippetSetList);
-
-    // get all tags from database to use in autocomplete
+    // Get active sets from storge unit in backend
+    // getActiveSets(updateSnippetSetList, "setA");
+    // getActiveSets(updateSnippetSetList, "setB");
+    // getActiveSets(updateSnippetSetList, "snippetSets");
+    populateSetLists();
+    populateSetOpList(["Union","Intersect","Complement","illegal"]);
+    // Get all tags from database to use in autocomplete
     getAllTags(populateAllTagsList);
     rangeSlider();
 }
 
-// Collect sound parameters for playback.
-function collectSoundParams(soundSet) {
-    soundSet.gain = parseFloat(document.getElementById("gain").value);
-    soundSet.gainVar = parseFloat(document.getElementById("gainVar").value);
-    soundSet.balance = parseFloat(document.getElementById("balance").value);
-    soundSet.delay = document.getElementById("delay").value;
-    soundSet.delayVar = document.getElementById("delayVar").value;
-
+function populateSetLists() {
+    getActiveSets(updateSnippetSetList, "setA");
+    getActiveSets(updateSnippetSetList, "setB");
+    getActiveSets(updateSnippetSetList, "snippetSets");
 }
 
-// Kick of selected soundSet
+// Collect sound parameters for playback if and only if the provided set
+// is selected in drop down.
+function collectSoundParams(soundSet) {
+    var selectedIndex = document.getElementById("soundSets").selectedIndex;
+    if (soundSet == loadedSoundSets[selectedIndex]) {
+        soundSet.gain = parseFloat(document.getElementById("gain").value);
+        soundSet.gainVar = parseFloat(document.getElementById("gainVar").value);
+        soundSet.balance = parseFloat(document.getElementById("balance").value);
+        soundSet.delay = document.getElementById("delay").value;
+        soundSet.delayVar = document.getElementById("delayVar").value;
+    }
+}
+
+// Kick off selected soundSet
 function startSound() {
-    var selected = document.getElementById("soundSets").selectedIndex;
+    var selectedIndex = document.getElementById("soundSets").selectedIndex;
     var weighted = document.getElementById("weighted").checked;
-    loadedSoundSets[selected].startPlaback(weighted,collectSoundParams);
+    var selectedSet = loadedSoundSets[selectedIndex];
+    selectedSet.startPlaback(weighted,collectSoundParams);
+    runningSoundSets.push(selectedSet);
+    updateMixSetLists();
 }
 
 // Stop selected soundSet
 function stopSound() {
-    var selected = document.getElementById("soundSets").selectedIndex;
-    loadedSoundSets[selected].stopPlayback();
+    var selectedIndex = document.getElementById("soundSets").selectedIndex;
+    var selectedSet = loadedSoundSets[selectedIndex];
+    selectedSet.stopPlayback();
+    runningSoundSets.splice(selectedIndex,1);
+    updateMixSetLists();
 }
 
 // Get all tags from database. Send respons to callback.
@@ -77,13 +96,25 @@ function getAllTags(callback) {
     xhttp.open("GET", serverUrl + "/getAllTags", true);
     xhttp.send();
 }
-
-// Get all sets from StorageUnit in backend. Send response to callback.
-function getActiveSets(callback) {
+// Get all tags from database. Send respons to callback.
+function getAllUsers(callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
         if(xhttp.readyState == 4 && xhttp.status == 200) {
-            callback(JSON.parse(xhttp.response));
+            // callback(xhttp.response);
+            console.log(xhttp.response)
+        }
+    };
+    xhttp.open("GET", serverUrl + "/getAllUsers", true);
+    xhttp.send();
+}
+
+// Get all sets from StorageUnit in backend. Send response to callback.
+function getActiveSets(callback,cbArg) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function(){
+        if(xhttp.readyState == 4 && xhttp.status == 200) {
+            callback(JSON.parse(xhttp.response),cbArg);
             console.log(xhttp.response)
         }
     };
@@ -150,7 +181,42 @@ function search() {
                dataType: 'json',
                async: true,
                success: function (data) {
-                   // Result is put inot active snippet set
+                   // Result is put into active snippet set
+                   var snippetSet = new SnippetSet();
+                   snippetSet.populateFromJson(data);
+                   activeSnippetSet = snippetSet;
+                   updateSnippetSetStats(snippetSet);
+
+                   // Update the list since new snippetSet are
+                   // expected to be available after search
+                   // getActiveSets(updateSnippetSetList);
+                   populateSetLists();
+               },
+               error: function (xhr, status) {
+                   console.log(status);
+                   console.log(xhr.responseText);
+               }
+           });
+}
+
+// Remove snippet from set
+function removeSnippetFromSet() {
+    var setName = document.getElementById("setInfoName").value;
+    var snippetId = document.getElementById("snippetInfoId").value;
+    var postBody = {
+        snippetSetName: setName,
+        snippetId: snippetId,
+    };
+
+    $.ajax({
+               url: serverUrl + "/removeSnippet",
+               contentType: 'application/json; charset=utf-8',
+               type: 'POST',
+               data: postBody,
+               dataType: 'json',
+               async: true,
+               success: function (data) {
+                   // Result is put into active snippet set
                    var snippetSet = new SnippetSet();
                    snippetSet.populateFromJson(data);
                    activeSnippetSet = snippetSet;
@@ -159,6 +225,77 @@ function search() {
                    // Update the list since new snippetSet are
                    // expected to be available after search
                    getActiveSets(updateSnippetSetList);
+               },
+               error: function (xhr, status) {
+                   console.log(status);
+                   console.log(xhr.responseText);
+               }
+           });
+}
+
+// Execute a set operation
+function setOperation() {
+    var setNameA = document.getElementById("setA").value;
+    var setNameB = document.getElementById("setB").value;
+    var setOpName = document.getElementById("setOp").value;
+    var postBody = {
+        setA: setNameA,
+        setB: setNameB,
+        operation: setOpName,
+    };
+
+    $.ajax({
+               url: serverUrl + "/setOperation",
+               contentType: 'application/json; charset=utf-8',
+               type: 'POST',
+               data: postBody,
+               dataType: 'json',
+               async: true,
+               success: function (data) {
+                   // Result is put into active snippet set
+                   var snippetSet = new SnippetSet();
+                   snippetSet.populateFromJson(data);
+                   activeSnippetSet = snippetSet;
+                   updateSnippetSetStats(snippetSet);
+                   
+                   // Update the list since new snippetSet are
+                   // expected to be available
+                   // getActiveSets(updateSnippetSetList);
+                   populateSetLists();
+               },
+               error: function (xhr, status) {
+                   console.log(status);
+                   console.log(xhr.responseText);
+               }
+           });
+}
+
+// Rename the set in BE and FE...
+function renameSet() {
+    var setNameInput = document.getElementById("setInfoName").value;
+    var postBody = {
+        setName: activeSnippetSet.setName,
+        newSetName: setNameInput,
+    };
+
+    $.ajax({
+               url: serverUrl + "/renameSet",
+               contentType: 'application/json; charset=utf-8',
+               type: 'POST',
+               data: postBody,
+               dataType: 'json',
+               async: true,
+               success: function (data) {
+                   // Result is put into active snippet set
+                   var snippetSet = new SnippetSet();
+                   snippetSet.populateFromJson(data);
+                   activeSnippetSet = snippetSet;
+                   updateSnippetSetStats(snippetSet);
+
+                   // Update the list since new snippetSet are
+                   // expected to be available
+                   // getActiveSets(updateSnippetSetList);
+                   populateSetLists();
                },
                error: function (xhr, status) {
                    console.log(status);
@@ -208,22 +345,45 @@ function updateSoundSetList() {
     document.getElementById("soundstart").disabled = true;
     document.getElementById("soundstop").disabled = true;
 
-    var soundSelector = document.getElementById("soundSets");
-    for (var i = 0; i < loadedSoundSets.length; i++) {
-        var option = document.createElement("option");
-        var setName = loadedSoundSets[i].name;
-        option.text = setName;
-        option.value = setName;
-        soundSelector.add(option);
-        document.getElementById("soundstart").disabled = false;
-        document.getElementById("soundstop").disabled = false;
+    var soundSelectorStrings = ["soundSets"];
+    // var soundSelectorStrings = ["soundSets", "leftSet", "rightSet"];
+    for (var i = 0; i < soundSelectorStrings.length; i++) {
+        var soundSelector = document.getElementById(soundSelectorStrings[i]);
+        for (var j = 0; j < loadedSoundSets.length; j++) {
+            var option = document.createElement("option");
+            var setName = loadedSoundSets[j].name;
+            option.text = setName;
+            option.value = setName;
+            soundSelector.add(option);
+            document.getElementById("soundstart").disabled = false;
+            document.getElementById("soundstop").disabled = false;
+        }
     }
 }
 
-function updateSnippetSetList(setNames) {
-    $("#snippetSets").empty();
+function updateMixSetLists() {
+    var soundSelectorStrings = ["leftSet", "rightSet"];
+    for (var i = 0; i < soundSelectorStrings.length; i++) {
+        $("#" + soundSelectorStrings[i]).empty();
+        var soundSelector = document.getElementById(soundSelectorStrings[i]);
+        for (var j = 0; j < runningSoundSets.length; j++) {
+            var option = document.createElement("option");
+            var setName = runningSoundSets[j].name;
+            option.text = setName;
+            option.value = setName;
+            soundSelector.add(option);
+        }
+    }
+}
 
-    var snippetSelector = document.getElementById("snippetSets");
+function updateSnippetSetList(setNames, listId) {
+    if (listId === undefined) {
+        listId = "snippetSets";
+    }
+
+    $("#" + listId).empty();
+
+    var snippetSelector = document.getElementById(listId);
     for (var i = 0; i < setNames.length; i++) {
         var option = document.createElement("option");
         var setName = setNames[i];
@@ -232,7 +392,20 @@ function updateSnippetSetList(setNames) {
         option.value = setName;
         snippetSelector.add(option);
     }
+}
 
+function populateSetOpList(legalOps) {
+    $("#setOp").empty();
+
+    var opSelector = document.getElementById("setOp");
+    for (var i = 0; i < legalOps.length; i++) {
+        var option = document.createElement("option");
+        var opName = legalOps[i];
+        console.log(opName);
+        option.text = opName;
+        option.value = opName;
+        opSelector.add(option);
+    }
 }
 
 function updateSnippetSetStats(snippetSet) {
@@ -266,7 +439,6 @@ function getRelatedTags() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
         if(xhttp.readyState == 4 && xhttp.status == 200){
-            console.log("I ifsatsen comp " + xhttp.responseText);
             document.getElementById("complTags").value = xhttp.responseText;
         }
     };
@@ -293,7 +465,9 @@ function newSnippet() {
     var fileReader = new FileReader();
     fileReader.readAsArrayBuffer(files[0]);
     fileReader.onloadend = function(event) {
+
         newSnippetInfo.fileBlob =  event.target.result;
+
         newSnippetInfo.kbSize = parseInt(files[0].size/1024);
 
         var startTime = document.getElementById("newStart");

@@ -19,14 +19,14 @@
 
 package cocktail.db_access;
 
-import cocktail.snippet.FileInfo;
-import cocktail.snippet.SnippetInfo;
-import cocktail.snippet.SnippetSet;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import cocktail.snippet.FileInfo;
+import cocktail.snippet.SnippetInfo;
+import cocktail.snippet.SnippetSet;
 
 /**
  * Class that provide the program with information from database and uploads information to the database.
@@ -58,7 +58,7 @@ public class DbAdapterImpl implements DbAdapter {
 
   @Override
   public byte[] readSnippet(int snippetID) {
-    return Driver.readSnippet(snippetID);
+    return Driver.readFileFromSnippetID(snippetID);
   }
 
   @Override
@@ -69,7 +69,7 @@ public class DbAdapterImpl implements DbAdapter {
 
   @Override
   public Integer getNumberOfFiles() {
-    return Driver.getTotlNumberOfFiles();
+    return Driver.getTotalNumberOfFiles();
 
   }
 
@@ -101,7 +101,7 @@ public class DbAdapterImpl implements DbAdapter {
 
   @Override
   public Integer getNumSnippets() {
-  return Driver.getNumberOfSnippets();
+    return Driver.getNumberOfSnippets();
   }
 
   @Override
@@ -121,12 +121,12 @@ public class DbAdapterImpl implements DbAdapter {
 
   @Override
   public Integer getOccurrenceOfTag(String tag) {
-    return Driver.getOccuranceOfTag(tag);
+    return Driver.getOccurrenceOfTag(tag);
   }
 
   @Override
   public ArrayList<String> getAssociatedTags(String tag) {
-    return Driver.getComplementaryTags(tag);
+    return Driver.getAssociatedTags(tag);
   }
 
   @Override
@@ -212,12 +212,12 @@ public class DbAdapterImpl implements DbAdapter {
 
   @Override
   public String getFileNameFromSnippetId(int snippetID) {
-   return Driver.getFileNameFromSnippetId(snippetID);
+    return Driver.getFileNameFromSnippetId(snippetID);
   }
 
   @Override
   public boolean removeUnusedTag(String tagName) {
-   return Driver.deleteUnusedTag(tagName);
+    return Driver.deleteUnusedTag(tagName);
   }
 
   @Override
@@ -262,7 +262,7 @@ public class DbAdapterImpl implements DbAdapter {
     }
     return returnBool;
   }
-
+  @Override
   public List<String> getAllUsers(){
     return Driver.getAllUsers();
   }
