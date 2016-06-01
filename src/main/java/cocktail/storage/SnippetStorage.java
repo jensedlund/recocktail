@@ -47,9 +47,9 @@ public interface SnippetStorage {
 
   SnippetSet getSet(String id);
 
-  void restoreContext(String id);
+  boolean restoreContext(String id);
 
-  void storeContext(String id);
+  boolean storeContext(String id);
 
   void setLogNote(String log, SnippetSet snippetSet);
 

@@ -21,6 +21,7 @@ package cocktail.snippet;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ import cocktail.stream_io.StreamingService;
  * The getters for derived fields also work as setters in that they also update the
  * field based on the current state of the collection of SnippetInfo.
  */
-public class SnippetSet {
+public class SnippetSet implements Serializable{
 
   private SortedSet<SnippetInfo> snippetCollection;
   private List<String> operationLog;
