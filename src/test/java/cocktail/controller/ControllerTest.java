@@ -86,7 +86,7 @@ public class ControllerTest {
       testBool = false;
     }
     Assert.assertEquals(testBool, true);
-    
+
   }
 
   @Test

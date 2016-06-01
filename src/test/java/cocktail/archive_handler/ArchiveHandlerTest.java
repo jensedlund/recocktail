@@ -1,20 +1,11 @@
 package cocktail.archive_handler;
 
-import cocktail.controller.Controller;
-import cocktail.snippet.SnippetSet;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Marcus Vidén Ulrika, Goloconda Fahlén, Jan Eriksson
  * @version 1.0
  * @since 2016-05-09
  */
+/*
 public class ArchiveHandlerTest {
     SnippetSet snippetSet;
     ArchiveHandler archiveHandler = new ArchiveHandler();
@@ -134,4 +125,4 @@ public class ArchiveHandlerTest {
         }
         Assert.assertEquals(testBool, true);
     }
-}
+}*/
