@@ -22,7 +22,6 @@ public enum Driver {
   private static String _adminUserName;
 
 
-
   static {
     _adminUserName = "Admin";
   }
@@ -101,15 +100,16 @@ public enum Driver {
     return isAdmin;
   }
 
-//This overloaded method inserts one snippet to the database and is used when the file connected to the snippet
+  //This overloaded method inserts one snippet to the database and is used when the file connected to the snippet
   // is already in the database and the fileID is known.
   protected static int writeSnippet(SnippetInfo snippetInfo, int fileID) {
-   if(!isFileInUse(fileID)){
+    if (!isFileInUse(fileID)) {
       return -1;
     }
     int returnInt = 0;
 
     if (isSnippetADuplicate(snippetInfo, fileID)) {
+
       joinTwoSnippets(snippetInfo, fileID);
     }
     if (!isCallProtectedAdmin(snippetInfo)) {
@@ -139,7 +139,7 @@ public enum Driver {
       return isDublicate;
     } else {
       int fileID = getFileIDFromFileNameSizeLen(fileInfo.getFileName(),
-          fileInfo.getFileLenSec(), fileInfo.getFileSizeKb());
+              fileInfo.getFileLenSec(), fileInfo.getFileSizeKb());
       double lenSec = 0.0;
       double startTime = 0.0;
 
@@ -198,8 +198,6 @@ public enum Driver {
 
   //Method checks if a file already is saved in database or not
   private static boolean isFileInDb(FileInfo fileInfo) {
-
-//TODO fixa checkusm här
     boolean isFileInDb = false;
     try {
       String sql = "SELECT fileName, fileSizeKb, fileLenSec FROM fileInfo";
@@ -208,7 +206,7 @@ public enum Driver {
       while (rs.next()) {
         if (fileInfo.getFileName().equals(rs.getString("fileName"))) {
           if (fileInfo.getFileLenSec() == rs.getDouble("fileLenSec") &&
-              fileInfo.getFileSizeKb() == rs.getDouble("fileSizeKb")) {
+                  fileInfo.getFileSizeKb() == rs.getDouble("fileSizeKb")) {
             isFileInDb = true;
             return isFileInDb;
           }
@@ -223,7 +221,7 @@ public enum Driver {
     return false;
   }
 
-//Method takes a string, fileName, as an argument and return the string decoded in UTF-8
+  //Method takes a string, fileName, as an argument and return the string decoded in UTF-8
   private static String utf8Decode(String s) {
     String returnString = "";
     System.out.println(s);
@@ -241,7 +239,6 @@ public enum Driver {
 
     String tempFileName = fileInfo.getFileName();
     fileInfo.setFileName(utf8Decode(tempFileName));
-
     int returnInt = 0;
     if (isSnippetADuplicate(snippetInfo, fileInfo)) {
       returnInt = joinTwoSnippets(snippetInfo, fileInfo);
@@ -270,6 +267,276 @@ public enum Driver {
   }
 
 
+  public static List<Integer> writeSnippets(Map<SnippetInfo, FileInfo> snippetFileMap) {
+    List<Integer> listOfSnippetIDs = new ArrayList<>();
+    Map<SnippetInfo,FileInfo> mapToPassOn = new HashMap<>();
+
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+
+      String tempFileName = entry.getValue().getFileName();
+      entry.getValue().setFileName(utf8Decode(tempFileName));
+
+      if (isSnippetADuplicate(entry.getKey(), entry.getValue())) {
+        listOfSnippetIDs.add(joinTwoSnippets(entry.getKey(), entry.getValue()));
+      } else if (isCallProtectedAdmin(entry.getKey())) {
+        listOfSnippetIDs.add(writeSnippetAsAdmin(entry.getKey(), entry.getValue()));
+      } else {
+        mapToPassOn.put(entry.getKey(), entry.getValue());
+        removeProtectedTags(entry.getKey());
+        tagsToLowerCase(entry.getKey());
+        List<String> newTagList = removeUnwantedCharacters(entry.getKey().getTagNames());
+        entry.getKey().getTagNames().clear();
+        entry.getKey().getTagNames().addAll(newTagList);
+      }
+    }
+
+    insertFilesIntoFileInfo(mapToPassOn);
+
+    insertUsersIntoUserInfo(snippetFileMap);
+
+    insertSnippetsIntoSnippetinfo(mapToPassOn);
+
+    insertTagsIntoTagInfo(mapToPassOn);
+
+    insertRowsIntoBridgeTable(mapToPassOn);
+
+    for (Map.Entry<SnippetInfo, FileInfo> entry : mapToPassOn.entrySet()) {
+      listOfSnippetIDs.add(entry.getKey().getSnippetID());
+    }
+
+    System.out.println("innan return ");
+    for(Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()){
+      System.out.println(entry.getKey().getSnippetID() + " " + " " + entry.getKey().getFileID() + " " + entry.getValue().getFileID());
+
+    }
+
+
+
+    return listOfSnippetIDs;
+
+  }
+
+  private static void insertRowsIntoBridgeTable(Map<SnippetInfo, FileInfo> snippetFileMap) {
+    StringBuilder builder = new StringBuilder();
+    builder.append("INSERT INTO bridgeSnippetTagTable(snippetID,tagID) VALUES");
+    int test = 0;
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+      for (int i = 0; i < entry.getKey().getTagIDs().size(); i++) {
+        builder.append("(?,?),");
+        test++;
+      }
+    }
+    if (builder.charAt(builder.length() - 1) == ',') {
+      builder.deleteCharAt(builder.length() - 1);
+    }
+    try {
+      PreparedStatement ps = myConnection.prepareStatement(builder.toString());
+      int j = 1;
+      for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+        for (int i = 0; i < entry.getKey().getTagIDs().size(); i++) {
+          ps.setInt(j, entry.getKey().getSnippetID());
+          ps.setInt(j + 1, entry.getKey().getTagIDs().get(i));
+          System.out.println(j + " j " + (j + 1));
+          j += 2;
+        }
+      }
+      ps.executeUpdate();
+      ps.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+
+  private static void insertTagsIntoTagInfo(Map<SnippetInfo, FileInfo> snippetFileMap) {
+    List<Integer> tagIDs = new ArrayList<>();
+    List<SnippetInfo> infoList = new ArrayList<>();
+    List<String> allTagNames = getAllTagNames();
+    Set<String> tagList = new TreeSet<>();
+    StringBuilder builder = new StringBuilder();
+    builder.append("INSERT INTO tagInfo (tagName) VALUES");
+
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+      infoList.add(entry.getKey());
+    }
+
+    boolean check = false;
+    for (int i = 0; i < infoList.size(); i++) {
+      for (String tag : infoList.get(i).getTagNames()) {
+
+        if (allTagNames.contains(tag)) {
+          tagList.add(tag);
+          builder.append("(?),");
+          check = true;
+        } else {
+          tagIDs.add(getTagID(tag));
+        }
+      }
+    }
+    while (builder.charAt(builder.length() - 1) != ')') {
+      builder.deleteCharAt(builder.length() - 1);
+    }
+    if (check) {
+      try {
+        PreparedStatement ps = myConnection.prepareStatement(builder.toString(), Statement.RETURN_GENERATED_KEYS);
+        int i = 1;
+        for (String tag : tagList) {
+          ps.setString(i, tag);
+          i++;
+        }
+        ps.executeUpdate();
+        ResultSet tableKeys = ps.getGeneratedKeys();
+        int j = 1;
+        while (tableKeys.next()) {
+          tagIDs.add(tableKeys.getInt(j));
+        }
+        ps.close();
+        tableKeys.close();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+      List<Integer> tempID = new ArrayList<>();
+      for (String tag : entry.getKey().getTagNames()) {
+        tempID.add(getTagID(tag));
+      }
+      entry.getKey().setTagIDs(tagIDs);
+    }
+  }
+
+  private static List<Integer> insertSnippetsIntoSnippetinfo(Map<SnippetInfo, FileInfo> snippetFileMap) {
+    List<Integer> snippetIDsList = new ArrayList<>();
+    StringBuilder builder = new StringBuilder();
+    builder.append("INSERT INTO snippetInfo (fileID,sizeKb,startTime,lenSec,creationDate,lastModifiedDate,userID) VALUES");
+    int i = 0;
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+      removeProtectedTags(entry.getKey());
+      builder.append("(?,?,?,?,?,?,?)");
+      if (i != snippetFileMap.size() - 1) {
+        builder.append(",");
+      }
+      i++;
+    }
+    try {
+      PreparedStatement ps = myConnection.prepareStatement
+              (builder.toString(), Statement.RETURN_GENERATED_KEYS);
+      int j = 1;
+      for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+        java.sql.Date date = java.sql.Date.valueOf(entry.getKey().getCreationDate());
+        java.sql.Date date2 = java.sql.Date.valueOf(entry.getKey().getLastModified());
+
+        ps.setInt(j, entry.getValue().getFileID());
+        ps.setInt(j + 1, entry.getKey().getKbSize());
+        ps.setDouble(j + 2, entry.getKey().getStartTime());
+        ps.setDouble(j + 3, entry.getKey().getLengthSec());
+        ps.setDate(j + 4, date);
+        ps.setDate(j + 5, date2);
+        ps.setInt(j + 6, entry.getKey().getUserID());
+        j += 7;
+      }
+      ps.executeUpdate();
+      ResultSet tableKeys = ps.getGeneratedKeys();
+      while (tableKeys.next()) {
+        snippetIDsList.add(tableKeys.getInt(1));
+      }
+      int k = 0;
+      for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+        entry.getKey().setSnippetID(snippetIDsList.get(k));
+        k++;
+      }
+
+      ps.close();
+      tableKeys.close();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+
+    return snippetIDsList;
+  }
+
+  private static void insertUsersIntoUserInfo(Map<SnippetInfo, FileInfo> snippetFileMap) {
+    List<String> userList = getAllUsers();
+    List<String> usersInDb = new ArrayList<>();
+    List<SnippetInfo> tempSnippetList = new ArrayList<>();
+    StringBuilder firstBuilder = new StringBuilder();
+    firstBuilder.append("INSERT INTO userInfo (userName) VALUES");
+    StringBuilder secondBuilder = new StringBuilder();
+    secondBuilder.append("SELECT userID FROM userInfo WHERE ");
+    Map<String, Integer> userNameIDMap = new HashMap<>();
+    List<String> trimmedUserNames = new ArrayList<>();
+
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+      if (!trimmedUserNames.contains(entry.getKey().getUserName())) {
+        trimmedUserNames.add(entry.getKey().getUserName());
+      }
+    }
+    boolean testBool = false;
+
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+      usersInDb.add(entry.getKey().getUserName());
+    }
+    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+      if (!userList.contains(entry.getKey().getUserName())) {
+        firstBuilder.append("(?)");
+        usersInDb.remove(entry.getKey().getUserName());
+        testBool = true;
+      }
+    }
+
+    for (String name : trimmedUserNames) {
+      secondBuilder.append("userName=? OR ");
+    }
+    secondBuilder.replace(secondBuilder.length() - 4, secondBuilder.length() - 1, "");
+    if (testBool) {
+      try {
+        PreparedStatement ps = myConnection.prepareStatement(firstBuilder.toString(), Statement.RETURN_GENERATED_KEYS);
+        int i = 1;
+        for (SnippetInfo si : tempSnippetList) {
+          ps.setString(i, si.getUserName());
+          i++;
+        }
+        ps.executeUpdate();
+        ResultSet tableKeys = ps.getGeneratedKeys();
+        int j = 0;
+        while (tableKeys.next()) ;
+        tempSnippetList.get(j).setUserID(tableKeys.getInt(j));
+        ps.close();
+        tableKeys.close();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    try {
+      PreparedStatement ps = myConnection.prepareStatement(secondBuilder.toString());
+      int k = 1;
+      for (String name : trimmedUserNames) {
+        ps.setString(k, name);
+        k++;
+      }
+      ResultSet rs = ps.executeQuery();
+      int m = 0;
+      while (rs.next()) {
+        userNameIDMap.put(trimmedUserNames.get(m), rs.getInt("userID"));
+        m++;
+      }
+
+      for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+        if (entry.getKey().getUserID() == 0) {
+          entry.getKey().setUserID(userNameIDMap.get(entry.getKey().getUserName()));
+        }
+      }
+
+      ps.close();
+      rs.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+
   //Overloaded method is called when a snippet is a duplicate. This method is joining the two lists of tags and
   //is calling writeSnippet with single, indirect recursion
   private static int joinTwoSnippets(SnippetInfo snippetInfo, FileInfo fileInfo) {
@@ -277,7 +544,7 @@ public enum Driver {
     int fileID = getFileIDFromFileNameSizeLen(fileInfo.getFileName(), fileInfo.getFileLenSec(), fileInfo.getFileSizeKb());
     try {
       String sql = "SELECT snippetID FROM snippetInfo WHERE fileID=? AND startTime=? " +
-          "AND lenSec=?";
+              "AND lenSec=?";
       PreparedStatement ps = myConnection.prepareStatement(sql);
       ps.setInt(1, fileID);
       ps.setDouble(2, snippetInfo.getStartTime());
@@ -299,7 +566,7 @@ public enum Driver {
     tagSet.addAll(tagNames);
     snippetInfo.getTagNames().clear();
     snippetInfo.getTagNames().addAll(tagSet);
-    deleteSnippet(oldSnippetID); //Really important to delete the snippet first, this is the "get out of recursion" call
+    deleteSnippet(oldSnippetID);//Really important to delete the snippet first, this is the "get out of recursion" call
     int newSnippetID = writeSnippet(fileInfo, snippetInfo);
     return newSnippetID;
   }
@@ -310,7 +577,7 @@ public enum Driver {
     int oldSnippetID = 0;
     try {
       String sql = "SELECT snippetID FROM snippetInfo WHERE fileID=? AND startTime=? " +
-          "AND lenSec=?";
+              "AND lenSec=?";
       PreparedStatement ps = myConnection.prepareStatement(sql);
       ps.setInt(1, fileID);
       ps.setDouble(2, snippetInfo.getStartTime());
@@ -338,7 +605,7 @@ public enum Driver {
   }
 
 
-//Method write file to database
+  //Method write file to database
   protected static boolean insertIntoFileInfo(SnippetInfo snippetInfo, FileInfo fileInfo) {
     boolean returnBool = false;
     if(fileInfo.getFileName().length()<1){
@@ -347,8 +614,8 @@ public enum Driver {
     if (!isFileInDb(fileInfo)) {
       try {
         PreparedStatement ps = myConnection.prepareStatement
-            ("INSERT INTO fileInfo (file,fileName,fileSizeKb,fileLenSec) VALUES(?,?,?,?)",
-                Statement.RETURN_GENERATED_KEYS);
+                ("INSERT INTO fileInfo (file,fileName,fileSizeKb,fileLenSec) VALUES(?,?,?,?)",
+                        Statement.RETURN_GENERATED_KEYS);
         ps.setBinaryStream(1, fileInfo.getInputStream());
         ps.setString(2, fileInfo.getFileName());
         ps.setInt(3, fileInfo.getFileSizeKb());
@@ -366,18 +633,74 @@ public enum Driver {
       }
     } else {
       fileInfo.setFileID(getFileIDFromFileNameSizeLen(snippetInfo.getFileName(),
-          fileInfo.getFileLenSec(), fileInfo.getFileSizeKb()));
+              fileInfo.getFileLenSec(), fileInfo.getFileSizeKb()));
       returnBool = true;
     }
     return returnBool;
   }
 
-//Method returns fileID from information that identifies the file
+
+  protected static void insertFilesIntoFileInfo(Map<SnippetInfo, FileInfo> snippetFileMap) {
+    StringBuilder builder = new StringBuilder();
+    Map<SnippetInfo, FileInfo> mapToPassOn = new HashMap<>();
+    builder.append("INSERT INTO fileInfo (file, fileName, fileSizeKb, fileLenSec) VALUES");
+    int count = 0;
+    for (Map.Entry<SnippetInfo, FileInfo> firstEntry : snippetFileMap.entrySet()) {
+      if (firstEntry.getValue().getFileName().length() < 1) {
+        firstEntry.getValue().setFileName("unnamed");
+      }
+      if (!isFileInDb(firstEntry.getValue())) {
+        mapToPassOn.put(firstEntry.getKey(), firstEntry.getValue());
+        builder.append("(?,?,?,?),");
+
+      } else {
+        firstEntry.getValue().setFileID(getFileIDFromFileNameSizeLen(firstEntry.getKey().getFileName(),
+                firstEntry.getValue().getFileLenSec(), firstEntry.getValue().getFileSizeKb()));
+
+      }
+    }
+    if(builder.charAt(builder.length()-1)== ',') {
+      builder.deleteCharAt(builder.length() - 1);
+    }
+
+
+    System.out.println("SQL stat " + builder.toString());
+    try {
+      PreparedStatement ps = myConnection.prepareStatement(builder.toString(), Statement.RETURN_GENERATED_KEYS);
+      int i = 1;
+      for (Map.Entry<SnippetInfo, FileInfo> thirdEntry : mapToPassOn.entrySet()) {
+        ps.setBinaryStream(i, thirdEntry.getValue().getInputStream());
+        ps.setString(i + 1, thirdEntry.getValue().getFileName());
+        ps.setInt(i + 2, thirdEntry.getValue().getFileSizeKb());
+        ps.setDouble(i + 3, thirdEntry.getValue().getFileLenSec());
+        i += 4;
+        thirdEntry.getValue().getInputStream().close();
+      }
+      ps.executeUpdate();
+      ResultSet tableKeys = ps.getGeneratedKeys();
+int j = 1;
+      for(Map.Entry<SnippetInfo,FileInfo> entry : mapToPassOn.entrySet()) {
+      while (tableKeys.next()) {
+          System.out.println("Det genererade fileDi " + tableKeys.getInt(j));
+          entry.getValue().setFileID(tableKeys.getInt(j));
+        break;
+         // System.out.println(mapToPassOn.get(j).getFileID() + " Det genererade fileID i insertFIlesIntoFileInfo");
+        }
+      }
+      ps.close();
+      tableKeys.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+
+  //Method returns fileID from information that identifies the file
   protected static int getFileIDFromFileNameSizeLen(String fileName, double fileSizeSec, int fileSizeKb) {
     int fileID = 0;
     try {
       String sql = "SELECT fileID FROM fileInfo WHERE fileName =? " +
-          "AND fileLenSec=? AND fileInfo.fileSizeKb=?";
+              "AND fileLenSec=? AND fileInfo.fileSizeKb=?";
       PreparedStatement ps = myConnection.prepareStatement(sql);
       ps.setString(1, fileName);
       ps.setDouble(2, fileSizeSec);
@@ -396,7 +719,7 @@ public enum Driver {
   }
 
 
-//Method returns all users registered in the database
+  //Method returns all users registered in the database
   public static List<String> getAllUsers() {
     List<String> userLIst = new ArrayList<>();
     try {
@@ -415,7 +738,7 @@ public enum Driver {
     return null;
   }
 
-//Method inserts unserName in userInfo and set the userID in the snippetInfo object
+  //Method inserts unserName in userInfo and set the userID in the snippetInfo object
   private static boolean insertIntoUserInfo(SnippetInfo snippetInfo) {
     boolean returnBool = false;
     List<String> userList = getAllUsers();
@@ -473,7 +796,7 @@ public enum Driver {
   }
 
 
-//Method inserts tags into tagInfo table and sets a list of tagIDs in snippetInfo object
+  //Method inserts tags into tagInfo table and sets a list of tagIDs in snippetInfo object
   private static boolean insertIntoTagInfo(SnippetInfo snippetInfo) {
     boolean returnBool = false;
     List<Integer> tagIDs = new ArrayList<>();
@@ -510,7 +833,7 @@ public enum Driver {
     java.sql.Date date2 = java.sql.Date.valueOf(snippetInfo.getLastModified());
     try {
       PreparedStatement ps = myConnection.prepareStatement
-          ("INSERT INTO snippetInfo (fileID,sizeKb,startTime,lenSec,creationDate,lastModifiedDate,userID) VALUES(?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+              ("INSERT INTO snippetInfo (fileID,sizeKb,startTime,lenSec,creationDate,lastModifiedDate,userID) VALUES(?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
       ps.setInt(1, fileID);
       ps.setInt(2, snippetInfo.getKbSize());
       ps.setDouble(3, snippetInfo.getStartTime());
@@ -594,9 +917,10 @@ public enum Driver {
   }
 
 
-  //Method updates info in fileInfo but is limited by foregin key constraints. The fileID can not be changed
+  //Method updates info in fileInfo but is limited by foreign key constraints. The fileID can not be changed
   private static boolean updateFileInfo(FileInfo fileInfo) {
     boolean returnBool = false;
+
     try {
       String sql = "UPDATE fileInfo SET fileName=?,fileSizeKb=?,fileLenSec=?,file=? WHERE fileID=?";
       PreparedStatement psFileInfo = myConnection.prepareStatement(sql);
@@ -617,11 +941,13 @@ public enum Driver {
   }
 
 
-  //Method is a way to update a snippet by deleteing it and then reinsert it with the same snippetID. This method
+  //Method is a way to update a snippet by deleting it and then reinsert it with the same snippetID. This method
   //is therefore a way to walk around all the constraints in the design.
   protected static boolean deleteInsertSnippetInfo(FileInfo fileInfo, SnippetInfo snippetInfo, int snippetID) {
     boolean returnBool = false;
-    if (isCallProtectedAdmin(snippetInfo)) {
+    if(!isSnippetIdInDb(snippetID)){
+      return returnBool;
+    } else if (isCallProtectedAdmin(snippetInfo)) {
       returnBool = deleteInsertAsAdmin(snippetInfo, fileInfo, snippetID);
     } else {
       removeProtectedTags(snippetInfo);
@@ -763,7 +1089,7 @@ public enum Driver {
   }
 
 
-  //Returns a list of tagNams and takes a list of tagIDs as argument
+  //Returns a list of tagNames and takes a list of tagIDs as argument
   private static List<String> getTagNamesFromTagIDs(List<Integer> tagIDs) {
     List<String> tagNames = new ArrayList<>();
     try {
@@ -805,7 +1131,7 @@ public enum Driver {
   }
 
 
-  //Method is called from method removeSnippetFromSet and is deletign the informatione where the snippetID is occuring
+  //Method is called from method deleteSnippet and is deleting the iinformation where the snippetID is occurring
   private static boolean deleteFromBridgeTable(int snippetID) {
     boolean returnBool = false;
     int fileID = getFileIDFromSnippetID(snippetID);
@@ -894,8 +1220,12 @@ public enum Driver {
   }
 
 
+  private static boolean isFileStoredInDb(int fileID){
+    return isFileInUse(fileID);
+  }
+
   //Method delete one row in fileInfo table
-  private static boolean deleteFromFileInfo(int fileID) {
+  public static boolean deleteFromFileInfo(int fileID) {
     boolean returnBool = false;
     try {
       String sql = "DELETE FROM fileInfo WHERE fileID=?";
@@ -965,20 +1295,18 @@ public enum Driver {
   //Method deletes one snippet by calling severel methods that deletes from all the tables
   protected static boolean deleteSnippet(int snippetID) {
     boolean returnBool;
+    if(!isSnippetIdInDb(snippetID)){
+      returnBool = false;
+      return returnBool;
+    }
+
     String userName = getUserNameForSnippet(snippetID);
     if (!isSnippetProtectedSample(snippetID) || userName.equals(_adminUserName)) {
       int fileID = getFileIDFromSnippetID(snippetID);
-      List<Integer> tagIdsSnippet = getTagIDsForSnippetID(snippetID);
-
       deleteFromBridgeTable(snippetID);
       deleteFromSnippetInfo(snippetID);
       if (!isFileInUse(fileID)) {
         deleteFromFileInfo(fileID);
-      }
-      for (int i : tagIdsSnippet) {
-        if (!isTagInUse(i)) {
-          deleteFromTagInfo(i);
-        }
       }
       returnBool = true;
     } else {
@@ -989,9 +1317,13 @@ public enum Driver {
 
 
   //Method read the file from fileInfo table and return it as a bite array
-  protected static byte[] readSnippet(int snippetID) {
-    int sourceID = getFileIDFromSnippetID(snippetID);
+  protected static byte[] readFileFromSnippetID(int snippetID) {
     byte[] buffer = null;
+    if(!isSnippetIdInDb(snippetID)){
+      buffer = new byte[0];
+      return buffer;
+    }
+    int sourceID = getFileIDFromSnippetID(snippetID);
     try {
       String sql = "SELECT file FROM fileInfo WHERE fileID=?";
       PreparedStatement ps = myConnection.prepareStatement(sql);
@@ -1009,6 +1341,89 @@ public enum Driver {
     }
     return buffer;
   }
+
+
+  protected static Map<Integer, byte[]> readFileFromSnippetIDList(List<Integer> snippetIDs) {
+    Map<Integer,byte[]> fileMap = new HashMap<>();
+    List<Integer> fileIDs = new ArrayList<>();
+    StringBuilder builder = new StringBuilder();
+    String sqlStart = "SELECT file FROM fileInfo WHERE";
+    for(int i : snippetIDs) {
+      fileIDs.add(getFileIDFromSnippetID(i));
+    }
+
+    for(int i : fileIDs){
+      builder.append(" fileID=?");
+      if(i != fileIDs.get(fileIDs.size()-1)){
+        builder.append(" OR");
+      }
+    }
+    byte[] buffer = null;
+    try {
+      String sql = sqlStart + builder.toString();
+      PreparedStatement ps = myConnection.prepareStatement(sql);
+      int i = 1;
+      for(int fileID : fileIDs) {
+        ps.setInt(i, fileID);
+        i++;
+      }
+      ResultSet rs = ps.executeQuery();
+      int j = 0;
+      while (rs.next()) {
+        InputStream input;
+        input = rs.getBinaryStream("file");
+        buffer = new byte[input.available()];
+        input.read(buffer);
+        fileMap.put(snippetIDs.get(j), buffer);
+        j++;
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return fileMap;
+  }
+
+
+  protected static Map<Integer, byte[]> readFileFromFileIDList(List<Integer> fileIDs) {
+    Map<Integer,byte[]> fileMap = new HashMap<>();
+    StringBuilder builder = new StringBuilder();
+    String sqlStart = "SELECT file FROM fileInfo WHERE";
+
+    for(int i : fileIDs){
+      builder.append(" fileID=?");
+      if(i != fileIDs.get(fileIDs.size()-1)){
+        builder.append(" OR");
+      }
+    }
+    byte[] buffer = null;
+    try {
+      String sql = sqlStart + builder.toString();
+      PreparedStatement ps = myConnection.prepareStatement(sql);
+      int i = 1;
+      for(int fileID : fileIDs) {
+        ps.setInt(i, fileID);
+        i++;
+      }
+      ResultSet rs = ps.executeQuery();
+      int j = 0;
+      while (rs.next()) {
+        InputStream input;
+        input = rs.getBinaryStream("file");
+        buffer = new byte[input.available()];
+        input.read(buffer);
+        fileMap.put(fileIDs.get(j), buffer);
+        j++;
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return fileMap;
+  }
+
 
 
   //Returns the userName and takes a userID as an argument
@@ -1030,7 +1445,7 @@ public enum Driver {
   }
 
 
-  //Method returns one SnippetInfo object whit information from severel tables
+  //Method returns one SnippetInfo object whit information from several tables
   protected static SnippetInfo readSnippetInf(int snippetID) {
     SnippetInfo snippetInfo = new SnippetInfo();
     snippetInfo.setSnippetID(snippetID);
@@ -1067,8 +1482,82 @@ public enum Driver {
   }
 
 
+  protected static List<SnippetInfo> readSnippetInfos(List<Integer> snippetIDs) {
+    List<SnippetInfo> infoList = new ArrayList<>();
+    for(int i : snippetIDs){
+      SnippetInfo si = new SnippetInfo();
+      si.setSnippetID(i);
+      infoList.add(si);
+    }
+    for(SnippetInfo si : infoList){
+      si.setFileID(getFileIDFromSnippetID(si.getSnippetID()));
+      List<Integer> tagIDs = getTagIDsForSnippetID(si.getSnippetID());
+      List<String> tagNames = getTagNamesFromTagIDs(tagIDs);
+      si.setTagNames(tagNames);
+    }
+
+    StringBuilder builderFile = new StringBuilder();
+    StringBuilder builderSnippet = new StringBuilder();
+
+    try {
+      String sqlStart = "SELECT fileName FROM fileInfo WHERE";
+      for(SnippetInfo si : infoList){
+        builderFile.append(" fileID=?");
+        if(!si.equals(infoList.get(infoList.size()-1))){
+          builderFile.append(" OR");
+        }
+      }
+      String sql = sqlStart + builderFile.toString();
+      System.out.println(sql);
+      PreparedStatement ps = myConnection.prepareStatement(sql);
+      int i = 1;
+      for(SnippetInfo si : infoList){
+        ps.setInt(i, si.getFileID());
+        i++;
+      }
+      ResultSet rs = ps.executeQuery();
+      int j = 0;
+      while (rs.next()) {
+        infoList.get(j).setFileName(rs.getString("fileName"));
+      }
+
+      String sqlIntro = "SELECT sizeKb,startTime,lenSec,creationDate,lastModifiedDate,userID FROM snippetInfo WHERE";
+      for(SnippetInfo si : infoList){
+        builderSnippet.append(" snippetID=?");
+        if(!si.equals(infoList.get(infoList.size()-1))){
+          builderSnippet.append(" OR");
+        }
+      }
+      sql = sqlIntro + builderSnippet.toString();
+      System.out.println(sql);
+      ps = myConnection.prepareStatement(sql);
+      int k = 1;
+      for(SnippetInfo si : infoList) {
+        ps.setInt(k, si.getSnippetID());
+        k++;
+      }
+      rs = ps.executeQuery();
+      int m = 0;
+      while (rs.next()) {
+        infoList.get(m).setKbSize(rs.getInt("sizeKb"));
+        infoList.get(m).setLengthSec(rs.getDouble("lenSec"));
+        infoList.get(m).setCreationDate(rs.getDate("creationDate").toLocalDate());
+        infoList.get(m).setLastModified(rs.getDate("lastModifiedDate").toLocalDate());
+        infoList.get(m).setUserID(rs.getInt("userID"));
+        infoList.get(m).setStartTime(rs.getDouble("startTime"));
+        infoList.get(m).setUserName(getUserName(infoList.get(m).getUserID()));
+        m++;
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return infoList;
+  }
+
+
   //Returns the complete number of files in database
-  protected static int getTotlNumberOfFiles() {
+  protected static int getTotalNumberOfFiles() {
     int numberOfFiles = 0;
     try {
       String sql = "SELECT fileID FROM fileInfo";
@@ -1354,18 +1843,19 @@ public enum Driver {
     return 0.0;
   }
 
-  protected static Integer getOccuranceOfTag(String tagName) {
+  //Returns an int that represents the number of times one tag is connected to a snippetID
+  protected static Integer getOccurrenceOfTag(String tagName) {
     int tagID = getTagID(tagName);
-    int occurance = 0;
+    int occurrence = 0;
     try {
       String sql = "SELECT COUNT(*) FROM bridgeSnippetTagTable WHERE tagID=?";
       PreparedStatement ps = myConnection.prepareStatement(sql);
       ps.setInt(1, tagID);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
-        occurance = rs.getInt(1);
+        occurrence = rs.getInt(1);
       }
-      return occurance;
+      return occurrence;
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -1373,8 +1863,8 @@ public enum Driver {
     return 0;
   }
 
-  protected static ArrayList<String> getComplementaryTags(String tag) {
-    ArrayList<String> complementaryTags = new ArrayList<>();
+  protected static ArrayList<String> getAssociatedTags(String tag) {
+    ArrayList<String> complementaryTags;
     ArrayList<String> tempComplementaryTags = new ArrayList<>();
 
     ArrayList<Integer> tempSnippetIDs = new ArrayList<>();
@@ -1596,7 +2086,7 @@ public enum Driver {
   }
 
 
-//Delete one row in tagInfo table if the tag is not connected to any snippet
+  //Delete one row in tagInfo table if the tag is not connected to any snippet
   protected static boolean deleteUnusedTag(String tagName) {
     boolean returnBool = false;
     int tagID = getTagID(tagName);
@@ -1674,7 +2164,7 @@ public enum Driver {
       insertIntoUserInfo(snippetInfo);
       try {
         PreparedStatement ps = myConnection.prepareStatement
-            ("INSERT INTO snippetInfo (fileID,sizeKb,startTime,lenSec,creationDate,lastModifiedDate,userID) VALUES(?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                ("INSERT INTO snippetInfo (fileID,sizeKb,startTime,lenSec,creationDate,lastModifiedDate,userID) VALUES(?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
         ps.setInt(1, fileInfo.getFileID());
         ps.setInt(2, snippetInfo.getKbSize());
         ps.setDouble(3, snippetInfo.getStartTime());
@@ -1721,7 +2211,7 @@ public enum Driver {
       insertIntoUserInfo(snippetInfo);
       try {
         PreparedStatement ps = myConnection.prepareStatement
-            ("INSERT INTO snippetInfo (fileID,sizeKb,startTime,lenSec,creationDate,lastModifiedDate,userID) VALUES(?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                ("INSERT INTO snippetInfo (fileID,sizeKb,startTime,lenSec,creationDate,lastModifiedDate,userID) VALUES(?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
         ps.setInt(1, fileID);
         ps.setInt(2, snippetInfo.getKbSize());
         ps.setDouble(3, snippetInfo.getStartTime());
@@ -1750,4 +2240,22 @@ public enum Driver {
     }
   }
 
+
+  protected static boolean isSnippetIdInDb(int snippetID){
+    boolean returnBool = false;
+    try{
+      String sql = "SELECT fileID FROM snippetInfo WHERE snippetID=?";
+      PreparedStatement ps = myConnection.prepareStatement(sql);
+      ps.setInt(1,snippetID);
+      ResultSet rs =  ps.executeQuery();
+      if(rs.next()){
+        returnBool = true;
+      }
+      return returnBool;
+    }catch (Exception e){
+      e.printStackTrace();
+    }
+    return returnBool;
+  }
 }
+

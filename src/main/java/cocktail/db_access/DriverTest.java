@@ -10,7 +10,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
@@ -45,7 +47,22 @@ private static SnippetSet snippetSet;
   public static void main(String[] args) throws IOException {
 
 
+      //Driver.deleteFromFileInfo(1355);
+      crateSeveralSamples();
 
+      /*for(int i = 1220; i <= 1230; i++){
+    Driver.deleteSnippet(i);
+}
+
+      for(int i = 1349; i <= 1353; i++){
+          Driver.deleteFromFileInfo(i);
+      }
+
+
+      for(int i = 1346; i <= 1348; i++){
+          Driver.deleteFromFileInfo(i);
+      }
+      */
   }
 
 
@@ -158,6 +175,89 @@ private static SnippetSet snippetSet;
     //returnBool = Driver.removeSnippetFromSet(snippetID);
     return returnBool;
   }
+
+  public static void crateSeveralSamples(){
+    Map<SnippetInfo,FileInfo> testMap = new HashMap<>();
+
+    try {
+      FileInputStream input = new FileInputStream("src/test/resources/clap1.wav");
+      byte[] b = spark.utils.IOUtils.toByteArray(input);
+      ByteArrayInputStream bInput = new ByteArrayInputStream(b);
+      FileInfo fileInfo = new FileInfo(bInput, "test1", 498, 0.5);
+      List<String> tagNames = new ArrayList<>();
+      tagNames.add(".test-clap+");
+      tagNames.add("test1%");
+      LocalDate ld1 = LocalDate.now();
+      LocalDate ld2 = LocalDate.now();
+
+     SnippetInfo snippetInfo = new SnippetInfo("test2", tagNames, 0.0, 5.0, 498, ld1, ld2, "Devel2");
+      testMap.put(snippetInfo,fileInfo);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+
+    try {
+      FileInputStream input = new FileInputStream("src/test/resources/clap2.wav");
+      byte[] b = spark.utils.IOUtils.toByteArray(input);
+      ByteArrayInputStream bInput = new ByteArrayInputStream(b);
+      FileInfo fileInfo = new FileInfo(bInput, "clap2", 263, 3.0);
+      List<String> tagNames = new ArrayList<>();
+      tagNames.clear();
+      tagNames.add("cl ap");
+      tagNames.add("te st1");
+      tagNames.add("tes$t2@");
+      tagNames.add("ÅÄöåäö");
+      LocalDate ld1 = LocalDate.now();
+      LocalDate ld2 = LocalDate.now();
+     SnippetInfo snippetInfo = new SnippetInfo("clap2", tagNames, 0.0, 3.0, 263, ld1, ld2, "Devel2");
+testMap.put(snippetInfo,fileInfo);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+
+    try {
+      FileInputStream input = new FileInputStream("src/test/resources/clap3.wav");
+      byte[] b = spark.utils.IOUtils.toByteArray(input);
+      ByteArrayInputStream bInput = new ByteArrayInputStream(b);
+      FileInfo fileInfo = new FileInfo(bInput, "bb-gra%CC%8Ahakedopping-4", 394, 4.0);
+      List<String> tagNames = new ArrayList<>();
+      tagNames.clear();
+      tagNames.add("clap");
+      tagNames.add("test2");
+      tagNames.add("test3");
+      tagNames.add(" ");
+
+      LocalDate ld1 = LocalDate.now();
+      LocalDate ld2 = LocalDate.now();
+
+      SnippetInfo snippetInfo = new SnippetInfo("bb-gra%CC%8Ahakedopping-4", tagNames, 0.0, 3.0, 294, ld1, ld2, "Devel1");
+testMap.put(snippetInfo,fileInfo);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+
+    try {
+      FileInputStream input = new FileInputStream("src/test/resources/clap4.wav");
+      byte[] b = spark.utils.IOUtils.toByteArray(input);
+      ByteArrayInputStream bInput = new ByteArrayInputStream(b);
+     FileInfo fileInfo = new FileInfo(bInput, "clap4", 233, 2.0);
+      List<String> tagNames = new ArrayList<>();
+      tagNames.clear();
+      tagNames.add("clap");
+      LocalDate ld1 = LocalDate.now();
+      LocalDate ld2 = LocalDate.now();
+
+     SnippetInfo snippetInfo = new SnippetInfo("clap4", tagNames, 0.0, 2.0, 233, ld1, ld2, "Devel1");
+      testMap.put(snippetInfo,fileInfo);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+
+    List<Integer> testLIst = Driver.writeSnippets(testMap);
+      System.out.println(testLIst);
+
+  }
+
 
   public static List<Integer> createSampelList() {
     FileInfo fileInfo;
