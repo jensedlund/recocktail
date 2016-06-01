@@ -26,6 +26,7 @@ import cocktail.snippet.SnippetSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -261,6 +262,11 @@ public class DbAdapterImpl implements DbAdapter {
       }
     }
     return returnBool;
+  }
+
+  @Override
+  public List<Integer> writeSnippets(Map<SnippetInfo, FileInfo> snippetInfoFileInfoMap) {
+    return Driver.writeSnippets(snippetInfoFileInfoMap);
   }
 
   public List<String> getAllUsers(){
