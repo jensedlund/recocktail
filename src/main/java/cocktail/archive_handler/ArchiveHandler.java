@@ -552,18 +552,22 @@ public class ArchiveHandler {
    * @return bool
    */
   public boolean deleteUsedZip(String setName) {
-    File deadFile = new File(setName);
-    if (!deadFile.isFile()) {
-      System.out.println(setName + " is not found OR is not a file.");
+    if (setName.length() > 3) {
+      File deadFile = new File(setName);
+      if (!deadFile.isFile()) {
+        System.out.println(setName + " is not found OR is not a file.");
+        System.out.println("deleting directory: " + deadFile.toPath().getParent().toFile());
+        removeDirectory(deadFile.toPath().getParent().toFile());
+        return false;
+      }
+      System.out.println("deleting file: " + deadFile);
+      deadFile.delete();
       System.out.println("deleting directory: " + deadFile.toPath().getParent().toFile());
       removeDirectory(deadFile.toPath().getParent().toFile());
-      return false;
+      return true;
     }
-    System.out.println("deleting file: " + deadFile);
-    deadFile.delete();
-    System.out.println("deleting directory: " + deadFile.toPath().getParent().toFile());
-    removeDirectory(deadFile.toPath().getParent().toFile());
-    return true;
+    return false;
+
   }
 
   /**
