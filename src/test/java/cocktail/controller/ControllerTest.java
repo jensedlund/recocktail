@@ -1,20 +1,5 @@
 package cocktail.controller;
 
-import cocktail.archive_handler.ArchiveHandler;
-import cocktail.db_access.DbAdapterImpl;
-import cocktail.snippet.SnippetInfo;
-import cocktail.snippet.SnippetSet;
-import cocktail.storage.SnippetStorageImpl;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-
 /*
  * Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
  *
@@ -33,7 +18,7 @@ import java.util.SortedSet;
  * @version 1.0
  * @since 2016-03-25
  */
-
+/*
 public class ControllerTest {
   private SnippetSet snippetSet;
 
@@ -101,7 +86,7 @@ public class ControllerTest {
       testBool = false;
     }
     Assert.assertEquals(testBool, true);
-    */
+    
   }
 
   @Test
