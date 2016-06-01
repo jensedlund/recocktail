@@ -1,29 +1,29 @@
 package cocktail.controller;
 
-import cocktail.snippet.SetOperation;
-import cocktail.snippet.SnippetSet;
-
 import java.util.List;
 import java.util.Set;
 
+import cocktail.snippet.SetOperation;
+import cocktail.snippet.SnippetSet;
+
 /**
-  Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
-        *
-        * Licensed under the Apache License, Version 2.0 (the "License");
-        * you may not use this file except in compliance with the License.
-        * You may obtain a copy of the License at
-        *
-        * http://www.apache.org/licenses/LICENSE-2.0
-        *
-        * Unless required by applicable law or agreed to in writing, software
-        * distributed under the License is distributed on an "AS IS" BASIS,
-        * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        * See the License for the specific language governing permissions and
-        * limitations under the License.
-        *
-        * @version 1.0
-        * @since 2016-04-18
-        **/
+ Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @version 1.0
+ * @since 2016-04-18
+ **/
 
 
 /**
@@ -31,6 +31,21 @@ import java.util.Set;
  * This interface functions as a spider in the web.
  */
 public interface ControllerInterface {
+
+  /**
+   * Method caches the content of the snippet storage
+   *
+   * @param cacheId file name.
+   */
+  void cacheSnippetStorage(String cacheId);
+
+  /**
+   * Method retrieves cached snippet storage.
+   *
+   * @param cacheId file name.
+   */
+  void retrieveCachedSnippetStorage(String cacheId);
+
   /**
    * Method stores one SnippetSet object in SnippetStorage
    *
@@ -49,13 +64,24 @@ public interface ControllerInterface {
   SnippetSet writeEditSnippet(String filePath);
 
   /**
-   * Method executes operation ont the SnippetSet that is passed as argument.
+   * Method executes operation ont the SnippetSets that is passed as argument.
    *
-   * @param snippetSet object of class SnippetSet
-   * @param setOperation Union, intersect or complemet
-   * @return snippetSet object of class SnippetSet
+   * @param setA Set A of type SnippetSet
+   * @param setB Set B of type SnippetSet
+   * @param setOperation Enum constant for the specific op.
+   * @return snippetSet object of class SnippetSet.
    */
-  SnippetSet executeSetOperation(SnippetSet snippetSet, SetOperation setOperation);
+  SnippetSet executeSetOperation(SnippetSet setA, SnippetSet setB, SetOperation setOperation);
+
+ /**
+   * Method executes operation ont the SnippetSets that is passed as argument.
+   *
+   * @param setA Name of Set A.
+   * @param setB Name of Set B.
+   * @param setOperation String name for the specific op.
+   * @return snippetSet object of class SnippetSet.
+   */
+  SnippetSet executeSetOperation(String setA, String setB, String setOperation);
 
   /**
    * Overloaded method that search for snippet based on the array of tagNames that is passed as argument.
@@ -91,7 +117,7 @@ public interface ControllerInterface {
   List<String> getAssociatedTags(String tagName);
 
   /**
-   *Method creates a zip file from a SnippetSet object. Returns a string that represent a
+   * Method creates a zip file from a SnippetSet object. Returns a string that represent a
    * path to a file.
    *
    * @param snippetSet
@@ -115,7 +141,7 @@ public interface ControllerInterface {
   void updateUserName(String newUserName, String oldUserName);
 
   /**
-   *Method removes one snippetInfo from the SnippetSet passed as argument.
+   * Method removes one snippetInfo from the SnippetSet passed as argument.
    * Returns a new snippetSet that not includes the unwanted snippetInfo.
    *
    * @param snippetID int
@@ -123,6 +149,14 @@ public interface ControllerInterface {
    * @return snippetSet new SnippetSet
    */
   SnippetSet removeSnippetFromSet(int snippetID, SnippetSet snippetSet);
+
+  /**
+   * Method removes one snippetInfo from the SnippetSet passed as argument.
+   * Returns a new snippetSet that not includes the unwanted snippetInfo.
+   *
+   * @param setName
+   */
+  void removeSet(String setName);
 
   /**
    * Method reads one snippetInfo based on snippetID that is passed as argument and add the snippetInfo
@@ -139,6 +173,15 @@ public interface ControllerInterface {
    * @return SnippetSet
    */
   SnippetSet getStoredSet(String setID);
+
+  /**
+   * Renames a SnippetSet.
+   *
+   * @param oldSetName Original name.
+   * @param newSetName New name.
+   * @return A reference to the renamed set.
+   */
+  SnippetSet renameStoredSet(String oldSetName, String newSetName);
 
   /**
    * Returns the SnippetSet from SnippetStorage that is marked as currentSet.
@@ -175,6 +218,13 @@ public interface ControllerInterface {
    * @return list of Strings
    */
   List<String> getAllSavedSetsName();
+
+  /**
+   * Returns a list of all user names in database.
+   *
+   * @return list of Strings
+   */
+  List<String> getAllUserNames();
 
   /**
    * Method deletes saved sets, the sets are specified by the list of names that is passed as argument.

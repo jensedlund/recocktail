@@ -19,6 +19,7 @@
 
 package cocktail.snippet;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -49,7 +50,7 @@ import java.util.stream.Collectors;
  * or a complete soundfile. A snippet is supposed to be unique. Snippets are cathegorized
  * by 0 or more tags.
  */
-public class SnippetInfo implements Comparable<SnippetInfo> {
+public class SnippetInfo implements Comparable<SnippetInfo>, Serializable{
 
 
   private int snippetID;

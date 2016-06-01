@@ -21,6 +21,7 @@ package cocktail.snippet;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ import cocktail.stream_io.StreamingService;
  * The getters for derived fields also work as setters in that they also update the
  * field based on the current state of the collection of SnippetInfo.
  */
-public class SnippetSet {
+public class SnippetSet implements Serializable{
 
   private SortedSet<SnippetInfo> snippetCollection;
   private List<String> operationLog;
@@ -151,7 +152,6 @@ public class SnippetSet {
     return returnBool;
   }
 
-
   public SortedSet<SnippetInfo> getSnippetCollection() {
     return snippetCollection;
   }
@@ -173,7 +173,6 @@ public class SnippetSet {
     }
 
   }
-
 
   public double getMinLenSec() {
     if(snippetCollection.size()>0) {
@@ -219,11 +218,35 @@ public class SnippetSet {
     return setName;
   }
 
-  // todo implement
+  /**
+   * Create new populated set from a matheamtical set operation between this and otherSet.
+   * @param otherSet Another snippet set.
+   * @param operation SetOperation enum value.
+   * @return A new SnippetSet.
+   */
   public SnippetSet setOperation(SnippetSet otherSet, SetOperation operation) {
-    operation.calculate(snippetCollection, otherSet.getSnippetCollection());
-    //todo new snippet set
-    return null;
+    // Do a set operation on the snippetCollections on this and otherSet.
+    // Store
+    SortedSet<SnippetInfo> resultCollection = operation.calculate(snippetCollection,
+                                                                 otherSet.getSnippetCollection());
+    SnippetSet resultingSnippetSet = new SnippetSet(resultCollection);
+
+    // Create an poulate a new log array.
+    List<String> newOpLog = new ArrayList<>();
+    newOpLog.addAll(this.getOperationLog());
+    newOpLog.addAll(otherSet.getOperationLog());
+
+    String newLogEntry = "Set operation " +
+                         operation.toString() +
+                         " between " +
+                         this.getSetName() +
+                         " and " +
+                         otherSet.getSetName();
+
+    newOpLog.add(newLogEntry);
+    resultingSnippetSet.setOperationLog(newOpLog);
+
+    return resultingSnippetSet;
   }
 
   public void setSnippetCollection(SortedSet<SnippetInfo> snippetCollection) {
