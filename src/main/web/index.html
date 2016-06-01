@@ -84,7 +84,7 @@
         <select id="snippetsInSet" onchange="updateSnippetStats(this.selectedIndex)">
             <!--<option value="empty">Emptyness is form.</option>-->
         </select>
-        <button id="deleteSnippet" onclick="deleteSnippet()">Delete snippet</button><br>
+        <button id="removeSnippet" onclick="removeSnippetFromSet()">Remove from set</button><br>
         Snippet Id:
         <input id="snippetInfoId" type="text" disabled="true"> <br>
         Tags in set:
@@ -154,6 +154,16 @@
 
         <h4>Fixed Balance</h4>
         <input class="range-slider__range" type="range" id="balance" value="0" min="-1.0" max="1.0" step="0.001">
+        <span class="range-slider__value">0</span>
+
+        <h4>Mix Sets</h4>
+        <select id="leftSet">
+            <!--<option value="empty">Emptyness is form.</option>-->
+        </select>
+        <select id="rightSet">
+            <!--<option value="empty">Emptyness is form.</option>-->
+        </select>
+        <input class="range-slider__range" type="range" id="mix" value="0" min="-1.0" max="1.0" step="0.001">
         <span class="range-slider__value">0</span>
     </div>
 </div>

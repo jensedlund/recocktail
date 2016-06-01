@@ -27,6 +27,7 @@ var context;
 var activeSnippetSet = new SnippetSet();
 var newSnippetSet = new SnippetSet();
 var loadedSoundSets = [];
+var runningSoundSets = [];
 
 window.onload = init;
 
@@ -52,27 +53,36 @@ function populateSetLists() {
     getActiveSets(updateSnippetSetList, "snippetSets");
 }
 
-// Collect sound parameters for playback.
+// Collect sound parameters for playback if and only if the provided set
+// is selected in drop down.
 function collectSoundParams(soundSet) {
-    soundSet.gain = parseFloat(document.getElementById("gain").value);
-    soundSet.gainVar = parseFloat(document.getElementById("gainVar").value);
-    soundSet.balance = parseFloat(document.getElementById("balance").value);
-    soundSet.delay = document.getElementById("delay").value;
-    soundSet.delayVar = document.getElementById("delayVar").value;
-
+    var selectedIndex = document.getElementById("soundSets").selectedIndex;
+    if (soundSet == loadedSoundSets[selectedIndex]) {
+        soundSet.gain = parseFloat(document.getElementById("gain").value);
+        soundSet.gainVar = parseFloat(document.getElementById("gainVar").value);
+        soundSet.balance = parseFloat(document.getElementById("balance").value);
+        soundSet.delay = document.getElementById("delay").value;
+        soundSet.delayVar = document.getElementById("delayVar").value;
+    }
 }
 
 // Kick off selected soundSet
 function startSound() {
-    var selected = document.getElementById("soundSets").selectedIndex;
+    var selectedIndex = document.getElementById("soundSets").selectedIndex;
     var weighted = document.getElementById("weighted").checked;
-    loadedSoundSets[selected].startPlaback(weighted,collectSoundParams);
+    var selectedSet = loadedSoundSets[selectedIndex];
+    selectedSet.startPlaback(weighted,collectSoundParams);
+    runningSoundSets.push(selectedSet);
+    updateMixSetLists();
 }
 
 // Stop selected soundSet
 function stopSound() {
-    var selected = document.getElementById("soundSets").selectedIndex;
-    loadedSoundSets[selected].stopPlayback();
+    var selectedIndex = document.getElementById("soundSets").selectedIndex;
+    var selectedSet = loadedSoundSets[selectedIndex];
+    selectedSet.stopPlayback();
+    runningSoundSets.splice(selectedIndex,1);
+    updateMixSetLists();
 }
 
 // Get all tags from database. Send respons to callback.
@@ -177,8 +187,8 @@ function search() {
            });
 }
 
-// Delete snippet
-function deleteSnippet() {
+// Remove snippet from set
+function removeSnippetFromSet() {
     var setName = document.getElementById("setInfoName").value;
     var snippetId = document.getElementById("snippetInfoId").value;
     var postBody = {
@@ -187,7 +197,7 @@ function deleteSnippet() {
     };
 
     $.ajax({
-               url: serverUrl + "/deleteSnippet",
+               url: serverUrl + "/removeSnippet",
                contentType: 'application/json; charset=utf-8',
                type: 'POST',
                data: postBody,
@@ -323,15 +333,34 @@ function updateSoundSetList() {
     document.getElementById("soundstart").disabled = true;
     document.getElementById("soundstop").disabled = true;
 
-    var soundSelector = document.getElementById("soundSets");
-    for (var i = 0; i < loadedSoundSets.length; i++) {
-        var option = document.createElement("option");
-        var setName = loadedSoundSets[i].name;
-        option.text = setName;
-        option.value = setName;
-        soundSelector.add(option);
-        document.getElementById("soundstart").disabled = false;
-        document.getElementById("soundstop").disabled = false;
+    var soundSelectorStrings = ["soundSets"];
+    // var soundSelectorStrings = ["soundSets", "leftSet", "rightSet"];
+    for (var i = 0; i < soundSelectorStrings.length; i++) {
+        var soundSelector = document.getElementById(soundSelectorStrings[i]);
+        for (var j = 0; j < loadedSoundSets.length; j++) {
+            var option = document.createElement("option");
+            var setName = loadedSoundSets[j].name;
+            option.text = setName;
+            option.value = setName;
+            soundSelector.add(option);
+            document.getElementById("soundstart").disabled = false;
+            document.getElementById("soundstop").disabled = false;
+        }
+    }
+}
+
+function updateMixSetLists() {
+    var soundSelectorStrings = ["leftSet", "rightSet"];
+    for (var i = 0; i < soundSelectorStrings.length; i++) {
+        $("#" + soundSelectorStrings[i]).empty();
+        var soundSelector = document.getElementById(soundSelectorStrings[i]);
+        for (var j = 0; j < runningSoundSets.length; j++) {
+            var option = document.createElement("option");
+            var setName = runningSoundSets[j].name;
+            option.text = setName;
+            option.value = setName;
+            soundSelector.add(option);
+        }
     }
 }
 

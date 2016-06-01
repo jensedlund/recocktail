@@ -79,11 +79,10 @@ SoundSet.prototype.populateFromZip = function (zipBlob) {
         });
 };
 
-// Before starting playback of a soundscape, create a new processedSoundArray
-// then make the first call to soundshooter method.
-// weightedTime is a booleandesciding if shorter sounds should be played more often to equalize
-// playtime between sounds.
-// soundParamFunc is passed to shootSound. A callback that sets sound parameters.
+// Before starting playback of a soundscape, create a new processedSoundArray then make the first
+// call to soundshooter method. weightedTime is a boolean desciding if shorter sounds should be 
+// played more often to equalize playtime between sounds.
+// A callback that sets sound parameters, soundParamFunc is passed to shootSound.
 SoundSet.prototype.startPlaback = function (weightedTime, soundParamFunc) {
     if (!this.playing) {
         // Create processedSoundArray for playback, by either duplicate for
@@ -120,7 +119,7 @@ SoundSet.prototype.shootSound = function (soundParamFunc) {
     // Ideally there is one global object reference of AudioContext passed around because of
     // limited hardware resources allocated in browser.
     if(!this.context) {
-        this.zip = new AudioContext();
+        this.context = new AudioContext();
     }
 
     // While palying true do stuff and call this method again with a delay

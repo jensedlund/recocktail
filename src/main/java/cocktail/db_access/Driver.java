@@ -805,7 +805,7 @@ public enum Driver {
   }
 
 
-  //Method is called from method deleteSnippet and is deletign the informatione where the snippetID is occuring
+  //Method is called from method removeSnippetFromSet and is deletign the informatione where the snippetID is occuring
   private static boolean deleteFromBridgeTable(int snippetID) {
     boolean returnBool = false;
     int fileID = getFileIDFromSnippetID(snippetID);

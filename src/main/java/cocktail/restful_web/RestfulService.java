@@ -133,9 +133,7 @@ public class RestfulService {
       }
     });
 
-
     // Remove snippet from a set.
-    // todo fix a controller instruction, operating on SnippetSet directly is wrong!
     post("/removeSnippet", (request, response) -> {
       Map<String, String> reqBodyMap = RestfulHelper.mapFromRequestBody(request);
       Set<String> existingKeys = reqBodyMap.keySet();
@@ -151,6 +149,7 @@ public class RestfulService {
         Gson gson = new Gson();
         return gson.toJson(snippetSet);
       } else {
+        response.status(400);
         return "Could not find snippet to delete.";
       }
     });

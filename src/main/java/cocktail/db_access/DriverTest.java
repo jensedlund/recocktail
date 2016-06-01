@@ -155,7 +155,7 @@ private static SnippetSet snippetSet;
   public static boolean deletSampels(int snippetID){
 
     boolean returnBool = false;
-    //returnBool = Driver.deleteSnippet(snippetID);
+    //returnBool = Driver.removeSnippetFromSet(snippetID);
     return returnBool;
   }
 
