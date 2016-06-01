@@ -185,9 +185,7 @@ public class ArchiveHandler {
    */
   public SnippetSet unzip(String inputFile) {
     SnippetSet snippetSet = new SnippetSet();
-    boolean fileExists = new File (inputFile).isFile();
-    System.out.println(fileExists);
-    if (!inputFile.isEmpty() && fileExists) {
+    if (new File (inputFile).isFile()) {
       FileSystem fs = null;
       String tempZipDir = null;
 
