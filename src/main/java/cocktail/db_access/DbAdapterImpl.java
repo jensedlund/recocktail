@@ -269,6 +269,11 @@ public class DbAdapterImpl implements DbAdapter {
     return Driver.writeSnippets(snippetInfoFileInfoMap);
   }
 
+  @Override
+  public SnippetSet getAllSnippetsForUserName(String userName) {
+    return Driver.getAllSnippetsForUserName(userName);
+  }
+
   public List<String> getAllUsers(){
     return Driver.getAllUsers();
   }

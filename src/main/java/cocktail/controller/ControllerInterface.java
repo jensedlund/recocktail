@@ -167,7 +167,7 @@ public interface ControllerInterface {
    * @param fileID int
    * @return snippetSet
    */
-  SnippetSet getSingelSourceFileAndItsSnippets(int fileID);
+  SnippetSet getSingleSourceFileAndItsSnippets(int fileID);
 
   /**
    * Returns a list of all the stored sets.
