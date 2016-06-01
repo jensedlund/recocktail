@@ -61,7 +61,7 @@ public class ArchiveHandlerTest {
     }
 
     @Test
-    public void getSingelFile() throws Exception {
+    public void getSingleFile() throws Exception {
         boolean testBool = false;
         SnippetSet snippetSet = archiveHandler.getSingleFile(161);
         if (snippetSet.getSnippetCollection().size() > 0) {

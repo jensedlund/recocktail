@@ -11,18 +11,10 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-/**
- * Handles trimming of sound files. Cutting short snippet from a longer clip.
- */
+
 public class SoundProcessImpl implements SoundProcess {
 
-  /**
-   * Trims a long audio file into a short snippet
-   * @param byteArray AudioClip to trim
-   * @param startSecond Start time of Snippet.
-   * @param secondsToCopy Duration of Snippet.
-   * @return Trimmed byteArray.
-   */
+
   public byte[] trimAudioClip(byte[] byteArray, double startSecond,
                               double secondsToCopy) {
     AudioInputStream audioInputStream = null;
@@ -75,11 +67,7 @@ public class SoundProcessImpl implements SoundProcess {
     return output;
   }
 
-  /**
-   * Get length of a Snippet (in seconds).
-   * @param snippet Snippet to check.
-   * @return Snippet length as double.
-   */
+
   public double getSnippetLength(byte[] snippet) {
     BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(snippet));
     AudioInputStream audioInputStream = null;
