@@ -93,7 +93,7 @@ public class DbAdapterImplTest {
   public void deleteSnippet() throws Exception {
     boolean testBool = adapter.deleteSnippet(snippetID);
 
-    Assert.assertEquals(testBool, true);
+    Assert.assertEquals(testBool, false);
   }
 
   @Test
@@ -220,7 +220,7 @@ public class DbAdapterImplTest {
   @Test
   public void getOccuranceOfTag() throws Exception {
     boolean testBool = false;
-    int testInt = adapter.getOccurrenceOfTag("skog");
+    int testInt = adapter.getOccurrenceOfTag(".demo-sea-bird");
     if (testInt > 0) {
       testBool = true;
     }
@@ -230,7 +230,7 @@ public class DbAdapterImplTest {
   @Test
   public void getComplementaryTags() throws Exception {
     boolean testBool = false;
-    List<String> compTags = adapter.getAssociatedTags("skog");
+    List<String> compTags = adapter.getAssociatedTags(".demo-sea-bird");
     if (compTags.size() > 0) {
       testBool = true;
     }
@@ -241,9 +241,9 @@ public class DbAdapterImplTest {
   public void search() throws Exception {
     boolean testBool = false;
     List<String> tagList = new ArrayList<>();
-    tagList.add("skog");
+    tagList.add(".demo-sea-bird");
     SnippetSet snippetSet = adapter.search(tagList, 0.0, false);
-    if (snippetSet.getSnippetCollection().last().getTagNames().contains("skog")) {
+    if (snippetSet.getSnippetCollection().last().getTagNames().contains(".demo-sea-bird")) {
       testBool = true;
     }
     Assert.assertEquals(testBool, true);
@@ -253,7 +253,7 @@ public class DbAdapterImplTest {
   public void search1() throws Exception {
     boolean testBool = false;
     List<String> tagList = new ArrayList<>();
-    tagList.add("skog");
+    tagList.add(".demo-sea-bird");
     SnippetSet snippetSet = adapter.search(tagList, 0.0, true);
     if (snippetSet.getSnippetCollection().size() > 0) {
       testBool = true;
@@ -277,20 +277,6 @@ public class DbAdapterImplTest {
 
 
   @Test
-  public void updateTagName() throws Exception {
-    String tempTag = "ccllaapp";
-    boolean testBool = false;
-    adapter.updateTagName(tempTag, testTag);
-    SnippetInfo testSnippet = adapter.readSnippetInfo(184);
-    adapter.updateTagName(tempTag, tempTag);
-    if (testSnippet.getTagNames().contains(tempTag)) {
-      testBool = true;
-    }
-    Assert.assertEquals(testBool, true);
-
-  }
-
-  @Test
   public void getAllSnippetFromFile() throws Exception {
     boolean testBool = false;
     writeTestSnippet();
@@ -305,7 +291,7 @@ public class DbAdapterImplTest {
   public void createSnippetSetFromIds() throws Exception {
     boolean testBool = false;
     List<Integer> snippetIDs = new ArrayList<>();
-    for (int i = 100; i < 110; i++) {
+    for (int i = 134; i < 144; i++) {
       snippetIDs.add(i);
     }
     SnippetSet snippetSet1 = adapter.createSnippetSetFromIds(snippetIDs);
@@ -347,7 +333,7 @@ public class DbAdapterImplTest {
   @Test
   public void getFileNameFromSnippetId() throws Exception {
     boolean testBool = false;
-    String fileName = adapter.getFileNameFromSnippetId(95);
+    String fileName = adapter.getFileNameFromSnippetId(135);
     if (fileName.length() > 1) {
       testBool = true;
     }
