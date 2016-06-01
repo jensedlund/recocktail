@@ -47,8 +47,19 @@ private static SnippetSet snippetSet;
   public static void main(String[] args) throws IOException {
 
 
+      //Driver.deleteFromFileInfo(1355);
 crateSeveralSamples();
 
+
+     /* for(int i = 1349; i <= 1353; i++){
+          Driver.deleteFromFileInfo(i);
+      }
+
+
+      for(int i = 1346; i <= 1348; i++){
+          Driver.deleteFromFileInfo(i);
+      }
+      */
   }
 
 

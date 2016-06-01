@@ -300,9 +300,18 @@ public enum Driver {
 
     insertRowsIntoBridgeTable(mapToPassOn);
 
-    for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
+    for (Map.Entry<SnippetInfo, FileInfo> entry : mapToPassOn.entrySet()) {
       listOfSnippetIDs.add(entry.getKey().getSnippetID());
     }
+
+    System.out.println("innan return ");
+    for(Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()){
+      System.out.println(entry.getKey().getSnippetID() + " " + " " + entry.getKey().getFileID() + " " + entry.getValue().getFileID());
+
+    }
+
+
+
     return listOfSnippetIDs;
 
   }
@@ -670,12 +679,12 @@ public enum Driver {
       ps.executeUpdate();
       ResultSet tableKeys = ps.getGeneratedKeys();
 int j = 1;
-      if (tableKeys.next()) {
-        for(Map.Entry<SnippetInfo,FileInfo> entry : mapToPassOn.entrySet()) {
+      for(Map.Entry<SnippetInfo,FileInfo> entry : mapToPassOn.entrySet()) {
+      while (tableKeys.next()) {
           System.out.println("Det genererade fileDi " + tableKeys.getInt(j));
           entry.getValue().setFileID(tableKeys.getInt(j));
-         j++;
-          //  System.out.println(tempMap.get(j).getFileID() + " Det genererade fileID i insertFIlesIntoFileInfo");
+        break;
+         // System.out.println(mapToPassOn.get(j).getFileID() + " Det genererade fileID i insertFIlesIntoFileInfo");
         }
       }
       ps.close();
