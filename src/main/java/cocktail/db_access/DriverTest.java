@@ -48,10 +48,13 @@ private static SnippetSet snippetSet;
 
 
       //Driver.deleteFromFileInfo(1355);
-crateSeveralSamples();
+      crateSeveralSamples();
 
+      /*for(int i = 1220; i <= 1230; i++){
+    Driver.deleteSnippet(i);
+}
 
-     /* for(int i = 1349; i <= 1353; i++){
+      for(int i = 1349; i <= 1353; i++){
           Driver.deleteFromFileInfo(i);
       }
 
@@ -251,6 +254,7 @@ testMap.put(snippetInfo,fileInfo);
     }
 
     List<Integer> testLIst = Driver.writeSnippets(testMap);
+      System.out.println(testLIst);
 
   }
 
