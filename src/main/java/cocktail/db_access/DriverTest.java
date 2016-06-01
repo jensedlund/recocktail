@@ -48,6 +48,7 @@ private static SnippetSet snippetSet;
 
 
 crateSeveralSamples();
+
   }
 
 
@@ -175,7 +176,7 @@ crateSeveralSamples();
       LocalDate ld1 = LocalDate.now();
       LocalDate ld2 = LocalDate.now();
 
-     SnippetInfo snippetInfo = new SnippetInfo("test2", tagNames, 0.0, 5.0, 498, ld1, ld2, "Admin");
+     SnippetInfo snippetInfo = new SnippetInfo("test2", tagNames, 0.0, 5.0, 498, ld1, ld2, "Devel2");
       testMap.put(snippetInfo,fileInfo);
     } catch (Exception e){
       e.printStackTrace();

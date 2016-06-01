@@ -642,7 +642,7 @@ public enum Driver {
       }
       if (!isFileInDb(firstEntry.getValue())) {
         mapToPassOn.put(firstEntry.getKey(), firstEntry.getValue());
-        builder.append("(?,?,?,?)");
+        builder.append("(?,?,?,?),");
 
       } else {
         firstEntry.getValue().setFileID(getFileIDFromFileNameSizeLen(firstEntry.getKey().getFileName(),
@@ -650,7 +650,6 @@ public enum Driver {
 
       }
     }
-
     if(builder.charAt(builder.length()-1)== ',') {
       builder.deleteCharAt(builder.length() - 1);
     }
@@ -670,11 +669,12 @@ public enum Driver {
       }
       ps.executeUpdate();
       ResultSet tableKeys = ps.getGeneratedKeys();
-
+int j = 1;
       if (tableKeys.next()) {
         for(Map.Entry<SnippetInfo,FileInfo> entry : mapToPassOn.entrySet()) {
-          System.out.println("Det genererade fileDi " + tableKeys.getInt(1));
-          entry.getValue().setFileID(tableKeys.getInt(1));
+          System.out.println("Det genererade fileDi " + tableKeys.getInt(j));
+          entry.getValue().setFileID(tableKeys.getInt(j));
+         j++;
           //  System.out.println(tempMap.get(j).getFileID() + " Det genererade fileID i insertFIlesIntoFileInfo");
         }
       }
@@ -1216,7 +1216,7 @@ public enum Driver {
   }
 
   //Method delete one row in fileInfo table
-  private static boolean deleteFromFileInfo(int fileID) {
+  public static boolean deleteFromFileInfo(int fileID) {
     boolean returnBool = false;
     try {
       String sql = "DELETE FROM fileInfo WHERE fileID=?";
