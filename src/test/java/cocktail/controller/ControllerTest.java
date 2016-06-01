@@ -58,8 +58,8 @@ public class ControllerTest {
     List<String> tagNames = new ArrayList<>();
     tagNames.add("skog");
     //SnippetSet snippetSet = snippetSet = impl.search(tagNames, 1.0, false);;
-  //  String path = archiveHandler.zip(snippetSet);
-   String path = "./src/test/resources/test.zip";
+    //  String path = archiveHandler.zip(snippetSet);
+    String path = "./src/test/resources/test.zip";
     SnippetSet returnSnippetSet = Controller.getInstance().writeEditSnippet(path);
     if (returnSnippetSet.getSnippetCollection().size() > 0) {
       returnBool = true;
@@ -128,7 +128,7 @@ public class ControllerTest {
     String oldTagName = "skog";
     String newTagName = "sskkoogg";
     Controller.getInstance().updateTagName(newTagName, oldTagName);
-   if(impl.getAllTags().contains(newTagName)){
+    if(impl.getAllTags().contains(newTagName)){
       testBool = true;
     }
     Controller.getInstance().updateTagName(oldTagName, newTagName);
@@ -201,7 +201,7 @@ public class ControllerTest {
   public void getAllSavedSetsName() throws Exception {
     boolean testBool = false;
     Controller.getInstance().storeSet(snippetSet);
-   List<String> allSetNames = Controller.getInstance().getAllSavedSetsName();
+    List<String> allSetNames = Controller.getInstance().getAllSavedSetsName();
     if(allSetNames.size() > 0){
       testBool = true;
     }
@@ -226,7 +226,7 @@ public class ControllerTest {
     String filePath = archiveHandler.zip(snippetSet);
     System.out.println(filePath);
     boolean testBool = Controller.getInstance().deleteUsedZip(filePath);
-   Assert.assertEquals(testBool,true);
+    Assert.assertEquals(testBool,true);
   }
 
 
