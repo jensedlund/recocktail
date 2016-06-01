@@ -151,6 +151,11 @@ public class Controller implements ControllerInterface {
   }
 
   @Override
+  public void removeSet(String setName) {
+    SnippetStorageImpl.getInstance().removeSet(setName);
+  }
+
+  @Override
   public SnippetSet getCurrentSet() {
     return SnippetStorageImpl.getInstance().getLatestSet();
   }

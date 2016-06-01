@@ -126,7 +126,7 @@ public interface ControllerInterface {
   void updateUserName(String newUserName, String oldUserName);
 
   /**
-   *Method removes one snippetInfo from the SnippetSet passed as argument.
+   * Method removes one snippetInfo from the SnippetSet passed as argument.
    * Returns a new snippetSet that not includes the unwanted snippetInfo.
    *
    * @param snippetID int
@@ -134,6 +134,14 @@ public interface ControllerInterface {
    * @return snippetSet new SnippetSet
    */
   SnippetSet removeSnippetFromSet(int snippetID, SnippetSet snippetSet);
+
+  /**
+   * Method removes one snippetInfo from the SnippetSet passed as argument.
+   * Returns a new snippetSet that not includes the unwanted snippetInfo.
+   *
+   * @param setName
+   */
+  void removeSet(String setName);
 
   /**
    * Method reads one snippetInfo based on snippetID that is passed as argument and add the snippetInfo
