@@ -129,8 +129,7 @@ public class SnippetStorageImpl implements SnippetStorage {
           oi =
           new ObjectInputStream(new FileInputStream(dirName + "/" + id + ".sav"));
       Object snippetSetsIn = oi.readObject();
-      SnippetSet SnippetSetLoaded = (SnippetSet) snippetSetsIn;
-      workingSets.add(SnippetSetLoaded);
+      workingSets = (LinkedList<SnippetSet>) snippetSetsIn;
       oi.close();
     } catch (Exception exc) {
       exc.printStackTrace();
