@@ -58,7 +58,7 @@ public class ControllerTest {
     boolean returnBool = false;
     List<String> tagNames = new ArrayList<>();
     tagNames.add(".demo-sea-bird");
-    SnippetSet snippetSet = snippetSet = impl.search(tagNames, 1.0, false);;
+    SnippetSet snippetSet = impl.search(tagNames, 1.0, false);;
     String path = archiveHandler.zip(snippetSet);
     SnippetSet returnSnippetSet = Controller.getInstance().writeEditSnippet(path);
     if (returnSnippetSet.getSnippetCollection().size() > 0) {
@@ -186,8 +186,6 @@ public class ControllerTest {
     boolean testBool = false;
     SnippetSet test = new SnippetSet();
     String path = Controller.getInstance().getZippedFiles(test);
-    System.out.println(path);
-
     if (path.length() == 0) {
       testBool = true;
     }

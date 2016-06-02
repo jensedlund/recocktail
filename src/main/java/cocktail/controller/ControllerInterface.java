@@ -1,10 +1,10 @@
 package cocktail.controller;
 
-import java.util.List;
-import java.util.Set;
-
 import cocktail.snippet.SetOperation;
 import cocktail.snippet.SnippetSet;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
@@ -248,4 +248,6 @@ public interface ControllerInterface {
    *
    */
   void deleteAllTagsNotInUse();
+
+ SnippetSet getAllSnippetsFromUserName(String userNam);
 }
