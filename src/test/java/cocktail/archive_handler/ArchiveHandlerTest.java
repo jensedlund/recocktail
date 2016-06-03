@@ -1,5 +1,7 @@
 package cocktail.archive_handler;
 
+import cocktail.controller.Controller;
+import cocktail.snippet.SnippetSet;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -7,9 +9,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import cocktail.controller.Controller;
-import cocktail.snippet.SnippetSet;
 
 /**
  * @author Marcus Vidén Ulrika, Goloconda Fahlén, Jan Eriksson
@@ -33,39 +32,17 @@ public class ArchiveHandlerTest {
     }
 
     @Test
-    public void zip1() throws Exception {
+    public void zip() throws Exception {
         boolean testBool = false;
-        filePath = archiveHandler.zip(snippetSet);
+         filePath = archiveHandler.zip(snippetSet);
         if(filePath.length()>3){
             testBool = true;
         }
         Assert.assertEquals(testBool,true);
     }
 
-
     @Test
-    public void zip2() throws Exception {
-        boolean testBool = false;
-        filePath = archiveHandler.zip(null);
-        if(filePath.length()==0){
-            testBool = true;
-        }
-        Assert.assertEquals(testBool,true);
-    }
-
-    @Test
-    public void zip3() throws Exception {
-        boolean testBool = false;
-        SnippetSet testSet = new SnippetSet();
-        filePath = archiveHandler.zip(testSet);
-        if(filePath.length()==0){
-            testBool = true;
-        }
-        Assert.assertEquals(testBool,true);
-    }
-
-    @Test
-    public void unzip1() throws Exception {
+    public void unzip() throws Exception {
         boolean testBool = false;
         String path = archiveHandler.zip(snippetSet);
         SnippetSet snippetSet = archiveHandler.unzip(path);
@@ -76,39 +53,6 @@ public class ArchiveHandlerTest {
     }
 
     @Test
-    public void unzip2() throws Exception {
-        boolean testBool = false;
-        SnippetSet snippetSet = archiveHandler.unzip(null);
-        if (snippetSet.getSnippetCollection().size()==0) {
-            testBool = true;
-        }
-        Assert.assertEquals(testBool, true);
-    }
-
-
-    @Test
-    public void unzip3() throws Exception {
-        boolean testBool = false;
-        SnippetSet snippetSet = archiveHandler.unzip("");
-        if (snippetSet.getSnippetCollection().size()==0) {
-            testBool = true;
-        }
-        Assert.assertEquals(testBool, true);
-    }
-
-
-    @Test
-    public void unzip4() throws Exception {
-        boolean testBool = false;
-        SnippetSet snippetSet = archiveHandler.unzip("någonSomInteÄrEnSökväg.zip");
-        if (snippetSet.getSnippetCollection().size()==0) {
-            testBool = true;
-        }
-        Assert.assertEquals(testBool, true);
-    }
-
-
-    @Test
     public void deleteUsedZip() throws Exception {
         String setName = "";
         boolean test = archiveHandler.deleteUsedZip(setName);
@@ -117,21 +61,11 @@ public class ArchiveHandlerTest {
 
     @Test
 
-    public void getSingelFile1() throws Exception {
-        boolean testBool = false;
-        SnippetSet snippetSet = archiveHandler.getSingleFile(161);
-        if (snippetSet.getSnippetCollection().size() > 0) {
-            testBool = true;
-        }
-        Assert.assertEquals(testBool, true);
-    }
+    public void getSingleFile1() throws Exception {
 
-    @Test
-    public void getSingelFile2() throws Exception {
         boolean testBool = false;
-        SnippetSet snippetSet = archiveHandler.getSingleFile(-1);
-        System.out.println(snippetSet);
-        if (snippetSet.getSnippetCollection().size() == 0) {
+        SnippetSet snippetSet = archiveHandler.getSingleFile(1343);
+        if (snippetSet.getSnippetCollection().size() > 0) {
             testBool = true;
         }
         Assert.assertEquals(testBool, true);

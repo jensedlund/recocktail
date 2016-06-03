@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cocktail.snippet.SnippetSet>
+    <avgLenSec>4.82</avgLenSec>
+    <maxLenSec>4.82</maxLenSec>
+    <minLenSec>4.82</minLenSec>
+    <numSnippets>1</numSnippets>
+    <setName>Unknown-2016-6-3</setName>
+    <snippetCollection>
+        <creationDate>2016-06-03</creationDate>
+        <fileID>0</fileID>
+        <fileName>b-duvhök-1.wav</fileName>
+        <kbSize>830</kbSize>
+        <lastModified>2016-06-03</lastModified>
+        <lengthSec>4.82</lengthSec>
+        <multiples>0</multiples>
+        <snippetID>0</snippetID>
+        <startTime>0.0</startTime>
+        <tagNames>skogsfågel</tagNames>
+        <tagNames>hök</tagNames>
+        <tagNames>fågel</tagNames>
+        <userID>0</userID>
+        <userName>Unknown</userName>
+    </snippetCollection>
+    <tagsInSet>skogsfågel</tagsInSet>
+    <tagsInSet>hök</tagsInSet>
+    <tagsInSet>fågel</tagsInSet>
+</cocktail.snippet.SnippetSet>
