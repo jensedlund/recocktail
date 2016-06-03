@@ -307,8 +307,22 @@ public interface DbAdapter {
    */
  boolean updateTagNameAsAdmin(String newTagName, String oldTagName, String userName);
 
+  /**
+   * Write several snippets to database.
+   *
+   * @param snippetInfoFileInfoMap
+   * @return List with all the snippetID:s creatd in database
+     */
   List<Integer> writeSnippets(Map<SnippetInfo, FileInfo> snippetInfoFileInfoMap);
 
+
+  /**
+   * Returns a SnippetSet with a collection of all snippets stored in database
+   * by one specific user.
+   *
+   * @param userName
+   * @return
+     */
   SnippetSet getAllSnippetsForUserName(String userName);
 }
 
