@@ -50,9 +50,14 @@ private static SnippetSet snippetSet;
       //Driver.deleteFromFileInfo(1355);
     //  Driver.deleteSnippet(1246);
     //crateSeveralSamples();
-SnippetSet ss = impl.getAllSnippetsForUserName("Admin");
-      System.out.println(ss.getSnippetCollection().size());
 
+    //
+      /*
+for(int i = 159; i <=171; i++){
+    Driver.deleteSnippet(i);
+}*/
+
+      impl.removeAllUnusedTags();
 
  /*   for(int i = 1281; i <= 1290; i++){
     Driver.deleteSnippet(i);

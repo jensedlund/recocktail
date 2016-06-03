@@ -291,7 +291,7 @@ public class ControllerTest {
   @Test
   public void getSingleSourceFileAndItsSnippets1() throws Exception {
     boolean testBool = false;
-    SnippetSet snippetSet = Controller.getInstance().getSingleSourceFileAndItsSnippets(5);
+    SnippetSet snippetSet = Controller.getInstance().getSingleSourceFileAndItsSnippets(1343);
     if (snippetSet.getSnippetCollection().size() > 0) {
       testBool = true;
     }

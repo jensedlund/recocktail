@@ -459,7 +459,7 @@ function newSnippet() {
 
     // Populate simple properties
     newSnippetInfo.tagNames = tagList;
-    newSnippetInfo.fileName = encodeURI(files[0].name);
+    newSnippetInfo.fileName = files[0].name;
 
     // Read in the file as array buffer
     var fileReader = new FileReader();

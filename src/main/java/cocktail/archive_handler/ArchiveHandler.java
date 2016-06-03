@@ -1,35 +1,5 @@
 package cocktail.archive_handler;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.xml.bind.JAXBException;
-
 import cocktail.db_access.DbAdapter;
 import cocktail.db_access.DbAdapterImpl;
 import cocktail.snippet.FileInfo;
@@ -40,6 +10,18 @@ import cocktail.sound_processing.SoundExtractorImpl;
 import cocktail.sound_processing.SoundProcess;
 import cocktail.sound_processing.SoundProcessImpl;
 import cocktail.stream_io.XmlStreamer;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.xml.bind.JAXBException;
+import java.io.*;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
 
 /**
  * This class handles archives to and from the frontend. Populating zip's and database with
@@ -358,7 +340,6 @@ public class ArchiveHandler {
             } catch (IOException e1) {
               e1.printStackTrace();
             }
-            removeDirectory(tempDir);
           }
         }
         snippetSet = dbAdapter.createSnippetSetFromIds(snippetIDs);

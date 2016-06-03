@@ -6,9 +6,7 @@ import cocktail.snippet.FileInfo;
 import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLDecoder;
 import java.sql.*;
 import java.util.*;
 
@@ -222,7 +220,7 @@ public enum Driver {
   }
 
   //Method takes a string, fileName, as an argument and return the string decoded in UTF-8
-  private static String utf8Decode(String s) {
+ /* private static String utf8Decode(String s) {
     String returnString = "";
     System.out.println(s);
     try {
@@ -233,12 +231,13 @@ public enum Driver {
     System.out.println(returnString);
     return returnString;
   }
+  */
 
   //Overloaded method that inserts one snippet in database
   protected static int writeSnippet(FileInfo fileInfo, SnippetInfo snippetInfo) {
 
     String tempFileName = fileInfo.getFileName();
-    fileInfo.setFileName(utf8Decode(tempFileName));
+   // fileInfo.setFileName(utf8Decode(tempFileName));
     int returnInt = 0;
     if (isSnippetADuplicate(snippetInfo, fileInfo)) {
       returnInt = joinTwoSnippets(snippetInfo, fileInfo);
@@ -274,7 +273,7 @@ public enum Driver {
     for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
       System.out.println(entry.getKey().getUserName());
       String tempFileName = entry.getValue().getFileName();
-      entry.getValue().setFileName(utf8Decode(tempFileName));
+      //entry.getValue().setFileName(utf8Decode(tempFileName));
       if (isFileInDb(entry.getValue())){
         entry.getValue().setFileID(getFileIDFromFileNameSizeLen(entry.getValue().getFileName(),entry.getValue().getFileLenSec(),
                 entry.getValue().getFileSizeKb()));
@@ -2153,7 +2152,7 @@ int j = 1;
   public static int writeSnippetAsAdmin(SnippetInfo snippetInfo, FileInfo fileInfo) {
     int returnInt = 0;
     String tempFileName = fileInfo.getFileName();
-    fileInfo.setFileName(utf8Decode(tempFileName));
+    //fileInfo.setFileName(utf8Decode(tempFileName));
 
     if (snippetInfo.getUserName().equals(_adminUserName)) {
       tagsToLowerCase(snippetInfo);
@@ -2197,7 +2196,7 @@ int j = 1;
 
 
 
-  //Oaverloaded method that insert one snippet if the userName i s equal to the adminUserName and one of
+  //Overloaded method that insert one snippet if the userName i s equal to the adminUserName and one of
   // the tags is protected and the file already is inserted into the database
   public static int writeSnippetAsAdmin(SnippetInfo snippetInfo, int fileID) {
     int returnInt = 0;
@@ -2242,7 +2241,7 @@ int j = 1;
     }
   }
 
-
+//Check if one snippetID is stored in database
   protected static boolean isSnippetIdInDb(int snippetID){
     boolean returnBool = false;
     try{
@@ -2261,7 +2260,7 @@ int j = 1;
     return returnBool;
   }
 
-
+//Returns a SnippetSet with a celletion of snippetInfo object
   protected static SnippetSet getAllSnippetsForUserName(String userNam){
     SnippetSet returnSet = new SnippetSet();
     int userID = getUserIDForUserName(userNam);
