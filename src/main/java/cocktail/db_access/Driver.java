@@ -2257,7 +2257,33 @@ int j = 1;
     }catch (Exception e){
       e.printStackTrace();
     }
+
     return returnBool;
   }
+
+
+  protected static SnippetSet getAllSnippetsForUserName(String userNam){
+    SnippetSet returnSet = new SnippetSet();
+    int userID = getUserIDForUserName(userNam);
+    List<Integer> tempIDList = new ArrayList<>();
+    try{
+      String sql = "SELECT snippetID FROM snippetInfo WHERE userID=?";
+      PreparedStatement ps = myConnection.prepareStatement(sql);
+      ps.setInt(1,userID);
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()){
+        tempIDList.add(rs.getInt("snippetID"));
+      }
+
+    }catch (Exception e){
+      e.printStackTrace();
+    }
+
+    for(int i : tempIDList){
+      returnSet.getSnippetCollection().add(readSnippetInf(i));
+    }
+    return returnSet;
+  }
+
 }
 

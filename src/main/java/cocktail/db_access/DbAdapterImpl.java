@@ -270,6 +270,11 @@ public class DbAdapterImpl implements DbAdapter {
   }
 
   @Override
+  public SnippetSet getAllSnippetsForUserName(String userName) {
+    return Driver.getAllSnippetsForUserName(userName);
+  }
+
+  @Override
   public List<String> getAllUsers(){
     return Driver.getAllUsers();
   }

@@ -33,6 +33,7 @@ import java.util.SortedSet;
  * @version 1.0
  * @since 2016-03-25
  */
+
 public class ControllerTest {
   private SnippetSet snippetSet;
 
@@ -57,7 +58,7 @@ public class ControllerTest {
     boolean returnBool = false;
     List<String> tagNames = new ArrayList<>();
     tagNames.add(".demo-sea-bird");
-    SnippetSet snippetSet = snippetSet = impl.search(tagNames, 1.0, false);;
+    SnippetSet snippetSet = impl.search(tagNames, 1.0, false);;
     String path = archiveHandler.zip(snippetSet);
     SnippetSet returnSnippetSet = Controller.getInstance().writeEditSnippet(path);
     if (returnSnippetSet.getSnippetCollection().size() > 0) {
@@ -185,8 +186,6 @@ public class ControllerTest {
     boolean testBool = false;
     SnippetSet test = new SnippetSet();
     String path = Controller.getInstance().getZippedFiles(test);
-    System.out.println(path);
-
     if (path.length() == 0) {
       testBool = true;
     }
@@ -284,7 +283,6 @@ public class ControllerTest {
   @Test
   public void deleteUsedZip() throws Exception {
     String filePath = archiveHandler.zip(snippetSet);
-    System.out.println(filePath);
     boolean testBool = Controller.getInstance().deleteUsedZip(filePath);
     Assert.assertEquals(testBool,true);
   }
@@ -293,12 +291,10 @@ public class ControllerTest {
   @Test
   public void getSingleSourceFileAndItsSnippets1() throws Exception {
     boolean testBool = false;
-
-    String path = Controller.getInstance().getSingelSourceFileAndItsSnippets(5).toString();
-    if (path.length() > 1) {
+    SnippetSet snippetSet = Controller.getInstance().getSingleSourceFileAndItsSnippets(5);
+    if (snippetSet.getSnippetCollection().size() > 0) {
       testBool = true;
     }
-    Controller.getInstance().deleteUsedZip(path);
     Assert.assertEquals(testBool, true);
   }
 
@@ -306,12 +302,10 @@ public class ControllerTest {
   @Test
   public void getSingleSourceFileAndItsSnippets2() throws Exception {
     boolean testBool = false;
-    String path = Controller.getInstance().getSingelSourceFileAndItsSnippets(-1).toString();
-    System.out.println(path);
+    String path = Controller.getInstance().getSingleSourceFileAndItsSnippets(-1).toString();
     if (path.length() < 1) {
-      testBool = true;
+      testBool = false;
     }
-    Controller.getInstance().deleteUsedZip(path);
     Assert.assertEquals(testBool, false);
   }
 

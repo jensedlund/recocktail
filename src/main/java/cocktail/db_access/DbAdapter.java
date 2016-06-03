@@ -308,6 +308,8 @@ public interface DbAdapter {
  boolean updateTagNameAsAdmin(String newTagName, String oldTagName, String userName);
 
   List<Integer> writeSnippets(Map<SnippetInfo, FileInfo> snippetInfoFileInfoMap);
+
+  SnippetSet getAllSnippetsForUserName(String userName);
 }
 
 
