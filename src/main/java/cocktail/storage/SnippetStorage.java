@@ -41,23 +41,35 @@ public interface SnippetStorage {
 
   boolean addSet(SnippetSet snippetSet);
 
+  boolean addSet(String userName, SnippetSet snippetSet);
+
   boolean removeSet(String snippetSetName);
+
+  boolean removeSet(String userName, String snippetSetName);
 
   SnippetSet renameSet(String oldSetName, String newSetName);
 
+  SnippetSet renameSet(String userName, String oldSetName, String newSetName);
+
   List<String> getWorkingSetNames();
+
+  List<String> getWorkingSetNames(String userName);
 
   String[] storedContextIds();
 
   SnippetSet getSet(String id);
+
+  SnippetSet getSet(String userName, String id);
+
+  Set<String> getAllSetNames();
+
+  void deleteSavedSets(List<String> savedSetNames );
+
+  void deleteSavedSets(String userName, List<String> savedSetNames );
 
   boolean restoreContext(String id);
 
   boolean storeContext(String id);
 
   void setLogNote(String log, SnippetSet snippetSet);
-
-  Set<String> getAllSetNames();
-
-  void deleteSavedSets(List<String> savedSetNames );
 }

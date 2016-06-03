@@ -18,17 +18,17 @@ package cocktail.controller;
  * @since 2016-04-18
  **/
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import cocktail.archive_handler.ArchiveHandler;
 import cocktail.db_access.DbAdapter;
 import cocktail.db_access.DbAdapterImpl;
 import cocktail.snippet.SetOperation;
 import cocktail.snippet.SnippetSet;
 import cocktail.storage.SnippetStorageImpl;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * ControllerInterface is a layer that delegates and pass on information to other parts of the program.
@@ -41,6 +41,7 @@ public class Controller implements ControllerInterface {
   private ArchiveHandler archiveHandler;
   private static Controller controller;
   private static String storageCacheName = "SnippetStorage";
+  private static String currentUser = "Unknown";
 
   private Controller() {
     dbAdapter = new DbAdapterImpl();
@@ -57,6 +58,10 @@ public class Controller implements ControllerInterface {
     }
   }
 
+  public static void setCurrentUser(String currentUser) {
+    Controller.currentUser = currentUser;
+  }
+
   @Override
   public void cacheSnippetStorage(String cacheId) {
     SnippetStorageImpl.getInstance().storeContext(cacheId);
@@ -69,7 +74,7 @@ public class Controller implements ControllerInterface {
 
   @Override
   public void storeSet(SnippetSet snippetSet) {
-    SnippetStorageImpl.getInstance().addSet(snippetSet);
+    SnippetStorageImpl.getInstance().addSet(currentUser,snippetSet);
 //    cacheSnippetStorage(storageCacheName);
   }
 
@@ -94,7 +99,7 @@ public class Controller implements ControllerInterface {
 
       // Get new set, add to Storage.
       result = setA.setOperation(setB, operation);
-      SnippetStorageImpl.getInstance().addSet(result);
+      SnippetStorageImpl.getInstance().addSet(currentUser,result);
     } catch (IllegalArgumentException e) {
       // If set operation dones not exist, just return setA.
       result = setA;
@@ -104,8 +109,8 @@ public class Controller implements ControllerInterface {
 
   @Override
   public SnippetSet searchSnippetSet(String[] tagNames, boolean exclusive) {
-   SnippetSet set = dbAdapter.search(tagNames, exclusive);
-       storeSet(set);
+    SnippetSet set = dbAdapter.search(tagNames, exclusive);
+    storeSet(set);
     return set;
   }
 
@@ -212,7 +217,6 @@ public class Controller implements ControllerInterface {
     }
     return returnBool;
   }
-
 
   @Override
   public boolean deleteSnippetAsAdmin(int snippetID) {

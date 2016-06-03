@@ -41,18 +41,25 @@ import cocktail.snippet.SnippetSet;
  */
 public class SnippetStorageImpl implements SnippetStorage {
 
-  private LinkedList<SnippetSet> workingSets;
+//  private LinkedList<SnippetSet> workingSetsByUser;
+  private HashMap<String, LinkedList<SnippetSet>> workingSetsByUser;
   private Map<String, File> savedSets;
   private static SnippetSet latestSet;
   private static SnippetStorageImpl instance;
   private static Set<String> setNames;
+  private static Set<String> userNames;
+  private static final String defaultUser = "Unknown";
 
   static {
     setNames = new HashSet<>();
+    userNames = new HashSet<>();
   }
 
   public SnippetStorageImpl() {
-    workingSets = new LinkedList<>();
+    LinkedList<SnippetSet> defaultUserSets = new LinkedList<>();
+    workingSetsByUser = new HashMap<>();
+    userNames.add(defaultUser);
+    workingSetsByUser.put(defaultUser,defaultUserSets);
     savedSets = new HashMap<>();
   }
 
@@ -65,6 +72,30 @@ public class SnippetStorageImpl implements SnippetStorage {
     }
   }
 
+  private void userCheck(String userName) {
+    if (!userNames.contains(userName)) {
+      userNames.add(userName);
+      LinkedList<SnippetSet> newUserSets = new LinkedList<>();
+      workingSetsByUser.put(userName, newUserSets);
+    }
+  }
+
+  @Override
+  public SnippetSet getSet(String setName) {
+    return getSet(defaultUser, setName);
+  }
+
+  @Override
+  public SnippetSet getSet(String userName, String setName) {
+    LinkedList<SnippetSet> userSetList = workingSetsByUser.get(userName);
+    for (SnippetSet snippetSet : userSetList) {
+      if (snippetSet.getSetName().equals(setName)) {
+        return snippetSet;
+      }
+    }
+    return null;
+  }
+
   @Override
   public SnippetSet getLatestSet() {
     return latestSet;
@@ -72,9 +103,16 @@ public class SnippetStorageImpl implements SnippetStorage {
 
   @Override
   public boolean addSet(SnippetSet snippetSet) {
+    return addSet(defaultUser, snippetSet);
+  }
+
+  @Override
+  public boolean addSet(String userName, SnippetSet snippetSet) {
     boolean returnBool = false;
     latestSet = snippetSet;
-    workingSets.addFirst(snippetSet);
+    userCheck(userName);
+    LinkedList<SnippetSet> userSetList = workingSetsByUser.get(userName);
+    userSetList.addFirst(snippetSet);
     if (setNames.contains(snippetSet.getSetName())) {
       return returnBool;
     } else {
@@ -91,10 +129,17 @@ public class SnippetStorageImpl implements SnippetStorage {
    */
   @Override
   public boolean removeSet(String snippetSetName) {
+    return removeSet(defaultUser, snippetSetName);
+  }
+
+  @Override
+  public boolean removeSet(String userName, String snippetSetName) {
+    userCheck(userName);
     if(setNames.contains(snippetSetName)) {
       setNames.remove(snippetSetName);
-      SnippetSet snippetSet = getSet(snippetSetName);
-      workingSets.remove(snippetSet);
+      LinkedList<SnippetSet> userSetList = workingSetsByUser.get(userName);
+      SnippetSet snippetSet = getSet(userName, snippetSetName);
+      userSetList.remove(snippetSet);
       return true;
     } else {
       return false;
@@ -110,9 +155,13 @@ public class SnippetStorageImpl implements SnippetStorage {
    */
   @Override
   public SnippetSet renameSet(String oldSetName, String newSetName) {
+    return renameSet(defaultUser,oldSetName,newSetName);
+  }
 
+  @Override
+  public SnippetSet renameSet(String userName, String oldSetName, String newSetName) {
     if(setNames.contains(oldSetName) && !setNames.contains(newSetName)) {
-      SnippetSet snippetSet = getSet(oldSetName);
+      SnippetSet snippetSet = getSet(userName, oldSetName);
       snippetSet.setSetName(newSetName);
       setNames.remove(oldSetName);
       setNames.add(newSetName);
@@ -129,12 +178,24 @@ public class SnippetStorageImpl implements SnippetStorage {
 
   @Override
   public void deleteSavedSets(List<String> savedSetNames) {
-    workingSets.removeAll(savedSetNames);
+    deleteSavedSets(defaultUser, savedSetNames);
+  }
+
+  @Override
+  public void deleteSavedSets(String userName, List<String> savedSetNames) {
+    LinkedList<SnippetSet> userSetList = workingSetsByUser.get(userName);
+    userSetList.removeAll(savedSetNames);
   }
 
   @Override
   public List<String> getWorkingSetNames() {
-    return workingSets.stream().map(s -> s.getSetName()).collect(Collectors.toList());
+    return getWorkingSetNames(defaultUser);
+  }
+
+  @Override
+  public List<String> getWorkingSetNames(String userName) {
+    LinkedList<SnippetSet> userSetList = workingSetsByUser.get(userName);
+    return userSetList.stream().map(s -> s.getSetName()).collect(Collectors.toList());
   }
 
   @Override
@@ -142,17 +203,7 @@ public class SnippetStorageImpl implements SnippetStorage {
     return (String[]) savedSets.keySet().toArray();
   }
 
-  @Override
-  public SnippetSet getSet(String setName) {
 
-    for (SnippetSet snippetSet : workingSets) {
-      if (snippetSet.getSetName().equals(setName)) {
-        return snippetSet;
-      }
-    }
-    return null;
-    // return (SnippetSet) workingSets.stream().filter(a -> a.getSetName().equals(setName));
-  }
 
   @Override
   public boolean restoreContext(String id) {
@@ -167,7 +218,8 @@ public class SnippetStorageImpl implements SnippetStorage {
           oi =
           new ObjectInputStream(new FileInputStream(dirName + "/" + id + ".sav"));
       Object snippetSetsIn = oi.readObject();
-      workingSets = (LinkedList<SnippetSet>) snippetSetsIn;
+//      workingSetsByUser = (LinkedList<SnippetSet>) snippetSetsIn;
+      workingSetsByUser = (HashMap<String, LinkedList<SnippetSet>>) snippetSetsIn;
       oi.close();
     } catch (Exception exc) {
       exc.printStackTrace();
@@ -189,7 +241,7 @@ public class SnippetStorageImpl implements SnippetStorage {
           oos =
           new ObjectOutputStream(new FileOutputStream(dirName + "/" + id + ".sav"));
       try {
-        oos.writeObject(workingSets);
+        oos.writeObject(workingSetsByUser);
         System.out.println("Saving your working set.");
       } catch (IOException e) {
         e.printStackTrace();
@@ -203,7 +255,7 @@ public class SnippetStorageImpl implements SnippetStorage {
     //    File outPutFile = new File(dirName + "/" + id + ".sav");
 
 //    XmlStreamer<LinkedList<SnippetSet>> xmlStreamer = new XmlStreamer<>();
-//    xmlStreamer.toStream(workingSets.getClass(), workingSets, outPutFile);
+//    xmlStreamer.toStream(workingSetsByUser.getClass(), workingSetsByUser, outPutFile);
     return true;
   }
 
