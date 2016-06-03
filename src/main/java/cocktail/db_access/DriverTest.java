@@ -49,8 +49,9 @@ private static SnippetSet snippetSet;
 
       //Driver.deleteFromFileInfo(1355);
     //  Driver.deleteSnippet(1246);
-    crateSeveralSamples();
-
+    //crateSeveralSamples();
+SnippetSet ss = impl.getAllSnippetsForUserName("Admin");
+      System.out.println(ss.getSnippetCollection().size());
 
 
  /*   for(int i = 1281; i <= 1290; i++){
@@ -176,7 +177,7 @@ private static SnippetSet snippetSet;
   public static boolean deletSampels(int snippetID){
 
     boolean returnBool = false;
-    //returnBool = Driver.deleteSnippet(snippetID);
+    //returnBool = Driver.removeSnippetFromSet(snippetID);
     return returnBool;
   }
 

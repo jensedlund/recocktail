@@ -18,17 +18,17 @@ package cocktail.controller;
  * @since 2016-04-18
  **/
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import cocktail.archive_handler.ArchiveHandler;
 import cocktail.db_access.DbAdapter;
 import cocktail.db_access.DbAdapterImpl;
 import cocktail.snippet.SetOperation;
 import cocktail.snippet.SnippetSet;
 import cocktail.storage.SnippetStorageImpl;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * ControllerInterface is a layer that delegates and pass on information to other parts of the program.
@@ -40,11 +40,12 @@ public class Controller implements ControllerInterface {
   private DbAdapter dbAdapter;
   private ArchiveHandler archiveHandler;
   private static Controller controller;
-
+  private static String storageCacheName = "SnippetStorage";
 
   private Controller() {
     dbAdapter = new DbAdapterImpl();
     archiveHandler = new ArchiveHandler();
+//    retrieveCachedSnippetStorage(storageCacheName);
   }
 
   public static Controller getInstance() {
@@ -57,8 +58,19 @@ public class Controller implements ControllerInterface {
   }
 
   @Override
+  public void cacheSnippetStorage(String cacheId) {
+    SnippetStorageImpl.getInstance().storeContext(cacheId);
+  }
+
+  @Override
+  public void retrieveCachedSnippetStorage(String cacheId) {
+    SnippetStorageImpl.getInstance().restoreContext(cacheId);
+  }
+
+  @Override
   public void storeSet(SnippetSet snippetSet) {
     SnippetStorageImpl.getInstance().addSet(snippetSet);
+//    cacheSnippetStorage(storageCacheName);
   }
 
   @Override
@@ -122,7 +134,6 @@ public class Controller implements ControllerInterface {
   @Override
   public void updateUserName(String newUserName, String oldUserName) {
     dbAdapter.updateUserName(newUserName, oldUserName);
-
   }
 
   @Override
@@ -147,8 +158,17 @@ public class Controller implements ControllerInterface {
   }
 
   @Override
+  public SnippetSet renameStoredSet(String oldSetName, String newSetName) {
+    return SnippetStorageImpl.getInstance().renameSet(oldSetName, newSetName);
+  }
+
+  @Override
+  public void removeSet(String setName) {
+    SnippetStorageImpl.getInstance().removeSet(setName);
+  }
+
+  @Override
   public SnippetSet getCurrentSet() {
-//    return snippetStorage.getLatestSet();
     return SnippetStorageImpl.getInstance().getLatestSet();
   }
 
@@ -160,12 +180,17 @@ public class Controller implements ControllerInterface {
   }
 
   @Override
+  public List<String> getAllUserNames() {
+    return dbAdapter.getAllUsers();
+  }
+
+  @Override
   public boolean deleteUsedZip(String filePath) {
     return archiveHandler.deleteUsedZip(filePath);
   }
 
   @Override
-  public SnippetSet getSingelSourceFileAndItsSnippets(int fileID) {
+  public SnippetSet getSingleSourceFileAndItsSnippets(int fileID) {
     return archiveHandler.getSingleFile(fileID);
   }
 
@@ -188,6 +213,7 @@ public class Controller implements ControllerInterface {
     return returnBool;
   }
 
+
   @Override
   public boolean deleteSnippetAsAdmin(int snippetID) {
    return dbAdapter.deleteSnippetAsAdmin(snippetID);
@@ -196,6 +222,11 @@ public class Controller implements ControllerInterface {
   @Override
   public void deleteAllTagsNotInUse() {
     dbAdapter.removeAllUnusedTags();
+  }
+
+  @Override
+  public SnippetSet getAllSnippetsFromUserName(String userNam) {
+   return dbAdapter.getAllSnippetsForUserName(userNam);
   }
 
 }

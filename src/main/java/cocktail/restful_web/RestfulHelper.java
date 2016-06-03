@@ -20,6 +20,8 @@ package cocktail.restful_web;
  * @since 2016-04-18
  */
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -42,13 +44,18 @@ public abstract class RestfulHelper {
    * @return The request body as a map with the post fields as keys.
    */
   public static Map<String, String> mapFromRequestBody(Request request) {
+    String decodedBody = "";
+    try {
+      decodedBody = URLDecoder.decode(request.body(), "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
     Map<String, String> reqBodyMap =
-        Arrays.asList(request.body().split("&"))
+        Arrays.asList(decodedBody.split("&"))
             .stream()
             .map(str -> str.split("="))
             .filter(str -> str.length > 1)
             .collect(Collectors.toMap(str -> str[0], str -> str[1]));
     return reqBodyMap;
   }
-
 }

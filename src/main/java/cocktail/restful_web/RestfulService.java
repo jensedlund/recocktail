@@ -69,15 +69,22 @@ public class RestfulService {
     Controller controller = Controller.getInstance();
 
     // Return all tags that exist in database
-    get("/getAllTags", (request, response) -> controller.getCompleteSetOfTagNames(),
-        (src) -> {
-          Gson gson = new Gson();
-          return gson.toJson(src);
-        });
+    get("/getAllTags", (request, response) -> {
+      Set<String> tags = controller.getCompleteSetOfTagNames();
+      Gson gson = new Gson();
+      return gson.toJson(tags);
+    });
+
+    // Return all users that exist in database
+    get("/getAllUsers", (request, response) -> {
+      List<String> tags = controller.getAllUserNames();
+      Gson gson = new Gson();
+      return gson.toJson(tags);
+    });
 
     // Move generated zip to static file location and return the URL.
     get("/getZipUrl/:name", (request, response) -> {
-      String setName = request.params(":name");
+      String setName = URLDecoder.decode(request.params(":name"), "UTF-8");
       SnippetSet snippetSet = controller.getStoredSet(setName);
 
       new File("src/main/web/tmp").mkdirs();
@@ -132,9 +139,7 @@ public class RestfulService {
       }
     });
 
-
     // Remove snippet from a set.
-    // todo fix a controller instruction, operating on SnippetSet directly is wrong!
     post("/removeSnippet", (request, response) -> {
       Map<String, String> reqBodyMap = RestfulHelper.mapFromRequestBody(request);
       Set<String> existingKeys = reqBodyMap.keySet();
@@ -150,6 +155,7 @@ public class RestfulService {
         Gson gson = new Gson();
         return gson.toJson(snippetSet);
       } else {
+        response.status(400);
         return "Could not find snippet to delete.";
       }
     });
@@ -163,18 +169,23 @@ public class RestfulService {
           && existingKeys.contains("operation")) {
         String setAName = reqBodyMap.get("setA");
         String setBName = reqBodyMap.get("setB");
+
+        if (setAName.equals(setBName)) {
+          response.status(400);
+          return "Set operation between the same sets not allowed.";
+        }
         String op = reqBodyMap.get("operation");
 
         SnippetSet snippetSetRes = controller.executeSetOperation(setAName, setBName, op);
         Gson gson = new Gson();
         return gson.toJson(snippetSetRes);
       } else {
+        response.status(400);
         return "Could not find sets or matching operation.";
       }
     });
 
-    // todo fix a controller instruction, operating on SnippetSet directly is wrong!
-    // todo rename should be done in storage, otherwise set will be lost!
+
     post("/renameSet", (request, response) -> {
       Map<String, String> reqBodyMap = RestfulHelper.mapFromRequestBody(request);
       Set<String> existingKeys = reqBodyMap.keySet();
@@ -184,12 +195,13 @@ public class RestfulService {
 
       if (existingKeys.contains("setName") && existingKeys.contains("newSetName")) {
         snippetSetName = reqBodyMap.get("setName");
-        SnippetSet snippetSet = controller.getStoredSet(snippetSetName);
-
+        newSetName = reqBodyMap.get("newSetName");
+        SnippetSet snippetSet = controller.renameStoredSet(snippetSetName,newSetName);
         Gson gson = new Gson();
         return gson.toJson(snippetSet);
       } else {
-        return "Could not find snippet to delete.";
+        response.status(400);
+        return "Could not find snippet to rename, or the new name was not unique.";
       }
     });
 
@@ -198,8 +210,8 @@ public class RestfulService {
       new File("src/main/web/tmp").mkdirs();
       Gson gson = new Gson();
       XmlStreamer<SnippetSet> xmlStreamer = new XmlStreamer<>();
-
-      SnippetSet snippetSet = gson.fromJson(request.body(), SnippetSet.class);
+      String decodedBody = URLDecoder.decode(request.body(), "UTF-8");
+      SnippetSet snippetSet = gson.fromJson(decodedBody, SnippetSet.class);
       String fileName = "SnippetSet.xml";
       String filePath = "src/main/web/tmp/" + fileName;
       File file = new File(filePath);
@@ -207,7 +219,7 @@ public class RestfulService {
       return gson.toJson(fileName);
     }));
 
-    // Return a list of all sets in StorgaeUnit.
+    // Return a list of all sets in StorageUnit.
     get("/getActiveSets", (request, response) -> {
       List<String> setList = controller.getAllSavedSetsName();
       Gson gson = new Gson();
@@ -216,14 +228,10 @@ public class RestfulService {
 
     // Get a specific set from StorageUnit and return as JSON.
     get("/getSet/:name", (request, response) -> {
-      String setName = request.params(":name");
+      String setName = URLDecoder.decode(request.params(":name"), "UTF-8");
       SnippetSet snippetSet = controller.getStoredSet(setName);
       Gson gson = new Gson();
       return gson.toJson(snippetSet);
     });
-
   }
 }
-
-
-

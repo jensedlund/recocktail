@@ -19,10 +19,11 @@
 
 package cocktail.db_access;
 
+import java.util.List;
+
 import cocktail.snippet.FileInfo;
 import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
-
 import java.util.List;
 import java.util.Map;
 
@@ -135,6 +136,12 @@ public interface DbAdapter {
    * @return List<String> list of tags
    */
   List<String> getAllTags();
+
+  /**
+   * Returns a list of all users in the database
+   * @return List<String> list of users
+   */
+  List<String> getAllUsers();
 
   /**
    * Returns the number of times one specific tag is occurring in the database.
@@ -302,6 +309,8 @@ public interface DbAdapter {
  boolean updateTagNameAsAdmin(String newTagName, String oldTagName, String userName);
 
   List<Integer> writeSnippets(Map<SnippetInfo, FileInfo> snippetInfoFileInfoMap);
+
+  SnippetSet getAllSnippetsForUserName(String userName);
 }
 
 

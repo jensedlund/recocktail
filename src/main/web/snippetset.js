@@ -40,7 +40,7 @@ function SnippetInfo() {
     this.creationDate = new DateStrings();
     this.lastModified = new DateStrings();
     this.userID = 0;
-    this.userName = "Admin";
+    this.userName = "Unknown";
     this.multiples = 0;
     this.fileBlob = null;
 }

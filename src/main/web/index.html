@@ -37,6 +37,10 @@
 </head>
 <body>
 <div id="wrapper">
+    <h2>Welcome to Cocktail, an interactive soundscape engine.</h2>
+    User name: <input id="user" type="text" list="userList" autocomplete="on">
+    <datalist id="userList"> </datalist>
+
     <div id="searchDiv">
         <h2>Search tags to create snippet set</h2>
         <p>Search snippet info by tag names. Separate tags with whitespace.</p>
@@ -65,7 +69,7 @@
         <select id="setOp" onchange="">
             <!--<option value="empty">Emptyness is form.</option>-->
         </select>
-        <button id="setOpbutton" onclick="">Execute!</button>
+        <button id="setOpbutton" onclick="setOperation()">Execute!</button>
     </div>
     <div id="setInfoDiv">
         <h2>Snippet set Information</h2>
@@ -74,7 +78,8 @@
         </select>
         <button id="downloadButton" onclick="getZip()">Download Set</button> <br>
         SetName:
-        <input id="setInfoName" type="text"> <br>
+        <input id="setInfoName" type="text">
+        <button id="renameButton" onclick="renameSet()">Rename Set</button> <br>
         Number of snippets:
         <input id="setInfoNum" type="text" disabled="true"> <br>
         Tags in set:
@@ -83,7 +88,7 @@
         <select id="snippetsInSet" onchange="updateSnippetStats(this.selectedIndex)">
             <!--<option value="empty">Emptyness is form.</option>-->
         </select>
-        <button id="deleteSnippet" onclick="deleteSnippet()">Delete snippet</button><br>
+        <button id="removeSnippet" onclick="removeSnippetFromSet()">Remove from set</button><br>
         Snippet Id:
         <input id="snippetInfoId" type="text" disabled="true"> <br>
         Tags in set:
@@ -94,8 +99,8 @@
         <input id="snippetInfoStart" type="text"> <br>
         Snippet duration:
         <input id="snippetInfoDuration" type="text"> <br>
-
     </div>
+
     <div id="soundscapeDiv">
         <h2>Area for editing</h2>
 
@@ -153,6 +158,16 @@
 
         <h4>Fixed Balance</h4>
         <input class="range-slider__range" type="range" id="balance" value="0" min="-1.0" max="1.0" step="0.001">
+        <span class="range-slider__value">0</span>
+
+        <h4>Mix Sets</h4>
+        <select id="leftSet">
+            <!--<option value="empty">Emptyness is form.</option>-->
+        </select>
+        <select id="rightSet">
+            <!--<option value="empty">Emptyness is form.</option>-->
+        </select>
+        <input class="range-slider__range" type="range" id="mix" value="0" min="-1.0" max="1.0" step="0.001">
         <span class="range-slider__value">0</span>
     </div>
 </div>

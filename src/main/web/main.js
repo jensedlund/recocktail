@@ -27,6 +27,7 @@ var context;
 var activeSnippetSet = new SnippetSet();
 var newSnippetSet = new SnippetSet();
 var loadedSoundSets = [];
+var runningSoundSets = [];
 
 window.onload = init;
 
@@ -36,36 +37,52 @@ function init() {
     context = new AudioContext();
 
     // Get active sets from storge unit in backend
-    getActiveSets(updateSnippetSetList, "setA");
-    getActiveSets(updateSnippetSetList, "setB");
-    getActiveSets(updateSnippetSetList, "snippetSets");
+    // getActiveSets(updateSnippetSetList, "setA");
+    // getActiveSets(updateSnippetSetList, "setB");
+    // getActiveSets(updateSnippetSetList, "snippetSets");
+    populateSetLists();
     populateSetOpList(["Union","Intersect","Complement","illegal"]);
     // Get all tags from database to use in autocomplete
     getAllTags(populateAllTagsList);
     rangeSlider();
 }
 
-// Collect sound parameters for playback.
-function collectSoundParams(soundSet) {
-    soundSet.gain = parseFloat(document.getElementById("gain").value);
-    soundSet.gainVar = parseFloat(document.getElementById("gainVar").value);
-    soundSet.balance = parseFloat(document.getElementById("balance").value);
-    soundSet.delay = document.getElementById("delay").value;
-    soundSet.delayVar = document.getElementById("delayVar").value;
+function populateSetLists() {
+    getActiveSets(updateSnippetSetList, "setA");
+    getActiveSets(updateSnippetSetList, "setB");
+    getActiveSets(updateSnippetSetList, "snippetSets");
+}
 
+// Collect sound parameters for playback if and only if the provided set
+// is selected in drop down.
+function collectSoundParams(soundSet) {
+    var selectedIndex = document.getElementById("soundSets").selectedIndex;
+    if (soundSet == loadedSoundSets[selectedIndex]) {
+        soundSet.gain = parseFloat(document.getElementById("gain").value);
+        soundSet.gainVar = parseFloat(document.getElementById("gainVar").value);
+        soundSet.balance = parseFloat(document.getElementById("balance").value);
+        soundSet.delay = document.getElementById("delay").value;
+        soundSet.delayVar = document.getElementById("delayVar").value;
+    }
 }
 
 // Kick off selected soundSet
 function startSound() {
-    var selected = document.getElementById("soundSets").selectedIndex;
+    var selectedIndex = document.getElementById("soundSets").selectedIndex;
     var weighted = document.getElementById("weighted").checked;
-    loadedSoundSets[selected].startPlaback(weighted,collectSoundParams);
+    var selectedSet = loadedSoundSets[selectedIndex];
+    selectedSet.startPlaback(weighted,collectSoundParams);
+    runningSoundSets.push(selectedSet);
+    updateMixSetLists();
 }
 
 // Stop selected soundSet
 function stopSound() {
-    var selected = document.getElementById("soundSets").selectedIndex;
-    loadedSoundSets[selected].stopPlayback();
+    var selectedIndex = document.getElementById("soundSets").selectedIndex;
+    var selectedSet = loadedSoundSets[selectedIndex];
+    selectedSet.stopPlayback();
+    runningSoundSets.splice(selectedIndex,1);
+    updateMixSetLists();
 }
 
 // Get all tags from database. Send respons to callback.
@@ -77,6 +94,18 @@ function getAllTags(callback) {
         }
     };
     xhttp.open("GET", serverUrl + "/getAllTags", true);
+    xhttp.send();
+}
+// Get all tags from database. Send respons to callback.
+function getAllUsers(callback) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function(){
+        if(xhttp.readyState == 4 && xhttp.status == 200) {
+            // callback(xhttp.response);
+            console.log(xhttp.response)
+        }
+    };
+    xhttp.open("GET", serverUrl + "/getAllUsers", true);
     xhttp.send();
 }
 
@@ -160,7 +189,8 @@ function search() {
 
                    // Update the list since new snippetSet are
                    // expected to be available after search
-                   getActiveSets(updateSnippetSetList);
+                   // getActiveSets(updateSnippetSetList);
+                   populateSetLists();
                },
                error: function (xhr, status) {
                    console.log(status);
@@ -169,8 +199,8 @@ function search() {
            });
 }
 
-// Delete snippet
-function deleteSnippet() {
+// Remove snippet from set
+function removeSnippetFromSet() {
     var setName = document.getElementById("setInfoName").value;
     var snippetId = document.getElementById("snippetInfoId").value;
     var postBody = {
@@ -179,7 +209,7 @@ function deleteSnippet() {
     };
 
     $.ajax({
-               url: serverUrl + "/deleteSnippet",
+               url: serverUrl + "/removeSnippet",
                contentType: 'application/json; charset=utf-8',
                type: 'POST',
                data: postBody,
@@ -205,16 +235,51 @@ function deleteSnippet() {
 
 // Execute a set operation
 function setOperation() {
-    var setNameA = document.getElementById("setInfoName").value;
-    var setNameB = document.getElementById("snippetInfoId").value;
-    var setOpName = document.getElementById("snippetInfoId").value;
+    var setNameA = document.getElementById("setA").value;
+    var setNameB = document.getElementById("setB").value;
+    var setOpName = document.getElementById("setOp").value;
     var postBody = {
-        snippetSetName: setName,
-        snippetId: snippetId,
+        setA: setNameA,
+        setB: setNameB,
+        operation: setOpName,
     };
 
     $.ajax({
-               url: serverUrl + "/deleteSnippet",
+               url: serverUrl + "/setOperation",
+               contentType: 'application/json; charset=utf-8',
+               type: 'POST',
+               data: postBody,
+               dataType: 'json',
+               async: true,
+               success: function (data) {
+                   // Result is put into active snippet set
+                   var snippetSet = new SnippetSet();
+                   snippetSet.populateFromJson(data);
+                   activeSnippetSet = snippetSet;
+                   updateSnippetSetStats(snippetSet);
+                   
+                   // Update the list since new snippetSet are
+                   // expected to be available
+                   // getActiveSets(updateSnippetSetList);
+                   populateSetLists();
+               },
+               error: function (xhr, status) {
+                   console.log(status);
+                   console.log(xhr.responseText);
+               }
+           });
+}
+
+// Rename the set in BE and FE...
+function renameSet() {
+    var setNameInput = document.getElementById("setInfoName").value;
+    var postBody = {
+        setName: activeSnippetSet.setName,
+        newSetName: setNameInput,
+    };
+
+    $.ajax({
+               url: serverUrl + "/renameSet",
                contentType: 'application/json; charset=utf-8',
                type: 'POST',
                data: postBody,
@@ -228,8 +293,9 @@ function setOperation() {
                    updateSnippetSetStats(snippetSet);
 
                    // Update the list since new snippetSet are
-                   // expected to be available after search
-                   getActiveSets(updateSnippetSetList);
+                   // expected to be available
+                   // getActiveSets(updateSnippetSetList);
+                   populateSetLists();
                },
                error: function (xhr, status) {
                    console.log(status);
@@ -279,15 +345,34 @@ function updateSoundSetList() {
     document.getElementById("soundstart").disabled = true;
     document.getElementById("soundstop").disabled = true;
 
-    var soundSelector = document.getElementById("soundSets");
-    for (var i = 0; i < loadedSoundSets.length; i++) {
-        var option = document.createElement("option");
-        var setName = loadedSoundSets[i].name;
-        option.text = setName;
-        option.value = setName;
-        soundSelector.add(option);
-        document.getElementById("soundstart").disabled = false;
-        document.getElementById("soundstop").disabled = false;
+    var soundSelectorStrings = ["soundSets"];
+    // var soundSelectorStrings = ["soundSets", "leftSet", "rightSet"];
+    for (var i = 0; i < soundSelectorStrings.length; i++) {
+        var soundSelector = document.getElementById(soundSelectorStrings[i]);
+        for (var j = 0; j < loadedSoundSets.length; j++) {
+            var option = document.createElement("option");
+            var setName = loadedSoundSets[j].name;
+            option.text = setName;
+            option.value = setName;
+            soundSelector.add(option);
+            document.getElementById("soundstart").disabled = false;
+            document.getElementById("soundstop").disabled = false;
+        }
+    }
+}
+
+function updateMixSetLists() {
+    var soundSelectorStrings = ["leftSet", "rightSet"];
+    for (var i = 0; i < soundSelectorStrings.length; i++) {
+        $("#" + soundSelectorStrings[i]).empty();
+        var soundSelector = document.getElementById(soundSelectorStrings[i]);
+        for (var j = 0; j < runningSoundSets.length; j++) {
+            var option = document.createElement("option");
+            var setName = runningSoundSets[j].name;
+            option.text = setName;
+            option.value = setName;
+            soundSelector.add(option);
+        }
     }
 }
 
