@@ -114,9 +114,12 @@ SnippetSet.prototype.addBlobsToZip = function() {
     if(!this.zip) {
         this.zip = new JSZip();
     }
-    var firstTagInSet = this.tagsInSet[0];
-    var snippetFolder = this.zip.folder("snippets/" + firstTagInSet);
+    var that  = this;
+    // var firstTagInSet = this.tagsInSet[0];
+    // var snippetFolder = this.zip.folder("snippets/" + firstTagInSet);
+    var snippetFolder = that.zip.folder("snippets/");
     this.snippetCollection.forEach(function(element) {
+        // var firstTagInSnippet = element.tagNames[0];
         snippetFolder.file(element.fileName, element.fileBlob, {base64 : true});
     });
 };

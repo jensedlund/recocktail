@@ -27,6 +27,7 @@ import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -77,9 +78,10 @@ public class RestfulService {
 
     // Return all users that exist in database
     get("/getAllUsers", (request, response) -> {
-      List<String> tags = controller.getAllUserNames();
+      List<String> usersList = controller.getAllUserNames();
+      Set<String> usersSet = new HashSet<String>(usersList);
       Gson gson = new Gson();
-      return gson.toJson(tags);
+      return gson.toJson(usersSet);
     });
 
     // Move generated zip to static file location and return the URL.

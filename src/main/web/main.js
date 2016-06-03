@@ -37,13 +37,12 @@ function init() {
     context = new AudioContext();
 
     // Get active sets from storge unit in backend
-    // getActiveSets(updateSnippetSetList, "setA");
-    // getActiveSets(updateSnippetSetList, "setB");
-    // getActiveSets(updateSnippetSetList, "snippetSets");
     populateSetLists();
     populateSetOpList(["Union","Intersect","Complement","illegal"]);
+
     // Get all tags from database to use in autocomplete
     getAllTags(populateAllTagsList);
+    getAllUsers(populateUserList);
     rangeSlider();
 }
 
@@ -96,13 +95,14 @@ function getAllTags(callback) {
     xhttp.open("GET", serverUrl + "/getAllTags", true);
     xhttp.send();
 }
-// Get all tags from database. Send respons to callback.
+
+// Get all users from database. Send respons to callback.
 function getAllUsers(callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
         if(xhttp.readyState == 4 && xhttp.status == 200) {
-            // callback(xhttp.response);
-            console.log(xhttp.response)
+            callback(xhttp.response);
+            // console.log(xhttp.response)
         }
     };
     xhttp.open("GET", serverUrl + "/getAllUsers", true);
@@ -144,6 +144,19 @@ function populateAllTagsList(response) {
     var allTags = JSON.parse(response);
     allTags.sort();
     var list = document.getElementById("allTagsList");
+    allTags.forEach(function(item) {
+        var option = document.createElement('option');
+        option.value = item;
+        list.appendChild(option);
+    });
+}
+
+// Take an expected array of users
+function populateUserList(response) {
+    clearDataList("userList");
+    var allTags = JSON.parse(response);
+    allTags.sort();
+    var list = document.getElementById("userList");
     allTags.forEach(function(item) {
         var option = document.createElement('option');
         option.value = item;
@@ -459,7 +472,8 @@ function newSnippet() {
 
     // Populate simple properties
     newSnippetInfo.tagNames = tagList;
-    newSnippetInfo.fileName = encodeURI(files[0].name);
+    newSnippetInfo.fileName = files[0].name;
+    // newSnippetInfo.fileName = encodeURI(files[0].name);
 
     // Read in the file as array buffer
     var fileReader = new FileReader();
@@ -487,7 +501,6 @@ function newSnippet() {
 function fileSelectionUpdate() {
 
     var fileButton = document.getElementById("newFile");
-
     var files = fileButton.files; // FileList object
 
     // files is a FileList of File objects. List some properties.
