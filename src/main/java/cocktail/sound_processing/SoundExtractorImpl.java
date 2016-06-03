@@ -30,11 +30,11 @@ public class SoundExtractorImpl implements SoundExtractor {
   public boolean soundToWav(File inputFile, File outputFile) {
 
     try {
-      Process
-          convert =
-       Runtime.getRuntime().exec("C:\\sox\\sox.exe " + inputFile + " -c 1 -r 44000 -b 16 " + outputFile);
-         // Runtime.getRuntime().exec("sox " + inputFile + " -c 1 -r 44000 -b 16 " + outputFile);
-//osx example          Runtime.getRuntime().exec("/usr/local/bin/sox " + inputFile + " -c 1 -r 44000 -b 16 " + outputFile);
+      Process convert =
+//       Runtime.getRuntime().exec("C:\\sox\\sox.exe " + inputFile + " -c 1 -r 44000 -b 16 " + outputFile);
+//       Runtime.getRuntime().exec("sox " + inputFile + " -c 1 -r 44000 -b 16 " + outputFile);
+      //osx example
+      Runtime.getRuntime().exec("/usr/local/bin/sox " + inputFile + " -c 1 -r 44000 -b 16 " + outputFile);
       try {
         convert.waitFor();
       } catch (InterruptedException e) {

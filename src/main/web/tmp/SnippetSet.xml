@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <cocktail.snippet.SnippetSet>
-    <avgLenSec>6.710022675736962</avgLenSec>
-    <maxLenSec>6.710022675736962</maxLenSec>
-    <minLenSec>6.710022675736962</minLenSec>
+    <avgLenSec>4.82</avgLenSec>
+    <maxLenSec>4.82</maxLenSec>
+    <minLenSec>4.82</minLenSec>
     <numSnippets>1</numSnippets>
     <setName>Unknown-2016-6-3</setName>
     <snippetCollection>
         <creationDate>2016-06-03</creationDate>
         <fileID>0</fileID>
-        <fileName>b-gråhakedopping-2.wav</fileName>
-        <kbSize>1155</kbSize>
+        <fileName>b-duvhök-1.wav</fileName>
+        <kbSize>830</kbSize>
         <lastModified>2016-06-03</lastModified>
-        <lengthSec>6.710022675736962</lengthSec>
+        <lengthSec>4.82</lengthSec>
         <multiples>0</multiples>
         <snippetID>0</snippetID>
         <startTime>0.0</startTime>
-        <tagNames>gråhakedopping</tagNames>
-        <tagNames>demo-sjöfågel</tagNames>
+        <tagNames>skogsfågel</tagNames>
+        <tagNames>hök</tagNames>
+        <tagNames>fågel</tagNames>
         <userID>0</userID>
         <userName>Unknown</userName>
     </snippetCollection>
-    <tagsInSet>gråhakedopping</tagsInSet>
-    <tagsInSet>demo-sjöfågel</tagsInSet>
+    <tagsInSet>skogsfågel</tagsInSet>
+    <tagsInSet>hök</tagsInSet>
+    <tagsInSet>fågel</tagsInSet>
 </cocktail.snippet.SnippetSet>
