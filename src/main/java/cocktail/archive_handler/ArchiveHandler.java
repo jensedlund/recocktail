@@ -59,116 +59,118 @@ public class ArchiveHandler {
    * @return path to zip-archive
    */
   public String zip(SnippetSet set) {
-    if (!set.equals(null)) {
+    if (set != null && set.getNumSnippets() != 0) {
+        File zipWorkspace = new File("./src/main/resources/zip/");
+        if (!zipWorkspace.exists()) {
+          zipWorkspace.mkdir();
+        }
 
-      File zipWorkspace = new File("./src/main/resources/zip/");
-      if (!zipWorkspace.exists()) {
-        zipWorkspace.mkdir();
-      }
+        File tempDir = new File(zipWorkspace + File.separator + set.getSetName());
+        String outputFile = tempDir + File.separator + set.getSetName() + ".zip";
+        final Path path = Paths.get(outputFile);
+        final URI uri = URI.create("jar:file:" + path.toUri().getPath());
+        Map<String, String> env = new HashMap<>();
+        env.put("create", "true");
+        env.put("encoding", "UTF-8");
 
-      File tempDir = new File(zipWorkspace + File.separator + set.getSetName());
-      String outputFile = tempDir + File.separator + set.getSetName() + ".zip";
-      final Path path = Paths.get(outputFile);
-      final URI uri = URI.create("jar:file:" + path.toUri().getPath());
-      Map<String, String> env = new HashMap<>();
-      env.put("create", "true");
-      env.put("encoding", "UTF-8");
+        Path zipFilePath;
+        File addNewFile;
+        byte[] sourceFile = null;
+        int
+            currentFileID =
+            -1; //set to -1 to ensure a file is getting loaded when working thru set.
+        FileSystem fs = null;
 
-      Path zipFilePath;
-      File addNewFile;
-      byte[] sourceFile = null;
-      int currentFileID = -1; //set to -1 to ensure a file is getting loaded when working thru set.
-      FileSystem fs = null;
+        if (!tempDir.exists()) {
+          tempDir.mkdir();
+        }
 
-      if (!tempDir.exists()) {
-        tempDir.mkdir();
-      }
+        try {
+          fs = FileSystems.newFileSystem(uri, env);
+        } catch (IOException e) {
+          e.printStackTrace();
+          return null;
+        }
 
-      try {
-        fs = FileSystems.newFileSystem(uri, env);
-      } catch (IOException e) {
-        e.printStackTrace();
-        return null;
-      }
+        //here the process of working thru the snippetset to collect clips and populating the archive.
+        //trying to optimize it trying to avoid loading source files multiple times.
+        for (SnippetInfo snippet : sortSetByFileID(set)) {
 
-      //here the process of working thru the snippetset to collect clips and populating the archive.
-      //trying to optimize it trying to avoid loading source files multiple times.
-      for (SnippetInfo snippet : sortSetByFileID(set)) {
+          if (fs != null) {
+            //check if method needs to load a new clip from DB or not.
+            if (currentFileID == -1 || currentFileID != snippet.getFileID()) {
+              currentFileID = snippet.getFileID();
+              sourceFile = dbAdapter.readSnippet(snippet.getSnippetID());
+              System.out.println("----------loaded a new file from DB: " + snippet.getFileName());
+            }
 
-        if (fs != null) {
-          //check if method needs to load a new clip from DB or not.
-          if (currentFileID == -1 || currentFileID != snippet.getFileID()) {
-            currentFileID = snippet.getFileID();
-            sourceFile = dbAdapter.readSnippet(snippet.getSnippetID());
-            System.out.println("----------loaded a new file from DB: " + snippet.getFileName());
-          }
-
-          //checks if the snippet is the same size as the source file.
-          //addnewFile refers to the file that will be copied into the zip.
-          if (!dbAdapter.isSnippetPartOfLongerFile(snippet.getSnippetID())) {
-            addNewFile =
-                byteArrayToFile(sourceFile, tempDir + File.separator + snippet.getFileName());
-            System.out.println("-----this is a single file snippet! ------");
-
-            //else it needs to be cut, using trimAudioClip.
+            //checks if the snippet is the same size as the source file.
             //addnewFile refers to the file that will be copied into the zip.
-          } else {
-            addNewFile =
-                byteArrayToFile(process.trimAudioClip(sourceFile,
-                                                      snippet.getStartTime(),
-                                                      snippet.getLengthSec()),
-                                tempDir + File.separator + snippet.getFileName());
-            System.out.println("----this snippet is a cutout from a larger file----");
-          }
+            if (!dbAdapter.isSnippetPartOfLongerFile(snippet.getSnippetID())) {
+              addNewFile =
+                  byteArrayToFile(sourceFile, tempDir + File.separator + snippet.getFileName());
+              System.out.println("-----this is a single file snippet! ------");
 
-          //parentDir is used to create destination subdirectories named from the first tagName.
-          Path parentDir = fs.getPath("/snippets/" + snippet.getTagNames().get(0));
-          zipFilePath =
-              fs.getPath(
-                  parentDir + File.separator + snippet.getFileName() + "_" + snippet.getSnippetID()
-                  + ".wav");
-          if (Files.notExists(parentDir)) {
-            System.out.println("Creating directory " + parentDir);
+              //else it needs to be cut, using trimAudioClip.
+              //addnewFile refers to the file that will be copied into the zip.
+            } else {
+              addNewFile =
+                  byteArrayToFile(process.trimAudioClip(sourceFile,
+                                                        snippet.getStartTime(),
+                                                        snippet.getLengthSec()),
+                                  tempDir + File.separator + snippet.getFileName());
+              System.out.println("----this snippet is a cutout from a larger file----");
+            }
+
+            //parentDir is used to create destination subdirectories named from the first tagName.
+            Path parentDir = fs.getPath("/snippets/" + snippet.getTagNames().get(0));
+            zipFilePath =
+                fs.getPath(
+                    parentDir + File.separator + snippet.getFileName() + "_" + snippet
+                        .getSnippetID()
+                    + ".wav");
+            if (Files.notExists(parentDir)) {
+              System.out.println("Creating directory " + parentDir);
+              try {
+                Files.createDirectories(parentDir);
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+            }
             try {
-              Files.createDirectories(parentDir);
+              Files.copy(addNewFile.toPath(), zipFilePath);
             } catch (IOException e) {
               e.printStackTrace();
             }
+            snippet.setFileName(snippet.getFileName() + "_" + snippet.getSnippetID() + ".wav");
+            addNewFile.delete();
           }
-          try {
-            Files.copy(addNewFile.toPath(), zipFilePath);
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-          snippet.setFileName(snippet.getFileName() + "_" + snippet.getSnippetID() + ".wav");
-          addNewFile.delete();
         }
+
+        //creates and add the updated snippetset xml to the archive.
+        File
+            xmlFile =
+            new File(tempDir + File.separator + "SnippetSet.xml");
+        try {
+          if (fs != null) {
+            set.toStream(new XmlStreamer<SnippetSet>(), xmlFile);
+            Files.copy(xmlFile.toPath(), fs.getPath("SnippetSet.xml"));
+            fs.close();
+          }
+        } catch (IOException e) {
+          e.printStackTrace();
+          try {
+            fs.close();
+            return null;
+          } catch (IOException e1) {
+            e1.printStackTrace();
+          }
+        }
+        xmlFile.delete();
+        return outputFile;
       }
 
-      //creates and add the updated snippetset xml to the archive.
-      File
-          xmlFile =
-          new File(tempDir + File.separator + "SnippetSet.xml");
-      try {
-        if (fs != null) {
-          set.toStream(new XmlStreamer<SnippetSet>(), xmlFile);
-          Files.copy(xmlFile.toPath(), fs.getPath("SnippetSet.xml"));
-          fs.close();
-        }
-      } catch (IOException e) {
-        e.printStackTrace();
-        try {
-          fs.close();
-          return null;
-        } catch (IOException e1) {
-          e1.printStackTrace();
-        }
-      }
-      xmlFile.delete();
-      return outputFile;
-    } else {
-      return null;
-    }
+    return "";
   }
 
   /**
@@ -182,10 +184,11 @@ public class ArchiveHandler {
    * @return snippetSet of files added to database
    */
   public SnippetSet unzip(String inputFile) {
-    if (!inputFile.equals(null)) {
+    SnippetSet snippetSet = new SnippetSet();
+    if (new File (inputFile).isFile()) {
       FileSystem fs = null;
       String tempZipDir = null;
-      SnippetSet snippetSet = null;
+
 
       File unzipWorkspace = new File("./src/main/resources/unzip/");
       if (!unzipWorkspace.exists()) {
@@ -214,6 +217,7 @@ public class ArchiveHandler {
         fs = FileSystems.newFileSystem(uri, env);
       } catch (IOException e) {
         e.printStackTrace();
+        return snippetSet;
       }
 
       //filewalk thru the zip to unpack and convert its content
@@ -256,7 +260,8 @@ public class ArchiveHandler {
 
             @Override
             public FileVisitResult preVisitDirectory(Path dir,
-                                                     BasicFileAttributes attrs) throws IOException {
+                                                     BasicFileAttributes attrs)
+                throws IOException {
               final Path subDir = Paths.get(tempDir.toString(),
                                             dir.toString());
               if (Files.notExists(subDir)) {
@@ -368,7 +373,7 @@ public class ArchiveHandler {
       System.out.println("snippetset: " + snippetSet);
       return snippetSet;
     } else {
-      return null;
+      return snippetSet;
     }
   }
 
@@ -552,19 +557,24 @@ public class ArchiveHandler {
    * @return bool
    */
   public boolean deleteUsedZip(String setName) {
-    if (setName.length() > 3) {
-      File deadFile = new File(setName);
-      if (!deadFile.isFile()) {
-        System.out.println(setName + " is not found OR is not a file.");
+    if (setName.length() > 0) {
+      try {
+        File deadFile = new File(setName);
+        if (!deadFile.isFile()) {
+          System.out.println(setName + " is not found OR is not a file.");
+          System.out.println("deleting directory: " + deadFile.toPath().getParent().toFile());
+          removeDirectory(deadFile.toPath().getParent().toFile());
+          return false;
+        }
+        System.out.println("deleting file: " + deadFile);
+        deadFile.delete();
         System.out.println("deleting directory: " + deadFile.toPath().getParent().toFile());
         removeDirectory(deadFile.toPath().getParent().toFile());
+        return true;
+      } catch (Exception e) {
+        e.printStackTrace();
         return false;
       }
-      System.out.println("deleting file: " + deadFile);
-      deadFile.delete();
-      System.out.println("deleting directory: " + deadFile.toPath().getParent().toFile());
-      removeDirectory(deadFile.toPath().getParent().toFile());
-      return true;
     }
     return false;
 

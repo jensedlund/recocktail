@@ -25,7 +25,7 @@ public class SnippetSetTest {
   public void setUp() throws Exception {
     DbAdapter impl = new DbAdapterImpl();
     List<String> tagNames = new ArrayList<>();
-    tagNames.add("skog");
+    tagNames.add(".demo-sea-bird");
     snippetSet = impl.search(tagNames, 1.0, false);
   }
 

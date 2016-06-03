@@ -19,14 +19,15 @@
 
 package cocktail.db_access;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import cocktail.snippet.FileInfo;
 import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Class that provide the program with information from database and uploads information to the database.
@@ -262,6 +263,12 @@ public class DbAdapterImpl implements DbAdapter {
     }
     return returnBool;
   }
+
+  @Override
+  public List<Integer> writeSnippets(Map<SnippetInfo, FileInfo> snippetInfoFileInfoMap) {
+    return Driver.writeSnippets(snippetInfoFileInfoMap);
+  }
+
   @Override
   public List<String> getAllUsers(){
     return Driver.getAllUsers();
