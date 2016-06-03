@@ -194,7 +194,6 @@ public class ArchiveHandler {
       //trims the inputFile name to be used to name the temporary unzip workspace.
       int lastIndex = inputFile.lastIndexOf('/');
       if (lastIndex >= 0) {
-        System.out.println(lastIndex + " last index " + inputFile);
         tempZipDir = inputFile.substring(lastIndex + 1);
         tempZipDir = tempZipDir.substring(0, tempZipDir.lastIndexOf('.'));
       }
@@ -283,15 +282,14 @@ public class ArchiveHandler {
             getSnippetSet(new File(snippetSetPath));
 
         for (SnippetInfo snippet : sortSetBySourceFile(currentSnippetSet)) {
-
-          //fileExtension = getFileExtension(snippet.getFileName());
           fileName = snippet.getFileName();
           Path
               sourceFilePath =
               Paths.get(tempDir.toString(),
-                        "snippets/" + snippet.getTagNames().get(0) + File.separator + fileName);
+                        "snippets" + File.separator + fileName);
 
           try {
+            System.out.println("sourcefile path: " + sourceFilePath);
             byte[] bArray = Files.readAllBytes(sourceFilePath);
 
             if (getSnippetLength(bArray) <= 0) {
@@ -348,7 +346,6 @@ public class ArchiveHandler {
             } catch (IOException e1) {
               e1.printStackTrace();
             }
-            removeDirectory(tempDir);
           }
         }
         snippetSet = dbAdapter.createSnippetSetFromIds(snippetIDs);
