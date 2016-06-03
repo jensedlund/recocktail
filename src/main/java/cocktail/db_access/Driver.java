@@ -272,10 +272,13 @@ public enum Driver {
     Map<SnippetInfo,FileInfo> mapToPassOn = new HashMap<>();
 
     for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
-
+      System.out.println(entry.getKey().getUserName());
       String tempFileName = entry.getValue().getFileName();
       entry.getValue().setFileName(utf8Decode(tempFileName));
-
+      if (isFileInDb(entry.getValue())){
+        entry.getValue().setFileID(getFileIDFromFileNameSizeLen(entry.getValue().getFileName(),entry.getValue().getFileLenSec(),
+                entry.getValue().getFileSizeKb()));
+      }
       if (isSnippetADuplicate(entry.getKey(), entry.getValue())) {
         listOfSnippetIDs.add(joinTwoSnippets(entry.getKey(), entry.getValue()));
       } else if (isCallProtectedAdmin(entry.getKey())) {
@@ -319,11 +322,9 @@ public enum Driver {
   private static void insertRowsIntoBridgeTable(Map<SnippetInfo, FileInfo> snippetFileMap) {
     StringBuilder builder = new StringBuilder();
     builder.append("INSERT INTO bridgeSnippetTagTable(snippetID,tagID) VALUES");
-    int test = 0;
     for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
       for (int i = 0; i < entry.getKey().getTagIDs().size(); i++) {
         builder.append("(?,?),");
-        test++;
       }
     }
     if (builder.charAt(builder.length() - 1) == ',') {
@@ -336,7 +337,6 @@ public enum Driver {
         for (int i = 0; i < entry.getKey().getTagIDs().size(); i++) {
           ps.setInt(j, entry.getKey().getSnippetID());
           ps.setInt(j + 1, entry.getKey().getTagIDs().get(i));
-          System.out.println(j + " j " + (j + 1));
           j += 2;
         }
       }
@@ -364,31 +364,37 @@ public enum Driver {
     for (int i = 0; i < infoList.size(); i++) {
       for (String tag : infoList.get(i).getTagNames()) {
 
-        if (allTagNames.contains(tag)) {
+        if (!allTagNames.contains(tag)) {
           tagList.add(tag);
-          builder.append("(?),");
           check = true;
+          System.out.println("Hur många gåner ");
         } else {
           tagIDs.add(getTagID(tag));
         }
       }
     }
+
+    for( String s : tagList){
+      builder.append("(?),");
+    }
     while (builder.charAt(builder.length() - 1) != ')') {
       builder.deleteCharAt(builder.length() - 1);
     }
+    System.out.println(builder.toString());
     if (check) {
       try {
         PreparedStatement ps = myConnection.prepareStatement(builder.toString(), Statement.RETURN_GENERATED_KEYS);
         int i = 1;
         for (String tag : tagList) {
+          System.out.println("Hur många gåner körs detta " + tag + " längd " + tagList.size());
           ps.setString(i, tag);
           i++;
         }
         ps.executeUpdate();
         ResultSet tableKeys = ps.getGeneratedKeys();
-        int j = 1;
+
         while (tableKeys.next()) {
-          tagIDs.add(tableKeys.getInt(j));
+          tagIDs.add(tableKeys.getInt(1));
         }
         ps.close();
         tableKeys.close();
@@ -410,15 +416,15 @@ public enum Driver {
     List<Integer> snippetIDsList = new ArrayList<>();
     StringBuilder builder = new StringBuilder();
     builder.append("INSERT INTO snippetInfo (fileID,sizeKb,startTime,lenSec,creationDate,lastModifiedDate,userID) VALUES");
-    int i = 0;
     for (Map.Entry<SnippetInfo, FileInfo> entry : snippetFileMap.entrySet()) {
       removeProtectedTags(entry.getKey());
-      builder.append("(?,?,?,?,?,?,?)");
-      if (i != snippetFileMap.size() - 1) {
-        builder.append(",");
-      }
-      i++;
+      builder.append("(?,?,?,?,?,?,?),");
     }
+
+    if(builder.charAt(builder.length()-1) == ','){
+      builder.deleteCharAt(builder.length()-1);
+    }
+    System.out.println(builder.toString());
     try {
       PreparedStatement ps = myConnection.prepareStatement
               (builder.toString(), Statement.RETURN_GENERATED_KEYS);
@@ -652,10 +658,6 @@ public enum Driver {
       if (!isFileInDb(firstEntry.getValue())) {
         mapToPassOn.put(firstEntry.getKey(), firstEntry.getValue());
         builder.append("(?,?,?,?),");
-
-      } else {
-        firstEntry.getValue().setFileID(getFileIDFromFileNameSizeLen(firstEntry.getKey().getFileName(),
-                firstEntry.getValue().getFileLenSec(), firstEntry.getValue().getFileSizeKb()));
 
       }
     }
@@ -2255,7 +2257,33 @@ int j = 1;
     }catch (Exception e){
       e.printStackTrace();
     }
+
     return returnBool;
   }
+
+
+  protected static SnippetSet getAllSnippetsForUserName(String userNam){
+    SnippetSet returnSet = new SnippetSet();
+    int userID = getUserIDForUserName(userNam);
+    List<Integer> tempIDList = new ArrayList<>();
+    try{
+      String sql = "SELECT snippetID FROM snippetInfo WHERE userID=?";
+      PreparedStatement ps = myConnection.prepareStatement(sql);
+      ps.setInt(1,userID);
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()){
+        tempIDList.add(rs.getInt("snippetID"));
+      }
+
+    }catch (Exception e){
+      e.printStackTrace();
+    }
+
+    for(int i : tempIDList){
+      returnSet.getSnippetCollection().add(readSnippetInf(i));
+    }
+    return returnSet;
+  }
+
 }
 

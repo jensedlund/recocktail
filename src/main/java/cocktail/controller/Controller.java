@@ -18,17 +18,17 @@ package cocktail.controller;
  * @since 2016-04-18
  **/
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import cocktail.archive_handler.ArchiveHandler;
 import cocktail.db_access.DbAdapter;
 import cocktail.db_access.DbAdapterImpl;
 import cocktail.snippet.SetOperation;
 import cocktail.snippet.SnippetSet;
 import cocktail.storage.SnippetStorageImpl;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * ControllerInterface is a layer that delegates and pass on information to other parts of the program.
@@ -190,7 +190,7 @@ public class Controller implements ControllerInterface {
   }
 
   @Override
-  public SnippetSet getSingelSourceFileAndItsSnippets(int fileID) {
+  public SnippetSet getSingleSourceFileAndItsSnippets(int fileID) {
     return archiveHandler.getSingleFile(fileID);
   }
 
@@ -213,6 +213,7 @@ public class Controller implements ControllerInterface {
     return returnBool;
   }
 
+
   @Override
   public boolean deleteSnippetAsAdmin(int snippetID) {
    return dbAdapter.deleteSnippetAsAdmin(snippetID);
@@ -221,6 +222,11 @@ public class Controller implements ControllerInterface {
   @Override
   public void deleteAllTagsNotInUse() {
     dbAdapter.removeAllUnusedTags();
+  }
+
+  @Override
+  public SnippetSet getAllSnippetsFromUserName(String userNam) {
+   return dbAdapter.getAllSnippetsForUserName(userNam);
   }
 
 }

@@ -48,18 +48,23 @@ private static SnippetSet snippetSet;
 
 
       //Driver.deleteFromFileInfo(1355);
-      crateSeveralSamples();
+    //  Driver.deleteSnippet(1246);
+    //crateSeveralSamples();
+SnippetSet ss = impl.getAllSnippetsForUserName("Admin");
+      System.out.println(ss.getSnippetCollection().size());
 
-      /*for(int i = 1220; i <= 1230; i++){
+
+ /*   for(int i = 1281; i <= 1290; i++){
     Driver.deleteSnippet(i);
 }
+/*
 
-      for(int i = 1349; i <= 1353; i++){
+      for(int i = 1408; i <= 1411; i++){
           Driver.deleteFromFileInfo(i);
       }
 
 
-      for(int i = 1346; i <= 1348; i++){
+    /*  for(int i = 1346; i <= 1348; i++){
           Driver.deleteFromFileInfo(i);
       }
       */
@@ -225,12 +230,12 @@ testMap.put(snippetInfo,fileInfo);
       tagNames.add("clap");
       tagNames.add("test2");
       tagNames.add("test3");
-      tagNames.add(" ");
+      tagNames.add(".test-aöäå");
 
       LocalDate ld1 = LocalDate.now();
       LocalDate ld2 = LocalDate.now();
 
-      SnippetInfo snippetInfo = new SnippetInfo("bb-gra%CC%8Ahakedopping-4", tagNames, 0.0, 3.0, 294, ld1, ld2, "Devel1");
+      SnippetInfo snippetInfo = new SnippetInfo("bb-gra%CC%8Ahakedopping-4", tagNames, 0.0, 3.0, 294, ld1, ld2, "Admin");
 testMap.put(snippetInfo,fileInfo);
     } catch (Exception e){
       e.printStackTrace();
@@ -292,10 +297,10 @@ testMap.put(snippetInfo,fileInfo);
       tagNames.add("cl ap");
       tagNames.add("te st1");
       tagNames.add("tes$t2@");
-      tagNames.add("ÅÄöåäö");
+      tagNames.add(".test-ÅÄöåäö");
       LocalDate ld1 = LocalDate.now();
       LocalDate ld2 = LocalDate.now();
-      snippetInfo = new SnippetInfo("clap2", tagNames, 0.0, 3.0, 263, ld1, ld2, "Devel2");
+      snippetInfo = new SnippetInfo("clap2", tagNames, 0.0, 3.0, 263, ld1, ld2, "Admin");
         snippetCollection.add(snippetInfo);
 
         int ansInt = impl.writeSnippet(fileInfo, snippetInfo);

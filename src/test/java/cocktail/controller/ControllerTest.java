@@ -33,6 +33,7 @@ import java.util.SortedSet;
  * @version 1.0
  * @since 2016-03-25
  */
+
 public class ControllerTest {
   private SnippetSet snippetSet;
 
@@ -53,15 +54,35 @@ public class ControllerTest {
   }
 
   @Test
-  public void writeEditSnippet() throws Exception {
+  public void writeEditSnippet1() throws Exception {
     boolean returnBool = false;
     List<String> tagNames = new ArrayList<>();
-    tagNames.add("skog");
-    //SnippetSet snippetSet = snippetSet = impl.search(tagNames, 1.0, false);;
-    //  String path = archiveHandler.zip(snippetSet);
-    String path = "./src/test/resources/test.zip";
+    tagNames.add(".demo-sea-bird");
+    SnippetSet snippetSet = impl.search(tagNames, 1.0, false);;
+    String path = archiveHandler.zip(snippetSet);
     SnippetSet returnSnippetSet = Controller.getInstance().writeEditSnippet(path);
     if (returnSnippetSet.getSnippetCollection().size() > 0) {
+      returnBool = true;
+    }
+    Assert.assertEquals(returnBool, true);
+  }
+
+  @Test
+  public void writeEditSnippet2() throws Exception {
+    boolean returnBool = false;
+    SnippetSet returnSnippetSet = Controller.getInstance().writeEditSnippet("");
+    if (returnSnippetSet.getSnippetCollection().size() == 0) {
+      returnBool = true;
+    }
+    Assert.assertEquals(returnBool, true);
+  }
+
+
+  @Test
+  public void writeEditSnippet3() throws Exception {
+    boolean returnBool = false;
+    SnippetSet returnSnippetSet = Controller.getInstance().writeEditSnippet("strängSomInteÄrEnSökväg.zip");
+    if (returnSnippetSet.getSnippetCollection().size() == 0) {
       returnBool = true;
     }
     Assert.assertEquals(returnBool, true);
@@ -84,9 +105,9 @@ public class ControllerTest {
   }
 
   @Test
-  public void searchSnippetSet() throws Exception {
+  public void searchSnippetSet1() throws Exception {
     List<String> tagNames = new ArrayList<>();
-    tagNames.add("skog");
+    tagNames.add(".demo-sea-bird");
     SnippetSet snippetSet = Controller.getInstance().searchSnippetSet(tagNames, 0.0, false);
     SortedSet<SnippetInfo> testCollection = snippetSet.getSnippetCollection();
     boolean testBool = false;
@@ -94,23 +115,48 @@ public class ControllerTest {
       testBool = true;
     }
     Assert.assertEquals(testBool, true);
+
   }
 
+  @Test
+  public void searchSnippetSet2() throws Exception {
+    List<String> tagNames = new ArrayList<>();
+    tagNames.add("");
+    SnippetSet snippetSet = Controller.getInstance().searchSnippetSet(tagNames, 0.0, false);
+    SortedSet<SnippetInfo> testCollection = snippetSet.getSnippetCollection();
+    boolean testBool = false;
+    if (testCollection.size() == 0) {
+      testBool = true;
+    }
+    Assert.assertEquals(testBool, true);
+  }
+
+  @Test
+  public void searchSnippetSet3() throws Exception {
+    List<String> tagNames = new ArrayList<>();
+    tagNames.add("någotMeKonstiga&Tecken");
+    SnippetSet snippetSet = Controller.getInstance().searchSnippetSet(tagNames, 0.0, false);
+    SortedSet<SnippetInfo> testCollection = snippetSet.getSnippetCollection();
+    boolean testBool = false;
+    if (testCollection.size() == 0) {
+      testBool = true;
+    }
+    Assert.assertEquals(testBool, true);
+  }
 
   @Test
   public void getComplementaryTags() throws Exception {
     List<String> testComplementary;
-    testComplementary = Controller.getInstance().getAssociatedTags("skog");
+    testComplementary = Controller.getInstance().getAssociatedTags(".demo-sea-bird");
     boolean testBool = false;
     if (testComplementary.size() != 0) {
       testBool = true;
     }
     Assert.assertEquals(testBool, true);
-
   }
 
   @Test
-  public void getZippedFiles() throws Exception {
+  public void getZippedFiles1() throws Exception {
     boolean testBool = false;
     String path = Controller.getInstance().getZippedFiles(snippetSet);
 
@@ -123,16 +169,28 @@ public class ControllerTest {
   }
 
   @Test
-  public void updateTagName() throws Exception {
+  public void getZippedFiles2() throws Exception {
     boolean testBool = false;
-    String oldTagName = "skog";
-    String newTagName = "sskkoogg";
-    Controller.getInstance().updateTagName(newTagName, oldTagName);
-    if(impl.getAllTags().contains(newTagName)){
+    String path = Controller.getInstance().getZippedFiles(null);
+    System.out.println(path);
+    if (path.length() == 0) {
       testBool = true;
     }
-    Controller.getInstance().updateTagName(oldTagName, newTagName);
+    System.out.println(path);
+    Controller.getInstance().deleteUsedZip(path);
+    Assert.assertEquals(testBool, true);
+  }
 
+  @Test
+  public void getZippedFiles3() throws Exception {
+    boolean testBool = false;
+    SnippetSet test = new SnippetSet();
+    String path = Controller.getInstance().getZippedFiles(test);
+    if (path.length() == 0) {
+      testBool = true;
+    }
+    System.out.println(path);
+    Controller.getInstance().deleteUsedZip(path);
     Assert.assertEquals(testBool, true);
   }
 
@@ -154,6 +212,7 @@ public class ControllerTest {
   @Test
   public void removeSnippetFromSet() throws Exception {
     boolean testBool = false;
+
     SnippetInfo testSnippetInfo = snippetSet.getSnippetCollection().first();
     SnippetSet testSnippetSet = Controller.getInstance().removeSnippetFromSet(testSnippetInfo.getSnippetID(), snippetSet);
     if (!testSnippetSet.getSnippetCollection().contains(testSnippetInfo)) {
@@ -224,21 +283,30 @@ public class ControllerTest {
   @Test
   public void deleteUsedZip() throws Exception {
     String filePath = archiveHandler.zip(snippetSet);
-    System.out.println(filePath);
     boolean testBool = Controller.getInstance().deleteUsedZip(filePath);
     Assert.assertEquals(testBool,true);
   }
 
 
   @Test
-  public void getSingelSourceFileAndItsSnippets() throws Exception {
+  public void getSingleSourceFileAndItsSnippets1() throws Exception {
     boolean testBool = false;
-    String path = Controller.getInstance().getSingelSourceFileAndItsSnippets(5).toString();
-    if (path.length() > 1) {
+    SnippetSet snippetSet = Controller.getInstance().getSingleSourceFileAndItsSnippets(5);
+    if (snippetSet.getSnippetCollection().size() > 0) {
       testBool = true;
     }
-    Controller.getInstance().deleteUsedZip(path);
     Assert.assertEquals(testBool, true);
+  }
+
+
+  @Test
+  public void getSingleSourceFileAndItsSnippets2() throws Exception {
+    boolean testBool = false;
+    String path = Controller.getInstance().getSingleSourceFileAndItsSnippets(-1).toString();
+    if (path.length() < 1) {
+      testBool = false;
+    }
+    Assert.assertEquals(testBool, false);
   }
 
 
@@ -247,7 +315,7 @@ public class ControllerTest {
     archiveHandler = new ArchiveHandler();
     impl = new DbAdapterImpl();
     List<String> tagNames = new ArrayList<>();
-    tagNames.add("skog");
+    tagNames.add(".demo-sea-bird");
     snippetSet = impl.search(tagNames, 1.0, false);
 
 
