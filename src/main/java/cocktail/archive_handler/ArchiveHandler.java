@@ -101,7 +101,6 @@ public class ArchiveHandler {
             if (currentFileID == -1 || currentFileID != snippet.getFileID()) {
               currentFileID = snippet.getFileID();
               sourceFile = dbAdapter.readSnippet(snippet.getSnippetID());
-              System.out.println("----------loaded a new file from DB: " + snippet.getFileName());
             }
 
             //checks if the snippet is the same size as the source file.
@@ -109,7 +108,6 @@ public class ArchiveHandler {
             if (!dbAdapter.isSnippetPartOfLongerFile(snippet.getSnippetID())) {
               addNewFile =
                   byteArrayToFile(sourceFile, tempDir + File.separator + snippet.getFileName());
-              System.out.println("-----this is a single file snippet! ------");
 
               //else it needs to be cut, using trimAudioClip.
               //addnewFile refers to the file that will be copied into the zip.
@@ -119,7 +117,6 @@ public class ArchiveHandler {
                                                         snippet.getStartTime(),
                                                         snippet.getLengthSec()),
                                   tempDir + File.separator + snippet.getFileName());
-              System.out.println("----this snippet is a cutout from a larger file----");
             }
 
             //parentDir is used to create destination subdirectories named from the first tagName.
@@ -130,7 +127,6 @@ public class ArchiveHandler {
                         .getSnippetID()
                     + ".wav");
             if (Files.notExists(parentDir)) {
-              System.out.println("Creating directory " + parentDir);
               try {
                 Files.createDirectories(parentDir);
               } catch (IOException e) {
@@ -287,11 +283,6 @@ public class ArchiveHandler {
             getSnippetSet(new File(snippetSetPath));
 
         for (SnippetInfo snippet : sortSetBySourceFile(currentSnippetSet)) {
-          System.out.println("--------processing starts--------");
-          System.out.println("---file: " + snippet.getFileName());
-          System.out.println("---strt: " + snippet.getStartTime());
-          System.out.println("---lgth: " + snippet.getLengthSec());
-          System.out.println("---------------------------------");
 
           //fileExtension = getFileExtension(snippet.getFileName());
           fileName = snippet.getFileName();
@@ -304,8 +295,7 @@ public class ArchiveHandler {
             byte[] bArray = Files.readAllBytes(sourceFilePath);
 
             if (getSnippetLength(bArray) <= 0) {
-              System.out.println("invalid file....");
-              System.out.println("skipping this to avoid fubar.");
+              System.out.println("invalid snippet. empty or not an audio file!");
             } else {
 
               ByteArrayInputStream bis = new ByteArrayInputStream(bArray);
@@ -562,7 +552,7 @@ public class ArchiveHandler {
         File deadFile = new File(setName);
         if (!deadFile.isFile()) {
           System.out.println(setName + " is not found OR is not a file.");
-          System.out.println("deleting directory: " + deadFile.toPath().getParent().toFile());
+          System.out.println("--still deleting directory: " + deadFile.toPath().getParent().toFile());
           removeDirectory(deadFile.toPath().getParent().toFile());
           return false;
         }
