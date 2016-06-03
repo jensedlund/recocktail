@@ -114,6 +114,7 @@ public class DbAdapterImplTest {
 
     SnippetInfo snippetInfo1 = adapter.readSnippetInfo(snippetID);
     Assert.assertEquals(snippetID, snippetInfo1.getSnippetID());
+
   }
 
   @Test
