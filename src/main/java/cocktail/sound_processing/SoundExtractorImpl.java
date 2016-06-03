@@ -28,7 +28,7 @@ public class SoundExtractorImpl implements SoundExtractor {
 
 
   public boolean soundToWav(File inputFile, File outputFile) {
-
+    System.out.println("converting sound to wav: " + inputFile);
     try {
       Process
           convert =
