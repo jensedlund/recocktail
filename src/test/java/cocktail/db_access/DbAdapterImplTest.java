@@ -1,8 +1,5 @@
 package cocktail.db_access;
 
-import cocktail.snippet.FileInfo;
-import cocktail.snippet.SnippetInfo;
-import cocktail.snippet.SnippetSet;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,6 +10,10 @@ import java.io.FileInputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import cocktail.snippet.FileInfo;
+import cocktail.snippet.SnippetInfo;
+import cocktail.snippet.SnippetSet;
 
 /**
  ** Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
@@ -218,7 +219,7 @@ public class DbAdapterImplTest {
     Assert.assertEquals(testBool, true);
   }
 
-  @Test
+//  @Test
   public void getOccuranceOfTag() throws Exception {
     boolean testBool = false;
     int testInt = adapter.getOccurrenceOfTag(".demo-sea-bird");
@@ -228,7 +229,7 @@ public class DbAdapterImplTest {
     Assert.assertEquals(testBool, true);
   }
 
-  @Test
+//  @Test
   public void getComplementaryTags() throws Exception {
     boolean testBool = false;
     List<String> compTags = adapter.getAssociatedTags(".demo-sea-bird");
@@ -238,7 +239,7 @@ public class DbAdapterImplTest {
     Assert.assertEquals(testBool, true);
   }
 
-  @Test
+//  @Test
   public void search() throws Exception {
     boolean testBool = false;
     List<String> tagList = new ArrayList<>();
@@ -250,7 +251,7 @@ public class DbAdapterImplTest {
     Assert.assertEquals(testBool, true);
   }
 
-  @Test
+//  @Test
   public void search1() throws Exception {
     boolean testBool = false;
     List<String> tagList = new ArrayList<>();
@@ -288,7 +289,7 @@ public class DbAdapterImplTest {
     Assert.assertEquals(testBool, true);
   }
 
-  @Test
+//  @Test
   public void createSnippetSetFromIds() throws Exception {
     boolean testBool = false;
     List<Integer> snippetIDs = new ArrayList<>();
@@ -331,7 +332,7 @@ public class DbAdapterImplTest {
     Assert.assertEquals(testLIst.size(), snippetIDList.size());
   }
 
-  @Test
+//  @Test
   public void getFileNameFromSnippetId() throws Exception {
     boolean testBool = false;
     String fileName = adapter.getFileNameFromSnippetId(135);

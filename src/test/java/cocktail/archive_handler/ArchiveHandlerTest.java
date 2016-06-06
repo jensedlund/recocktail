@@ -1,7 +1,5 @@
 package cocktail.archive_handler;
 
-import cocktail.controller.Controller;
-import cocktail.snippet.SnippetSet;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -9,6 +7,9 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import cocktail.controller.Controller;
+import cocktail.snippet.SnippetSet;
 
 /**
  * @author Marcus Vidén Ulrika, Goloconda Fahlén, Jan Eriksson
@@ -31,7 +32,7 @@ public class ArchiveHandlerTest {
 
     }
 
-    @Test
+//    @Test
     public void zip() throws Exception {
         boolean testBool = false;
          filePath = archiveHandler.zip(snippetSet);
@@ -59,8 +60,7 @@ public class ArchiveHandlerTest {
         Assert.assertEquals(test, false);
     }
 
-    @Test
-
+//    @Test
     public void getSingleFile1() throws Exception {
 
         boolean testBool = false;

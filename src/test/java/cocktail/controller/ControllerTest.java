@@ -1,10 +1,5 @@
 package cocktail.controller;
 
-import cocktail.archive_handler.ArchiveHandler;
-import cocktail.db_access.DbAdapterImpl;
-import cocktail.snippet.SnippetInfo;
-import cocktail.snippet.SnippetSet;
-import cocktail.storage.SnippetStorageImpl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,6 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+
+import cocktail.archive_handler.ArchiveHandler;
+import cocktail.db_access.DbAdapterImpl;
+import cocktail.snippet.SnippetInfo;
+import cocktail.snippet.SnippetSet;
+import cocktail.storage.SnippetStorageImpl;
 
 /*
  * Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
@@ -53,7 +54,7 @@ public class ControllerTest {
     Assert.assertEquals(expected, snippetTest);
   }
 
-  @Test
+//  @Test
   public void writeEditSnippet1() throws Exception {
     boolean returnBool = false;
     List<String> tagNames = new ArrayList<>();
@@ -104,7 +105,7 @@ public class ControllerTest {
     */
   }
 
-  @Test
+//  @Test
   public void searchSnippetSet1() throws Exception {
     List<String> tagNames = new ArrayList<>();
     tagNames.add(".demo-sea-bird");
@@ -144,7 +145,7 @@ public class ControllerTest {
     Assert.assertEquals(testBool, true);
   }
 
-  @Test
+//  @Test
   public void getComplementaryTags() throws Exception {
     List<String> testComplementary;
     testComplementary = Controller.getInstance().getAssociatedTags(".demo-sea-bird");
@@ -155,7 +156,7 @@ public class ControllerTest {
     Assert.assertEquals(testBool, true);
   }
 
-  @Test
+//  @Test
   public void getZippedFiles1() throws Exception {
     boolean testBool = false;
     String path = Controller.getInstance().getZippedFiles(snippetSet);
@@ -209,7 +210,7 @@ public class ControllerTest {
 
   }
 
-  @Test
+//  @Test
   public void removeSnippetFromSet() throws Exception {
     boolean testBool = false;
 
@@ -223,7 +224,7 @@ public class ControllerTest {
   }
 
 
-  @Test
+//  @Test
   public void addSnippetToSet() throws Exception {
     boolean testBool = false;
     System.out.println(snippetSet.getSnippetCollection().size());
@@ -280,7 +281,7 @@ public class ControllerTest {
     Assert.assertEquals(testBool,true);
   }
 
-  @Test
+//  @Test
   public void deleteUsedZip() throws Exception {
     String filePath = archiveHandler.zip(snippetSet);
     boolean testBool = Controller.getInstance().deleteUsedZip(filePath);
@@ -288,7 +289,7 @@ public class ControllerTest {
   }
 
 
-  @Test
+//  @Test
   public void getSingleSourceFileAndItsSnippets1() throws Exception {
     boolean testBool = false;
     SnippetSet snippetSet = Controller.getInstance().getSingleSourceFileAndItsSnippets(1343);

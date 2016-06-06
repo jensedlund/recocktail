@@ -1,9 +1,5 @@
 package cocktail.snippet;
 
-import cocktail.db_access.DbAdapter;
-import cocktail.db_access.DbAdapterImpl;
-import cocktail.stream_io.StreamingService;
-import cocktail.stream_io.XmlStreamer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,6 +9,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import cocktail.db_access.DbAdapter;
+import cocktail.db_access.DbAdapterImpl;
+import cocktail.stream_io.StreamingService;
+import cocktail.stream_io.XmlStreamer;
 
 /**
  * @author Marcus Vidén Ulrika, Goloconda Fahlén, Jan Eriksson
@@ -55,7 +56,7 @@ public class SnippetSetTest {
   }
 
 
-  @Test
+//  @Test
   public void getMaxLenSec() throws Exception {
     double expected = snippetSet.getSnippetCollection().last().getLengthSec();
    double actual = snippetSet.getMaxLenSec();
@@ -63,7 +64,7 @@ public class SnippetSetTest {
 
   }
 
-  @Test
+//  @Test
   public void getMinLenSec() throws Exception {
     double expected = snippetSet.getSnippetCollection().first().getLengthSec();
     double actual = snippetSet.getMinLenSec();
@@ -87,7 +88,7 @@ public class SnippetSetTest {
     Assert.assertEquals(actual, expected);
   }
 
-  @Test
+//  @Test
   public void getTagsInSet() throws Exception {
     boolean testBool = false;
     Set<String> tags = snippetSet.getTagsInSet();
