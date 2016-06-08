@@ -45,8 +45,10 @@ private static SnippetSet snippetSet;
     return getSnippetJsonObject();
   }
   public static void main(String[] args) throws IOException {
-
-
+List<String> tagnames = new ArrayList<>();
+      tagnames.add("spillkråka");
+List<Integer> test = Driver.searchSnippetIDs(tagnames, 0.0);
+      System.out.println(test);
       //Driver.deleteFromFileInfo(1355);
     //  Driver.deleteSnippet(1246);
     //crateSeveralSamples();

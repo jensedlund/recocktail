@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cocktail.snippet.SnippetSet>
+    <avgLenSec>7.67</avgLenSec>
+    <maxLenSec>7.67</maxLenSec>
+    <minLenSec>7.67</minLenSec>
+    <numSnippets>1</numSnippets>
+    <setName>2016-06-08-11-51-42-935</setName>
+    <snippetCollection>
+        <creationDate>2016-06-03</creationDate>
+        <fileID>301</fileID>
+        <fileName>b-kornknarr-1_94.wav</fileName>
+        <kbSize>1321</kbSize>
+        <lastModified>2016-06-03</lastModified>
+        <lengthSec>7.67</lengthSec>
+        <multiples>0</multiples>
+        <snippetID>94</snippetID>
+        <startTime>0.0</startTime>
+        <tagNames>kornknarr</tagNames>
+        <tagNames>demo-skogsfågel</tagNames>
+        <userID>5</userID>
+        <userName>Unknown</userName>
+    </snippetCollection>
+    <tagsInSet>demo-skogsfågel</tagsInSet>
+    <tagsInSet>kornknarr</tagsInSet>
+</cocktail.snippet.SnippetSet>

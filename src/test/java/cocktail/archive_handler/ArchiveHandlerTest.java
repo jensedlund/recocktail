@@ -21,9 +21,11 @@ public class ArchiveHandlerTest {
     String filePath;
     @Before
     public void setUp() throws Exception {
+        System.out.println("Körs detta innan i ArchiveHandlerTest");
         List<String> tagNames = new ArrayList<>();
-        tagNames.add("demo-skogsfågel");
+        tagNames.add("duvhök");
         snippetSet = Controller.getInstance().searchSnippetSet(tagNames, 0.0, false);
+        System.out.println(snippetSet);
     }
 
     @After
@@ -34,7 +36,9 @@ public class ArchiveHandlerTest {
     @Test
     public void zip() throws Exception {
         boolean testBool = false;
+        System.out.println(snippetSet);
          filePath = archiveHandler.zip(snippetSet);
+        System.out.println(filePath);
         if(filePath.length()>3){
             testBool = true;
         }

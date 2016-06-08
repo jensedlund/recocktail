@@ -45,7 +45,7 @@ public class ControllerTest {
   @Test
   public void storeSet() throws Exception {
     List<String> tagNames = new ArrayList<>();
-    tagNames.add("clap");
+    tagNames.add("duvhök");
     SnippetSet snippetTest = impl.search(tagNames, 0.0, false);
     String testName = snippetTest.getSetName();
     Controller.getInstance().storeSet(snippetTest);
@@ -57,10 +57,12 @@ public class ControllerTest {
   public void writeEditSnippet1() throws Exception {
     boolean returnBool = false;
     List<String> tagNames = new ArrayList<>();
-    tagNames.add("demo-skogsfågel");
+    tagNames.add("kornknarr");
     SnippetSet snippetSet = impl.search(tagNames, 1.0, false);;
     String path = archiveHandler.zip(snippetSet);
     SnippetSet returnSnippetSet = Controller.getInstance().writeEditSnippet(path);
+    System.out.println(snippetSet);
+    System.out.println(path + " path");
     if (returnSnippetSet.getSnippetCollection().size() > 0) {
       returnBool = true;
     }
@@ -107,7 +109,7 @@ public class ControllerTest {
   @Test
   public void searchSnippetSet1() throws Exception {
     List<String> tagNames = new ArrayList<>();
-    tagNames.add("demo-skogsfågel");
+    tagNames.add("duvhök");
     SnippetSet snippetSet = Controller.getInstance().searchSnippetSet(tagNames, 0.0, false);
     SortedSet<SnippetInfo> testCollection = snippetSet.getSnippetCollection();
     boolean testBool = false;
@@ -147,7 +149,7 @@ public class ControllerTest {
   @Test
   public void getComplementaryTags() throws Exception {
     List<String> testComplementary;
-    testComplementary = Controller.getInstance().getAssociatedTags(".demo-sea-bird");
+    testComplementary = Controller.getInstance().getAssociatedTags("duvhök");
     boolean testBool = false;
     if (testComplementary.size() != 0) {
       testBool = true;
@@ -158,7 +160,9 @@ public class ControllerTest {
   @Test
   public void getZippedFiles1() throws Exception {
     boolean testBool = false;
+    System.out.println(snippetSet);
     String path = Controller.getInstance().getZippedFiles(snippetSet);
+    System.out.println(path + " path");
 
     if (path.length() > 1) {
       testBool = true;
@@ -212,7 +216,7 @@ public class ControllerTest {
   @Test
   public void removeSnippetFromSet() throws Exception {
     boolean testBool = false;
-
+    System.out.println(snippetSet);
     SnippetInfo testSnippetInfo = snippetSet.getSnippetCollection().first();
     SnippetSet testSnippetSet = Controller.getInstance().removeSnippetFromSet(testSnippetInfo.getSnippetID(), snippetSet);
     if (!testSnippetSet.getSnippetCollection().contains(testSnippetInfo)) {
@@ -291,7 +295,7 @@ public class ControllerTest {
   @Test
   public void getSingleSourceFileAndItsSnippets1() throws Exception {
     boolean testBool = false;
-    SnippetSet snippetSet = Controller.getInstance().getSingleSourceFileAndItsSnippets(1343);
+    SnippetSet snippetSet = Controller.getInstance().getSingleSourceFileAndItsSnippets(119);
     if (snippetSet.getSnippetCollection().size() > 0) {
       testBool = true;
     }
@@ -315,7 +319,7 @@ public class ControllerTest {
     archiveHandler = new ArchiveHandler();
     impl = new DbAdapterImpl();
     List<String> tagNames = new ArrayList<>();
-    tagNames.add("demo-skogsfågel");
+    tagNames.add("kornknarr");
     snippetSet = impl.search(tagNames, 1.0, false);
 
 
