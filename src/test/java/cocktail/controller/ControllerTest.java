@@ -57,7 +57,7 @@ public class ControllerTest {
   public void writeEditSnippet1() throws Exception {
     boolean returnBool = false;
     List<String> tagNames = new ArrayList<>();
-    tagNames.add(".demo-sea-bird");
+    tagNames.add("demo-skogsfågel");
     SnippetSet snippetSet = impl.search(tagNames, 1.0, false);;
     String path = archiveHandler.zip(snippetSet);
     SnippetSet returnSnippetSet = Controller.getInstance().writeEditSnippet(path);
@@ -107,7 +107,7 @@ public class ControllerTest {
   @Test
   public void searchSnippetSet1() throws Exception {
     List<String> tagNames = new ArrayList<>();
-    tagNames.add(".demo-sea-bird");
+    tagNames.add("demo-skogsfågel");
     SnippetSet snippetSet = Controller.getInstance().searchSnippetSet(tagNames, 0.0, false);
     SortedSet<SnippetInfo> testCollection = snippetSet.getSnippetCollection();
     boolean testBool = false;
@@ -315,7 +315,7 @@ public class ControllerTest {
     archiveHandler = new ArchiveHandler();
     impl = new DbAdapterImpl();
     List<String> tagNames = new ArrayList<>();
-    tagNames.add(".demo-sea-bird");
+    tagNames.add("demo-skogsfågel");
     snippetSet = impl.search(tagNames, 1.0, false);
 
 

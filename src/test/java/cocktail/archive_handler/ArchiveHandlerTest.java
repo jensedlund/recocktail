@@ -22,7 +22,7 @@ public class ArchiveHandlerTest {
     @Before
     public void setUp() throws Exception {
         List<String> tagNames = new ArrayList<>();
-        tagNames.add("test1");
+        tagNames.add("demo-skogsfågel");
         snippetSet = Controller.getInstance().searchSnippetSet(tagNames, 0.0, false);
     }
 
@@ -64,7 +64,7 @@ public class ArchiveHandlerTest {
     public void getSingleFile1() throws Exception {
 
         boolean testBool = false;
-        SnippetSet snippetSet = archiveHandler.getSingleFile(1343);
+        SnippetSet snippetSet = archiveHandler.getSingleFile(119);
         if (snippetSet.getSnippetCollection().size() > 0) {
             testBool = true;
         }
