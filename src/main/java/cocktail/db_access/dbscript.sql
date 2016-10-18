@@ -20,6 +20,8 @@
 The database is crated whit this script.
  */
 
+create database cocktail;
+
 CREATE TABLE tagInfo (
  tagID int(10) unsigned NOT NULL AUTO_INCREMENT,
  tagName varchar(50) NOT NULL,

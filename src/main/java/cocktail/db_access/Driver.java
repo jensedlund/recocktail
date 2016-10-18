@@ -2,13 +2,24 @@
 
 package cocktail.db_access;
 
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import cocktail.snippet.FileInfo;
 import cocktail.snippet.SnippetInfo;
 import cocktail.snippet.SnippetSet;
-
-import java.io.InputStream;
-import java.sql.*;
-import java.util.*;
 
 // I chose to use enum instead of a regular class with static methods. This way the call for the methods looks just like
 //it would have done whit a regular class whit static methods but it is impossible to instantiate the class and still have the
@@ -37,7 +48,8 @@ public enum Driver {
     boolean returnBool = false;
 
     try {
-      myConnection = DriverManager.getConnection("jdbc:mysql://130.237.67.145:3306/recocktail?aoutoReconnect=true&useSSL=false", DbAccessHandler.getAccessInfo("username"), DbAccessHandler.getAccessInfo("password"));
+      //TODO ip address and db name needs to be fetched from creds.txt
+      myConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/cocktail?aoutoReconnect=true&useSSL=false", DbAccessHandler.getAccessInfo("username"), DbAccessHandler.getAccessInfo("password"));
       myStatment = myConnection.createStatement();
       returnBool = true;
 

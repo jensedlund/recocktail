@@ -70,14 +70,15 @@ public class RestfulService {
     Controller controller = Controller.getInstance();
 
     // Return all tags that exist in database
-    get("/getAllTags", (request, response) -> {
+//    rename to tags
+    get("/tags", (request, response) -> {
       Set<String> tags = controller.getCompleteSetOfTagNames();
       Gson gson = new Gson();
       return gson.toJson(tags);
     });
 
     // Return all users that exist in database
-    get("/getAllUsers", (request, response) -> {
+    get("/users", (request, response) -> {
       List<String> usersList = controller.getAllUserNames();
       Set<String> usersSet = new HashSet<String>(usersList);
       Gson gson = new Gson();
@@ -85,7 +86,7 @@ public class RestfulService {
     });
 
     // Move generated zip to static file location and return the URL.
-    get("/getZipUrl/:name", (request, response) -> {
+    get("/snippetSets/:name", (request, response) -> {
       String setName = URLDecoder.decode(request.params(":name"), "UTF-8");
       SnippetSet snippetSet = controller.getStoredSet(setName);
 
@@ -111,7 +112,8 @@ public class RestfulService {
     });
 
     // Search in database and return a snippetset from the result.
-    post("/search", (request, response) -> {
+//    post("/search", (request, response) -> {
+    post("/snippetSets", (request, response) -> {
       Map<String, String> reqBodyMap = RestfulHelper.mapFromRequestBody(request);
       Set<String> existingKeys = reqBodyMap.keySet();
 

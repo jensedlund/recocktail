@@ -92,7 +92,13 @@ function getAllTags(callback) {
             callback(xhttp.response);
         }
     };
-    xhttp.open("GET", serverUrl + "/getAllTags", true);
+    xhttp.open("GET", serverUrl + "/tags", true);
+    xhttp.send();
+}
+
+function getHello() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", serverUrl + "/hello", true);
     xhttp.send();
 }
 
@@ -105,7 +111,7 @@ function getAllUsers(callback) {
             // console.log(xhttp.response)
         }
     };
-    xhttp.open("GET", serverUrl + "/getAllUsers", true);
+    xhttp.open("GET", serverUrl + "/users", true);
     xhttp.send();
 }
 
@@ -187,7 +193,7 @@ function search() {
     };
 
     $.ajax({
-               url: serverUrl + "/search",
+               url: serverUrl + "/snippetSets",
                contentType: 'application/json; charset=utf-8',
                type: 'POST',
                data: postBody,
@@ -323,7 +329,7 @@ function getZip() {
     var snippetSelector = document.getElementById("snippetSets");
     var setName = snippetSelector.item(snippetSelector.selectedIndex).value;
     $.ajax({
-               url: serverUrl + "/getZipUrl/" + setName,
+               url: serverUrl + "/snippetSets/" + setName,
                contentType: 'application/json; charset=utf-8',
                type: 'GET',
                async: true,
