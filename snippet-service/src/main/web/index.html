@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  ~ @version 1.0
+  ~ @since 2016-04-11
+  -->
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script src="polar_distribution.js"></script>
+    <script src="css-range-slider/js/index.js"></script>
+    <script src="jszip/jszip.min.js"></script>
+    <script src="jszip/jszip-utils.min.js"></script>
+    <script src="jszip/FileSaver.js"></script>
+    <script src="snippetset.js"></script>
+    <script src="soundset.js"></script>
+    <script src="main.js"></script>
+    <link rel="stylesheet" href="css-range-slider/css/style.css">
+    <link rel="stylesheet" href="style.css">
+
+    <title>ReCocktail</title>
+</head>
+<body>
+<div id="wrapper">
+    <h2>Welcome to Cocktail, an interactive soundscape engine.</h2>
+    User name: <input id="user" type="text" list="userList" autocomplete="on">
+    <datalist id="userList"> </datalist>
+
+    <div id="searchDiv">
+        <h2>Search tags to create snippet set</h2>
+        <p>Search snippet info by tag names. Separate tags with whitespace.</p>
+
+        Tags:
+        <input id="tags" type="text" list="allTagsList" autocomplete="on">
+        <datalist id="allTagsList"> </datalist>
+
+        Related tags:
+        <input id="compTags" type="text" disabled> <br>
+
+        Max Length:
+        <input id="length" type="number">
+        <input type="checkbox" id="exclusiveSearch">Exclusive search?</input> <br>
+
+        <button id="sendButton" onclick="search()">Search</button>
+    </div>
+    <div id="setOpDiv">
+        <h2>Set operation between two sets.</h2>
+        <select id="setA" onchange="">
+            <!--<option value="empty">Emptyness is form.</option>-->
+        </select>
+        <select id="setB" onchange="">
+        <!--<option value="empty">Emptyness is form.</option>-->
+        </select> <br>
+        <select id="setOp" onchange="">
+            <!--<option value="empty">Emptyness is form.</option>-->
+        </select>
+        <button id="setOpbutton" onclick="setOperation()">Execute!</button>
+    </div>
+    <div id="setInfoDiv">
+        <h2>Snippet set Information</h2>
+        <select id="snippetSets" onchange="getSet(this.value,updateSnippetSetStats)">
+            <!--<option value="empty">Emptyness is form.</option>-->
+        </select>
+        <button id="downloadButton" onclick="getZip()">Download Set</button> <br>
+        SetName:
+        <input id="setInfoName" type="text">
+        <button id="renameButton" onclick="renameSet()">Rename Set</button> <br>
+        Number of snippets:
+        <input id="setInfoNum" type="text" disabled="true"> <br>
+        Tags in set:
+        <input id="setInfoTags" type="text" disabled="true"> <br>
+        Snippets in set:
+        <select id="snippetsInSet" onchange="updateSnippetStats(this.selectedIndex)">
+            <!--<option value="empty">Emptyness is form.</option>-->
+        </select>
+        <button id="removeSnippet" onclick="removeSnippetFromSet()">Remove from set</button><br>
+        Snippet Id:
+        <input id="snippetInfoId" type="text" disabled="true"> <br>
+        Tags in set:
+        <input id="snippetInfoTags" type="text"> <br>
+        Snippet file name:
+        <input id="snippetInfoFile" type="text"> <br>
+        Snippet start time:
+        <input id="snippetInfoStart" type="text"> <br>
+        Snippet duration:
+        <input id="snippetInfoDuration" type="text"> <br>
+    </div>
+
+    <div id="soundscapeDiv">
+        <h2>Area for editing</h2>
+
+    <input type="button" onclick="newSnippetSet.uploadNewSnippets()" value="Upload new snippets">
+    <br>
+    <input type="file" id="newFile" onchange="fileSelectionUpdate()" name="file" value="Add file">
+    <br>
+    Tags: <input id="newTags" type="text" list="allTagsList" autocomplete="on">
+    <br>
+    Start: <input id="newStart" type="number">
+    <br>
+    Duration: <input id="newDuration" type="number">
+    <br>
+    <input type="button" onclick="newSnippet()" value="New snippet">
+
+    <table id="newSnippetsTable"> New Snippets table
+        <tr>
+            <th>Filename</th>
+            <th>Start time</th>
+            <th>Duration</th>
+            <th>Tags</th>
+        </tr>
+    </table>
+    <output id="fileInfo"></output>
+    </div>
+</div>
+
+<div id="soundScape">
+    <h1>Stage area.</h1>
+    <div>
+        <button id="soundstart" type="button" onclick="startSound()" disabled>START</button>
+        <button id="soundstop" type="button" onclick="stopSound()" disabled>STOP</button>
+        <select id="soundSets">
+            <!--<option value="empty">Emptyness is form.</option>-->
+        </select>
+        <div> Weighted distribution?<input type="checkbox" id="weighted"></div>
+    </div>
+
+    <div class="range-slider">
+        <h4>Fixed delay</h4>
+        <input class="range-slider__range" type="range" id="delay" value="50" min="0" max="1000" step="1">
+        <span class="range-slider__value">0</span>
+
+        <h4>Delay variation</h4>
+        <input class="range-slider__range" type="range" id="delayVar" value="10" min="0" max="500" step="1">
+        <span class="range-slider__value">0</span>
+
+        <h4>Fixed Gain</h4>
+        <input class="range-slider__range" type="range" id="gain" value="0.2" min="0.0" max="1.0" step="0.001">
+        <span class="range-slider__value">0</span>
+
+        <h4>Gain variation</h4>
+        <input class="range-slider__range" type="range" id="gainVar" value="0.2" min="0.0" max="1.0" step="0.001">
+        <span class="range-slider__value">0</span>
+
+        <h4>Fixed Balance</h4>
+        <input class="range-slider__range" type="range" id="balance" value="0" min="-1.0" max="1.0" step="0.001">
+        <span class="range-slider__value">0</span>
+
+        <h4>Mix Sets</h4>
+        <select id="leftSet">
+            <!--<option value="empty">Emptyness is form.</option>-->
+        </select>
+        <select id="rightSet">
+            <!--<option value="empty">Emptyness is form.</option>-->
+        </select>
+        <input class="range-slider__range" type="range" id="mix" value="0" min="-1.0" max="1.0" step="0.001">
+        <span class="range-slider__value">0</span>
+    </div>
+</div>
+</body>
+</html>

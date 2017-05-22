@@ -1,0 +1,39 @@
+/*
+ * Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @version 1.0
+ * @since 2016-04-06
+ */
+
+package cocktail.stream_io;
+
+import java.time.LocalDate;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+
+/**
+ * Adapter for LocalDate to use when streaming/marshalling xml files using
+ * javax.xml.
+ */
+public class LocalDateXmlAdapter extends XmlAdapter<String, LocalDate>{
+
+  public LocalDate unmarshal(String dateStr) throws Exception {
+    return LocalDate.parse(dateStr);
+  }
+
+  public String marshal(LocalDate localDate) throws Exception {
+    return localDate.toString();
+  }
+}
