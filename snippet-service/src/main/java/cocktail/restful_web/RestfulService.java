@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cocktail.controller.Controller;
-import cocktail.snippet.SnippetSet;
+import cocktail.service.snippet.entity.SnippetSet;
 import cocktail.stream_io.XmlStreamer;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -67,7 +67,8 @@ public class RestfulService {
    * for convenience in frontend.
    */
   public static void runSpark() {
-    Controller controller = Controller.getInstance();
+//    Controller controller = Controller.getInstance();
+    Controller controller = new Controller();
 
     // Return all tags that exist in database
     get("/getAllTags", (request, response) -> {

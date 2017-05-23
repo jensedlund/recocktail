@@ -17,7 +17,7 @@
  * @since 2016-04-12
  */
 
-package cocktail.snippet;
+package cocktail.service.snippet.entity;
 
 import java.io.ByteArrayInputStream;
 

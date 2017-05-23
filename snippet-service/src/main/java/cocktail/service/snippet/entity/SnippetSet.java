@@ -17,7 +17,7 @@
  * @since 2016-04-05
  */
 
-package cocktail.snippet;
+package cocktail.service.snippet.entity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -115,7 +115,7 @@ public class SnippetSet implements Serializable{
     Iterator itr = snippetCollection.iterator();
     while (itr.hasNext()) {
       SnippetInfo temp = (SnippetInfo) itr.next();
-      if (temp.getSnippetID() == snippetId) {
+      if (temp.getSnippetId().equals(snippetId)) {
         storedTemp = temp;
       }
     }
@@ -205,7 +205,7 @@ public class SnippetSet implements Serializable{
     Iterator itr = snippetCollection.iterator();
     while (itr.hasNext()) {
       SnippetInfo temp = (SnippetInfo) itr.next();
-      tagsInSet.addAll(temp.getTagNames());
+      tagsInSet.addAll(temp.getTags());
     }
     return tagsInSet;
   }

@@ -14,16 +14,18 @@
  * limitations under the License.
  *
  * @version 1.0
- * @since 2016-04-07
+ * @since 2016-04-06
  */
 
-package cocktail.snippet;
+@XmlJavaTypeAdapters({
+    @XmlJavaTypeAdapter(type = LocalDate.class,
+        value = LocalDateXmlAdapter.class)
+})
+package cocktail.service.snippet.entity;
 
-import java.util.SortedSet;
+import java.time.LocalDate;
 
-/**
- * Generic set operation interface operating on sorted sets.
- */
-public interface SetOperationInterface {
-  public <T> SortedSet<T> calculate(SortedSet<T> setA, SortedSet<T> setB);
-}
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapters;
+
+import cocktail.stream_io.LocalDateXmlAdapter;

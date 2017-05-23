@@ -1,4 +1,8 @@
-/*
+package cocktail.service.snippet.entity;
+
+import java.util.List;
+
+/**
  * Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,18 +18,29 @@
  * limitations under the License.
  *
  * @version 1.0
- * @since 2016-04-06
+ * @since 25/03/16
  */
+public class MockSnippetSet {
+  private List<MockSnippetInfo> snippetInfoSet;
 
-@XmlJavaTypeAdapters({
-    @XmlJavaTypeAdapter(type = LocalDate.class,
-        value = LocalDateXmlAdapter.class)
-})
-package cocktail.snippet;
+  MockSnippetSet() {}
 
-import java.time.LocalDate;
+  public List<MockSnippetInfo> getSnippetInfoSet() {
+    return snippetInfoSet;
+  }
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapters;
+  public void setSnippetInfoSet(List<MockSnippetInfo> snippetInfoSet) {
+    this.snippetInfoSet = snippetInfoSet;
+  }
 
-import cocktail.stream_io.LocalDateXmlAdapter;
+  @Override
+  public String toString() {
+    StringBuilder stringBuilder = new StringBuilder();
+    for (MockSnippetInfo s : snippetInfoSet) {
+      stringBuilder.append(s.toString());
+      stringBuilder.append("\n");
+    }
+
+    return stringBuilder.toString();
+  }
+}

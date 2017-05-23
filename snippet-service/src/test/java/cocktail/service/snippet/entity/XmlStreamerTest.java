@@ -1,3 +1,5 @@
+package cocktail.service.snippet.entity;
+
 import org.junit.Test;
 
 import java.io.File;

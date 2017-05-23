@@ -1,4 +1,4 @@
-/*
+package cocktail.service.snippet.entity;/*
  * Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
  * @since 2016-04-07
  */
 
-import cocktail.snippet.SetOperation;
 import org.junit.Test;
 
 import java.util.Arrays;

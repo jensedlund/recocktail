@@ -17,7 +17,7 @@
  * @since 2016-04-05
  */
 
-package cocktail.snippet;
+package cocktail.service.snippet.entity;
 
 import java.util.SortedSet;
 import java.util.TreeSet;

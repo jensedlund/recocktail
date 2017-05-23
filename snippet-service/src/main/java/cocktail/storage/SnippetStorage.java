@@ -22,7 +22,7 @@ package cocktail.storage;
 import java.util.List;
 import java.util.Set;
 
-import cocktail.snippet.SnippetSet;
+import cocktail.service.snippet.entity.SnippetSet;
 
 /**
  * A SnippetStorage object handles generated snippet sets by name so that there is a history of

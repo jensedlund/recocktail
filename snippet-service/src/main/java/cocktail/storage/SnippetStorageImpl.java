@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cocktail.snippet.SnippetSet;
+import cocktail.service.snippet.entity.SnippetSet;
 
 /**
  * A SnippetStorage object handles generated snippet sets by name so that there is a history of

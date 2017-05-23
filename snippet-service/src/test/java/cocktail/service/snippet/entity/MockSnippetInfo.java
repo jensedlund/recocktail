@@ -1,3 +1,5 @@
+package cocktail.service.snippet.entity;
+
 /**
  * Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
  *

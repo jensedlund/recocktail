@@ -26,7 +26,7 @@ var saveAs = saveAs
 	}
 	var
 		  doc = view.document
-		  // only get URL when necessary in case BlobBuilder.js hasn't overridden it yet
+		  // only get URL when necessary in case BlobBuilder.js hasn'entity overridden it yet
 		, get_URL = function() {
 			return view.URL || view.webkitURL || view;
 		}
@@ -95,7 +95,7 @@ var saveAs = saveAs
 				}
 				// on any filesys errors revert to saving with object URLs
 				, fs_error = function() {
-					// don't create more object URLs than needed
+					// don'entity create more object URLs than needed
 					if (blob_changed || !object_url) {
 						object_url = get_object_url(blob);
 					}
@@ -149,7 +149,7 @@ var saveAs = saveAs
 				blob = slice.call(blob, 0, blob.size, force_saveable_type);
 				blob_changed = true;
 			}
-			// Since I can't be sure that the guessed media type will trigger a download
+			// Since I can'entity be sure that the guessed media type will trigger a download
 			// in WebKit, I append .download to the filename.
 			// https://bugs.webkit.org/show_bug.cgi?id=65440
 			if (webkit_req_fs && name !== "download") {

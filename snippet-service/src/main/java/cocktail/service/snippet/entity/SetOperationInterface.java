@@ -1,6 +1,4 @@
-import java.util.List;
-
-/**
+/*
  * Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,29 +14,16 @@ import java.util.List;
  * limitations under the License.
  *
  * @version 1.0
- * @since 25/03/16
+ * @since 2016-04-07
  */
-public class MockSnippetSet {
-  private List<MockSnippetInfo> snippetInfoSet;
 
-  MockSnippetSet() {}
+package cocktail.service.snippet.entity;
 
-  public List<MockSnippetInfo> getSnippetInfoSet() {
-    return snippetInfoSet;
-  }
+import java.util.SortedSet;
 
-  public void setSnippetInfoSet(List<MockSnippetInfo> snippetInfoSet) {
-    this.snippetInfoSet = snippetInfoSet;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder stringBuilder = new StringBuilder();
-    for (MockSnippetInfo s : snippetInfoSet) {
-      stringBuilder.append(s.toString());
-      stringBuilder.append("\n");
-    }
-
-    return stringBuilder.toString();
-  }
+/**
+ * Generic set operation interface operating on sorted sets.
+ */
+public interface SetOperationInterface {
+  public <T> SortedSet<T> calculate(SortedSet<T> setA, SortedSet<T> setB);
 }
