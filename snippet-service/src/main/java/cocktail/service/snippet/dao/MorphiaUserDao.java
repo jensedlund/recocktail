@@ -1,9 +1,8 @@
 package cocktail.service.snippet.dao;
 
 import cocktail.service.snippet.entity.SnippetInfo;
+import cocktail.service.snippet.entity.User;
 import com.mongodb.MongoClient;
-import com.mongodb.WriteResult;
-import com.mongodb.connection.QueryResult;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Key;
@@ -19,42 +18,38 @@ import java.util.Optional;
 /**
  * Created by jerikss3 on 2017-05-23.
  */
-public class MorphiaSnippetInfoDao implements GenericDao<SnippetInfo> {
+public class MorphiaUserDao implements GenericDao<User> {
 
-  private final DAO<SnippetInfo, ObjectId> dao;
+  private final DAO<User, ObjectId> dao;
   private final Morphia morphia;
   private final Datastore datastore;
 
 
-  public MorphiaSnippetInfoDao() {
+  public MorphiaUserDao() {
     morphia = new Morphia();
     morphia.mapPackage("cocktail.service.snippet.entity");
 
     datastore = morphia.createDatastore(new MongoClient(), "morphia_example");
     datastore.ensureIndexes();
 
-    dao = new BasicDAO<SnippetInfo, ObjectId>(SnippetInfo.class, datastore);
-  }
-
-  public void dropDatabase() {
-    datastore.getDB().dropDatabase();
+    dao = new BasicDAO<User, ObjectId>(User.class, datastore);
   }
 
   @Override
-  public String add(SnippetInfo snippetInfo) {
-    Key<SnippetInfo> result = dao.save(snippetInfo);
+  public String add(User user) {
+    Key<User> result = dao.save(user);
     return result.getId().toString();
   }
 
   @Override
-  public Optional<SnippetInfo> get(String snippetId) {
-    SnippetInfo snippetInfo = dao.get(new ObjectId(snippetId));
-    return Optional.ofNullable(snippetInfo);
+  public Optional<User> get(String snippetId) {
+    User user = dao.get(new ObjectId(snippetId));
+    return Optional.ofNullable(user);
   }
 
   @Override
-  public String update(SnippetInfo snippetInfo) {
-    Key<SnippetInfo> result = dao.save(snippetInfo);
+  public String update(User user) {
+    Key<User> result = dao.save(user);
     return result.getId().toString();
   }
 
@@ -64,15 +59,15 @@ public class MorphiaSnippetInfoDao implements GenericDao<SnippetInfo> {
   }
 
   @Override
-  public List<SnippetInfo> getAll() {
-    QueryResults<SnippetInfo> queryResults = dao.find();
+  public List<User> getAll() {
+    QueryResults<User> queryResults = dao.find();
     return queryResults.asList();
   }
 
   @Override
-  public List<SnippetInfo> search(String key, String value) {
-    Query<SnippetInfo> query = dao.createQuery();
-    List<SnippetInfo> queryResult = query.field(key).contains(value).asList();
+  public List<User> search(String key, String value) {
+    Query<User> query = dao.createQuery();
+    List<User> queryResult = query.field(key).contains(value).asList();
     return queryResult;
   }
 }

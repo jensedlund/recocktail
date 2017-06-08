@@ -1,3 +1,6 @@
+# Most of the information below is Deprecated. Everything is now under reconstruction.
+
+
 # Cocktail, a dynamic soundscape engine
 
 ## Concepts

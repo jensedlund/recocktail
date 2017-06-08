@@ -21,34 +21,13 @@ package cocktail.service.snippet.entity;
 
 import lombok.*;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Id;
-import org.mongodb.morphia.annotations.Reference;
+import org.mongodb.morphia.annotations.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-/*
- Copyright 2016 Jens Edlund, Joakim Gustafson, Jonas Beskow, Ulrika Goloconda Fahlen, Jan Eriksson, Marcus Viden
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @version 1.0
- * @since 2016-04-18
- */
-
 
 /**
  * Snippet info describes a snippet, a short sound that can either be a part of a longer sound file
@@ -57,7 +36,7 @@ import java.util.stream.Collectors;
  */
 @Data @AllArgsConstructor @NoArgsConstructor
 @Entity("snippets")
-public class SnippetInfo implements Comparable<SnippetInfo>, Serializable{
+public class SnippetInfo implements Comparable<SnippetInfo>, Serializable {
   @Id
   private ObjectId snippetId;
 
@@ -72,7 +51,7 @@ public class SnippetInfo implements Comparable<SnippetInfo>, Serializable{
   private LocalDate creationDate;
   private LocalDate lastModified;
 
-  @Reference
+  @Reference(idOnly = true)
   private User user;
 
   @Override
@@ -132,5 +111,17 @@ public class SnippetInfo implements Comparable<SnippetInfo>, Serializable{
       return 1;
   }
     return 0;
+  }
+
+  @PostLoad
+  public void avoidNullTags() {
+    if(tags == null) {
+      tags = new ArrayList<>();
+    }
+  }
+
+  @PrePersist
+  public void updateModifiedDate() {
+    lastModified = LocalDate.now();
   }
 }

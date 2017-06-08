@@ -34,6 +34,13 @@ import java.util.TreeSet;
 import javax.xml.bind.JAXBException;
 
 import cocktail.stream_io.StreamingService;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.bson.types.ObjectId;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Reference;
 
 
 /**
@@ -42,8 +49,13 @@ import cocktail.stream_io.StreamingService;
  * The getters for derived fields also work as setters in that they also update the
  * field based on the current state of the collection of SnippetInfo.
  */
-public class SnippetSet implements Serializable{
+@Entity
+@Setter @Getter @NoArgsConstructor
+public class SnippetSet implements Serializable {
+  @Id
+  private ObjectId snippetId;
 
+  @Reference(concreteClass = TreeSet.class)
   private SortedSet<SnippetInfo> snippetCollection;
   private List<String> operationLog;
   private String setName;
@@ -53,18 +65,6 @@ public class SnippetSet implements Serializable{
   private int numSnippets;
   private LocalDate creationDate;
   private Set<String> tagsInSet;
-
-
-  /**
-   * Create new empty SnippetSet object.
-   */
-  public SnippetSet() {
-    snippetCollection = new TreeSet<>();
-    operationLog = new ArrayList<>();
-    tagsInSet = new TreeSet<>();
-    creationDate = LocalDate.now();
-    setName = createUniqueSetName();
-  }
 
 
   /**
@@ -249,33 +249,6 @@ public class SnippetSet implements Serializable{
     return resultingSnippetSet;
   }
 
-  public void setSnippetCollection(SortedSet<SnippetInfo> snippetCollection) {
-    this.snippetCollection = snippetCollection;
-  }
-
-  public void setMaxLenSec(double maxLenSec) {
-    this.maxLenSec = maxLenSec;
-  }
-
-  public void setMinLenSec(double minLenSec) {
-    this.minLenSec = minLenSec;
-  }
-
-  public void setAvgLenSec(double avgLenSec) {
-    this.avgLenSec = avgLenSec;
-  }
-
-  public void setNumSnippets(int numSnippets) {
-    this.numSnippets = numSnippets;
-  }
-
-  public void setCreationDate(LocalDate creationDate) {
-    this.creationDate = creationDate;
-  }
-
-  public void setTagsInSet(Set<String> tagsInSet) {
-    this.tagsInSet = tagsInSet;
-  }
 
   @Override
   public String toString() {

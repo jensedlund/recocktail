@@ -21,10 +21,20 @@ package cocktail;
 
 
 import cocktail.restful_web.RestfulService;
+import cocktail.service.snippet.controller.GetSnippet;
+import cocktail.service.snippet.dao.GenericDao;
+import cocktail.service.snippet.dao.MorphiaSnippetInfoDao;
+import cocktail.service.snippet.entity.SnippetInfo;
+import spark.Spark;
 
 public class CocktailBackend {
   public static void main(String[] args) {
-    initApplication();
+
+    GenericDao<SnippetInfo> snippetInfoDao = new MorphiaSnippetInfoDao();
+    GetSnippet getSnippet = new GetSnippet(snippetInfoDao);
+
+    Spark.get("/snippets", getSnippet::handle);
+
   }
 
   public static void initApplication(){
