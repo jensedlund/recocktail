@@ -117,6 +117,6 @@ public class MorphiaUserDaoTest {
       System.out.println(si);
     }
 
-    assertTrue("Search should return at least 3 results", userList.size() > 2);
+    assertTrue("Search should return at least 2 results", userList.size() >= 2);
   }
 }

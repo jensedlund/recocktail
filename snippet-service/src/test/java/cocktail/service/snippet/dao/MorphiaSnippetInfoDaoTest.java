@@ -2,6 +2,7 @@ package cocktail.service.snippet.dao;
 
 import cocktail.service.snippet.entity.SnippetInfo;
 import cocktail.service.snippet.entity.User;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -32,13 +33,13 @@ public class MorphiaSnippetInfoDaoTest {
   private void createSomeSnippetInfos() {
     persistUser();
 
+    aListOfSnippetInfos = new ArrayList<>();
     List<String> tagList = new ArrayList<>();
     tagList.add("gull");
     tagList.add("wolf");
     tagList.add("bear");
     tagList.add("larch");
     for(int i = 1; i < 5; i++) {
-//      tagList.add(String.valueOf(i) + String.valueOf(i));
       SnippetInfo snippetInfo = new SnippetInfo(
           null,
           i,
@@ -64,6 +65,14 @@ public class MorphiaSnippetInfoDaoTest {
   public void setUp() {
     System.out.println("Running before method");
     createSomeSnippetInfos();
+    populateDatabase();
+  }
+
+  @After
+  public void tearDown() {
+    System.out.println("Running after method");
+    MorphiaSnippetInfoDao snippetInfoDaoRecast = (MorphiaSnippetInfoDao) snippetInfoDao;
+    snippetInfoDaoRecast.dropDatabase();
   }
 
   @Test
@@ -71,11 +80,13 @@ public class MorphiaSnippetInfoDaoTest {
     SnippetInfo snippetInfo = aListOfSnippetInfos.get(0);
     String returnedId = snippetInfoDao.add(snippetInfo);
     assertTrue("Nothing returned from add operation", !returnedId.isEmpty());
+    Optional<SnippetInfo> snippetInfoOptional = snippetInfoDao.get(returnedId);
+    assertTrue(snippetInfoOptional.isPresent());
+    System.out.println(snippetInfoOptional.get());
   }
 
   @Test
   public void testGet() throws Exception {
-    populateDatabase();
     SnippetInfo snippetInfo = aListOfSnippetInfos.get(0);
     String returnedId = snippetInfo.getSnippetId().toHexString();
 
@@ -120,7 +131,6 @@ public class MorphiaSnippetInfoDaoTest {
 
   @Test
   public void testUpdate() {
-    populateDatabase();
     SnippetInfo snippetInfo = aListOfSnippetInfos.get(0);
     snippetInfo.setLastModified(LocalDate.of(2017,12,12));
     String returnedId = snippetInfoDao.update(snippetInfo);
@@ -134,7 +144,6 @@ public class MorphiaSnippetInfoDaoTest {
 
   @Test
   public void testDelete() {
-    populateDatabase();
     SnippetInfo snippetInfo = aListOfSnippetInfos.get(0);
     String idToDelete = snippetInfo.getSnippetId().toHexString();
     snippetInfoDao.delete(idToDelete);
@@ -145,8 +154,7 @@ public class MorphiaSnippetInfoDaoTest {
 
   @Test
   public void testSearchString() {
-    populateDatabase();
-    List<SnippetInfo> snippetInfoList = snippetInfoDao.search("tags","2");
+    List<SnippetInfo> snippetInfoList = snippetInfoDao.search("tags","wolf");
     for(SnippetInfo si : snippetInfoList) {
       System.out.println(si);
     }
