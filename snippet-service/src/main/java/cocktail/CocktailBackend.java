@@ -20,25 +20,39 @@
 package cocktail;
 
 
-import cocktail.restful_web.RestfulService;
 import cocktail.service.snippet.controller.GetSnippet;
+import cocktail.service.snippet.controller.GetSnippetList;
 import cocktail.service.snippet.dao.GenericDao;
 import cocktail.service.snippet.dao.MorphiaSnippetInfoDao;
+import cocktail.service.snippet.dao.ObjectIdTypeAdapter;
 import cocktail.service.snippet.entity.SnippetInfo;
+import com.fatboyindustrial.gsonjavatime.Converters;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.bson.types.ObjectId;
+import spark.Route;
 import spark.Spark;
 
 public class CocktailBackend {
   public static void main(String[] args) {
 
+//    Gson gson = new GsonBuilder().registerTypeAdapter(ObjectId.class, new ObjectIdTypeAdapter()).create();
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    gsonBuilder = gsonBuilder.registerTypeAdapter(ObjectId.class, new ObjectIdTypeAdapter());
+    gsonBuilder = Converters.registerLocalDateTime(gsonBuilder);
+    gsonBuilder = Converters.registerLocalDate(gsonBuilder);
+    Gson gson = gsonBuilder.create();
+
+//
+//    Gson gson = Converters
+//        .registerLocalDateTime(new GsonBuilder().registerTypeAdapter(ObjectId.class, new ObjectIdTypeAdapter()))
+//        .create();
     GenericDao<SnippetInfo> snippetInfoDao = new MorphiaSnippetInfoDao();
-    GetSnippet getSnippet = new GetSnippet(snippetInfoDao);
+    Route getSnippetList = new GetSnippetList(snippetInfoDao);
+    Route getSnippet = new GetSnippet(snippetInfoDao);
 
-    Spark.get("/snippets", getSnippet::handle);
-
-  }
-
-  public static void initApplication(){
-    RestfulService.runSpark();
+    Spark.get("/snippets", getSnippetList::handle, gson::toJson);
+    Spark.get("/snippets/:snippetId", getSnippet::handle, gson::toJson);
   }
 }
 

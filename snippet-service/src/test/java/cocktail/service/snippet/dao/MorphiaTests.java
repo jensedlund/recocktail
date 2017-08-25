@@ -1,6 +1,7 @@
 package cocktail.service.snippet.dao;
 
 import cocktail.service.snippet.entity.SnippetInfo;
+import cocktail.service.snippet.entity.TagCloudEntry;
 import cocktail.service.snippet.entity.User;
 import com.mongodb.MongoClient;
 import org.bson.types.ObjectId;
@@ -10,8 +11,15 @@ import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import static org.mongodb.morphia.aggregation.Accumulator.accumulator;
+import static org.mongodb.morphia.aggregation.Group.grouping;
+import static org.mongodb.morphia.aggregation.Group.push;
+import static org.mongodb.morphia.aggregation.Group.sum;
 
 /**
  * Created by jerikss3 on 2017-05-23.
@@ -23,20 +31,26 @@ public class MorphiaTests {
   private static User user = new User(ObjectId.get(),"Testuser");
 
   public static SnippetInfo populateSnippetInfo() {
+
+    List<String> tagList = new ArrayList<>();
+    tagList.add("gull");
+    tagList.add("wolf");
+    tagList.add("bear");
+    tagList.add("larch");
+
     snippetInfo = new SnippetInfo(
         null,
         1,
-        new ArrayList<String>(),
+        tagList,
         5,
         1.1,
         1.2,
-        LocalDate.now(),
+        LocalDateTime.now(),
         LocalDate.now(),
         null
         );
     return snippetInfo;
   }
-
 
   public static void main(String... args) {
     final Morphia morphia = new Morphia();
@@ -77,6 +91,24 @@ public class MorphiaTests {
       System.out.println(s);
     }
 
+
+
+//
+//    Iterator<TagCloudEntry> aggregate = datastore.createAggregation(SnippetInfo.class)
+//        .unwind("tags")
+//        .group("tags", grouping("count", accumulator("$sum", 1)))
+//        .out("tags", TagCloudEntry.class);
+//
+//    while (aggregate.hasNext()) {
+//      System.out.println(aggregate.next());
+//    }
+
+//    db.snippets.aggregate([
+//        { $unwind : "$tags" },
+//        { $group : { _id : "$tags" , number : { $sum : 1 } } },
+//        {$out : "tags"}
+//        ])
+//
 
   }
 }

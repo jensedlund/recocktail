@@ -2,12 +2,12 @@ package cocktail.service.snippet.dao;
 
 import cocktail.service.snippet.entity.SnippetInfo;
 import cocktail.service.snippet.entity.User;
-import org.bson.types.ObjectId;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,17 +33,20 @@ public class MorphiaSnippetInfoDaoTest {
     persistUser();
 
     List<String> tagList = new ArrayList<>();
-
+    tagList.add("gull");
+    tagList.add("wolf");
+    tagList.add("bear");
+    tagList.add("larch");
     for(int i = 1; i < 5; i++) {
-      tagList.add(String.valueOf(i) + String.valueOf(i));
+//      tagList.add(String.valueOf(i) + String.valueOf(i));
       SnippetInfo snippetInfo = new SnippetInfo(
           null,
           i,
-          tagList,
+          tagList.subList(0,i),
           2*i,
           1.1*i,
           1.2*i,
-          LocalDate.now(),
+          LocalDateTime.now(),
           LocalDate.now(),
           testUser
       );
@@ -89,7 +92,7 @@ public class MorphiaSnippetInfoDaoTest {
         2,
         1.1,
         1.2,
-        LocalDate.now(),
+        LocalDateTime.now(),
         LocalDate.now(),
         null
     );

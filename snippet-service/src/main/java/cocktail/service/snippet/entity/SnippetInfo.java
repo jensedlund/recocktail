@@ -25,6 +25,7 @@ import org.mongodb.morphia.annotations.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +49,7 @@ public class SnippetInfo implements Comparable<SnippetInfo>, Serializable {
   private double startTime;
   private double lengthSec;
 
-  private LocalDate creationDate;
+  private LocalDateTime creationDate;
   private LocalDate lastModified;
 
   @Reference(idOnly = true)
